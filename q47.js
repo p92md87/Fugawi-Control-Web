@@ -232,15 +232,51 @@
     ) || null;
   }
 
-  async function readPngSize(file) {
-    const buf=await file.slice(0,24).arrayBuffer();
-    const b=new Uint8Array(buf);
-    const sig=[137,80,78,71,13,10,26,10];
-    if (b.length<24 || !sig.every((v,i)=>b[i]===v)) {
-      throw new Error("El archivo seleccionado no es un PNG válido.");
-    }
-    const view=new DataView(buf);
-    return {w:view.getUint32(16,false),h:view.getUint32(20,false)};
+  async function inspectRasterHeader(file) {
+    const info={
+      isPng:false,
+      w:null,
+      h:null,
+      hex:"",
+      mime:file.type || ""
+    };
+    try {
+      const buf=await file.slice(0,32).arrayBuffer();
+      const b=new Uint8Array(buf);
+      info.hex=Array.from(b.slice(0,12))
+        .map(v=>v.toString(16).padStart(2,"0"))
+        .join(" ");
+      const sig=[137,80,78,71,13,10,26,10];
+      info.isPng=b.length>=24 && sig.every((v,i)=>b[i]===v);
+      if (info.isPng) {
+        const view=new DataView(buf);
+        info.w=view.getUint32(16,false);
+        info.h=view.getUint32(20,false);
+      }
+    } catch (_) {}
+    return info;
+  }
+
+  function decodeRasterImage(file) {
+    return new Promise((resolve,reject)=>{
+      const url=URL.createObjectURL(file);
+      const img=new Image();
+      img.onload=()=>{
+        const w=img.naturalWidth || img.width;
+        const h=img.naturalHeight || img.height;
+        if (!w || !h) {
+          URL.revokeObjectURL(url);
+          reject(new Error("El navegador no ha podido obtener las dimensiones del raster."));
+          return;
+        }
+        resolve({img:img,url:url,w:w,h:h});
+      };
+      img.onerror=()=>{
+        URL.revokeObjectURL(url);
+        reject(new Error("El navegador no puede decodificar el archivo seleccionado como imagen."));
+      };
+      img.src=url;
+    });
   }
 
   function sourceRect(sourceW,sourceH) {
@@ -257,11 +293,23 @@
   }
 
   async function loadRaster(file) {
-    setMessage("Leyendo cabecera PNG y preparando recorte Q47…","working");
+    setMessage("Abriendo raster y preparando recorte Q47…","working");
     clearRaster();
-    const size=await readPngSize(file);
+
     state.file=file;
     state.fileName=file.name;
+
+    const header=await inspectRasterHeader(file);
+    let size=null;
+    let decoded=null;
+
+    if (header.isPng && header.w && header.h) {
+      size={w:header.w,h:header.h};
+    } else {
+      decoded=await decodeRasterImage(file);
+      size={w:decoded.w,h:decoded.h};
+    }
+
     state.sourceW=size.w;
     state.sourceH=size.h;
     state.sourceCrop=sourceRect(size.w,size.h);
@@ -275,21 +323,48 @@
       }
     }
 
-    if (!state.bitmap) {
-      state.objectUrl=URL.createObjectURL(file);
-      state.image=await new Promise((resolve,reject)=>{
-        const img=new Image();
-        img.onload=()=>resolve(img);
-        img.onerror=()=>reject(new Error("No se pudo decodificar el raster PNG."));
-        img.src=state.objectUrl;
-      });
+    if (state.bitmap) {
+      if (decoded) {
+        decoded.img.src="";
+        URL.revokeObjectURL(decoded.url);
+      }
+    } else if (decoded) {
+      state.image=decoded.img;
+      state.objectUrl=decoded.url;
+    } else {
+      decoded=await decodeRasterImage(file);
+      state.image=decoded.img;
+      state.objectUrl=decoded.url;
     }
 
     fitCanvas();
     redraw();
+
+    const exact=size.w===REF_W && size.h===REF_H;
+    const formatText=header.isPng ?
+      "PNG verificado" :
+      "imagen decodificada por el navegador";
+    const sizeText=file.size ?
+      " · "+(file.size/1048576).toFixed(1)+" MB" :
+      "";
+
     $("q47RasterMeta").textContent=
-      file.name+" · "+size.w+" × "+size.h+" px · recorte Q47 local";
-    setMessage("Q47 preparado. Toca un objeto físico inequívoco dentro de la celda.","ok");
+      file.name+" · "+size.w+" × "+size.h+" px"+sizeText+
+      " · "+formatText+" · recorte Q47 local";
+
+    if (exact) {
+      setMessage(
+        "Raster reconocido con dimensiones de referencia. Q47 preparado; toca un objeto físico inequívoco.",
+        "ok"
+      );
+    } else {
+      setMessage(
+        "Raster cargado. Dimensiones "+size.w+" × "+size.h+
+        " px; la referencia Q47 original es "+REF_W+" × "+REF_H+
+        ". Se aplicará escalado proporcional y conviene verificar la alineación visual.",
+        "working"
+      );
+    }
     $("q47MapHint").classList.add("hidden");
   }
 
