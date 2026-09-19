@@ -2,7 +2,8 @@
   "use strict";
 
   const $ = id => document.getElementById(id);
-  const VERSION = "v006";
+  const VERSION = "v007";
+  const BUILD = "007.0";
   const BASE = "P3N_042";
   const REF_W = 18316;
   const REF_H = 13828;
@@ -10,8 +11,8 @@
   const INPUT_REF_H = 13827;
   const FRAC_U = 0.441195799;
   const FRAC_V = 0.701011619;
-  const STORAGE_ZONES = "fugawiQ47ExclusionZonesV006";
-  const STORAGE_CONTROLS = "fugawiQ47ControlsV006";
+  const STORAGE_ZONES = "fugawiQ47ExclusionZonesV007";
+  const STORAGE_CONTROLS = "fugawiQ47ControlsV007";
   const CROP_PADDING = 180;
 
   const I1 = {id:65,x:9105.78,y:5259.32,lat:41.0748,lon:-5.38198};
@@ -525,19 +526,6 @@
     ctx.lineWidth=4;
     ctx.stroke();
 
-    if (state.selected) {
-      const s=state.selected;
-      lines.push("Q47_SELECCION_ACTUAL|PIX_X="+s.rawX+
-        "|PIX_Y="+s.rawY+
-        "|ESTADO="+(s.rejected ? "RECHAZADO" : "SELECCIONADO")+
-        (s.reason ? "|MOTIVO="+s.reason : "")+
-        (s.subquad ? "|SUBCUAD="+s.subquad : "")+
-        (Number.isFinite(s.u) ? "|U="+s.u : "")+
-        (Number.isFinite(s.v) ? "|V="+s.v : "")+
-        (Number.isFinite(s.lat) ? "|LAT_CALC="+s.lat : "")+
-        (Number.isFinite(s.lon) ? "|LON_CALC="+s.lon : ""));
-    }
-
     state.zones.forEach(z=>{
       const a=rawToCanvas(Math.min(z.x1,z.x2),Math.min(z.y1,z.y2));
       const b=rawToCanvas(Math.max(z.x1,z.x2),Math.max(z.y1,z.y2));
@@ -977,11 +965,27 @@
     });
   }
 
+  function selectionTraceLine(s) {
+    const draft=$("q47ControlName").value.trim();
+    return "Q47_SELECCION_ACTUAL|PIX_X="+s.rawX+
+      "|PIX_Y="+s.rawY+
+      "|ESTADO="+(s.rejected ? "RECHAZADO" : "SELECCIONADO")+
+      (draft ? "|NOMBRE_BORRADOR="+draft : "")+
+      (s.reason ? "|MOTIVO="+s.reason : "")+
+      (s.subquad ? "|SUBCUAD="+s.subquad : "")+
+      (Number.isFinite(s.u) ? "|U="+s.u : "")+
+      (Number.isFinite(s.v) ? "|V="+s.v : "")+
+      (Number.isFinite(s.lat) ? "|LAT_CALC="+s.lat : "")+
+      (Number.isFinite(s.lon) ? "|LON_CALC="+s.lon : "")+
+      (Number.isFinite(s.e) ? "|E_CALC_ETRS89="+s.e : "")+
+      (Number.isFinite(s.n) ? "|N_CALC_ETRS89="+s.n : "");
+  }
+
   function traceText() {
     const lines=[];
     lines.push("FUGAWI_IA_CONTROL_Q47_"+VERSION.toUpperCase());
-    lines.push("Q47_WEB|VERSION="+VERSION+"|P3N_BASE="+BASE+
-      "|GENERADO="+new Date().toISOString());
+    lines.push("Q47_WEB|VERSION="+VERSION+"|BUILD="+BUILD+
+      "|P3N_BASE="+BASE+"|GENERADO="+new Date().toISOString());
     lines.push("Q47_PRUEBA|INICIO="+state.sessionStartedAt+
       "|CONTROLES_HEREDADOS="+state.inheritedControls);
     lines.push("Q47_RASTER|NOMBRE="+(state.fileName || "NO_CARGADO")+
@@ -998,6 +1002,10 @@
       "|FRAC_V="+FRAC_V);
     lines.push("Q47_ANCLA|PIX_X="+C.x+"|PIX_Y="+C.y+
       "|LAT="+C.lat+"|LON="+C.lon);
+
+    if (state.selected) {
+      lines.push(selectionTraceLine(state.selected));
+    }
 
     state.zones.forEach(z=>{
       lines.push("Q47_EXCLUSION|ID="+z.id+
@@ -1057,7 +1065,7 @@
     const a=document.createElement("a");
     const stamp=new Date().toISOString().replace(/[:.]/g,"-");
     a.href=url;
-    a.download="Fugawi_Q47_Validacion_v006_"+stamp+".txt";
+    a.download="Fugawi_Q47_Validacion_v007_"+stamp+".txt";
     document.body.appendChild(a);
     a.click();
     a.remove();
@@ -1098,7 +1106,14 @@
       return Math.abs(s.lat-t.lat)<=0.000001 &&
         Math.abs(s.lon-t.lon)<=0.000001;
     });
-    const pass=results.every(Boolean);
+    const synthetic=solveQ47Pixel(C.x,C.y);
+    const selectionLine=synthetic ? selectionTraceLine(synthetic) : "";
+    const tracePass=
+      selectionLine.startsWith("Q47_SELECCION_ACTUAL|") &&
+      selectionLine.includes("|SUBCUAD=") &&
+      selectionLine.includes("|LAT_CALC=") &&
+      selectionLine.includes("|E_CALC_ETRS89=");
+    const pass=results.every(Boolean) && tracePass;
     const badge=$("q47RuntimeBadge");
     badge.textContent=pass ? "AUTOTEST Q47 · PASS" : "AUTOTEST Q47 · FAIL";
     badge.classList.toggle("fail",!pass);
