@@ -559,12 +559,33 @@
 
   function updateResidualPreview() {
     const r=residualForSelection();
-    if (!r) {
-      $("q47Residual").textContent="Introduce E/N IGN";
+    if (!state.selected || state.selected.rejected) {
+      $("q47Residual").textContent="—";
       return;
     }
-    $("q47Residual").textContent=
-      n(r.mag,3)+" m · ΔE "+n(r.de,3)+" · ΔN "+n(r.dn,3);
+
+    const refLat=readNumber("q47RefLat");
+    const refLon=readNumber("q47RefLon");
+    const geoOk=refLat!==null && refLon!==null;
+    const geo=geoOk ?
+      haversine(state.selected.lat,state.selected.lon,refLat,refLon) :
+      null;
+
+    if (geo!==null && r) {
+      $("q47Residual").textContent=
+        n(geo,3)+" m Haversine · UTM "+n(r.mag,3)+" m";
+      return;
+    }
+    if (geo!==null) {
+      $("q47Residual").textContent=n(geo,3)+" m Haversine";
+      return;
+    }
+    if (r) {
+      $("q47Residual").textContent=
+        n(r.mag,3)+" m UTM · ΔE "+n(r.de,3)+" · ΔN "+n(r.dn,3);
+      return;
+    }
+    $("q47Residual").textContent="Introduce referencia IGN";
   }
 
   function registerControl() {
@@ -592,6 +613,11 @@
       haversine(state.selected.lat,state.selected.lon,refLat,refLon) :
       null;
 
+    const primaryResidual=geoResidual!==null ?
+      geoResidual : residual.mag;
+    const residualMethod=geoResidual!==null ?
+      "HAVERSINE_LATLON" : "ETRS89_UTM30";
+
     const control={
       at:new Date().toISOString(),
       name:name,
@@ -611,8 +637,10 @@
       refLon:refLon,
       deltaE:residual.de,
       deltaN:residual.dn,
-      residualM:residual.mag,
+      residualUtmM:residual.mag,
       residualGeoM:geoResidual,
+      residualM:primaryResidual,
+      residualMethod:residualMethod,
       status:"REGISTRADO"
     };
     state.controls.unshift(control);
@@ -779,6 +807,8 @@
         "|E_ETRS89="+c.refE+"|N_ETRS89="+c.refN+
         "|DELTA_E_M="+c.deltaE+"|DELTA_N_M="+c.deltaN+
         "|RESIDUAL_M="+c.residualM+
+        "|RESIDUAL_METODO="+c.residualMethod+
+        "|RESIDUAL_UTM_M="+c.residualUtmM+
         (c.residualGeoM!==null ? "|RESIDUAL_GEO_M="+c.residualGeoM : ""));
       lines.push("Q47_AUDIT_ESTADO|PUNTO="+c.name+
         "|ESTADO="+c.status);
@@ -888,6 +918,8 @@
     $("q47Canvas").addEventListener("pointerdown",handleCanvasPointer);
     $("q47RefE").addEventListener("input",updateResidualPreview);
     $("q47RefN").addEventListener("input",updateResidualPreview);
+    $("q47RefLat").addEventListener("input",updateResidualPreview);
+    $("q47RefLon").addEventListener("input",updateResidualPreview);
     $("q47RegisterBtn").addEventListener("click",registerControl);
     $("q47AddExclusionBtn").addEventListener("click",startExclusion);
     $("q47UndoZoneBtn").addEventListener("click",undoZone);
