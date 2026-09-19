@@ -2,14 +2,14 @@
   "use strict";
 
   const $ = id => document.getElementById(id);
-  const VERSION = "v003";
+  const VERSION = "v004";
   const BASE = "P3N_042";
   const REF_W = 18316;
   const REF_H = 13828;
   const FRAC_U = 0.441195799;
   const FRAC_V = 0.701011619;
-  const STORAGE_ZONES = "fugawiQ47ExclusionZonesV003";
-  const STORAGE_CONTROLS = "fugawiQ47ControlsV003";
+  const STORAGE_ZONES = "fugawiQ47ExclusionZonesV004";
+  const STORAGE_CONTROLS = "fugawiQ47ControlsV004";
   const CROP_PADDING = 260;
 
   const I1 = {id:65,x:9105.78,y:5259.32,lat:41.0748,lon:-5.38198};
@@ -605,7 +605,8 @@
     $("q47CalcE").textContent=n(solved.e,3);
     $("q47CalcN").textContent=n(solved.n,3);
     updateResidualPreview();
-    setMessage("Punto válido en Q47."+solved.subquad+". Introduce la referencia IGN ETRS89/UTM30 y registra el control.","ok");
+    $("q47ReferenceState").textContent="PENDIENTE · IGN/PNOA";
+    setMessage("Punto válido en Q47."+solved.subquad+". Identifica el objeto y regístralo; no necesitas conocer sus coordenadas oficiales.","ok");
     redraw();
   }
 
@@ -670,28 +671,37 @@
     }
     const name=$("q47ControlName").value.trim();
     if (!name) {
-      setMessage("Escribe un nombre identificativo para el objeto físico.","error");
+      setMessage("Describe brevemente el objeto físico que has tocado.","error");
       $("q47ControlName").focus();
       return;
     }
-    const residual=residualForSelection();
-    if (!residual) {
-      setMessage("Para registrar el residual debes introducir E y N oficiales en ETRS89 / UTM30.","error");
-      $("q47RefE").focus();
-      return;
-    }
 
+    const residual=residualForSelection();
     const refLat=readNumber("q47RefLat");
     const refLon=readNumber("q47RefLon");
     const geoResidual=
       refLat!==null && refLon!==null ?
       haversine(state.selected.lat,state.selected.lon,refLat,refLon) :
       null;
+    const hasIndependent=Boolean(residual || geoResidual!==null);
+
+    let deltaE=null;
+    let deltaN=null;
+    let residualUtmM=null;
+    if (residual) {
+      deltaE=residual.de;
+      deltaN=residual.dn;
+      residualUtmM=residual.mag;
+    }
 
     const primaryResidual=geoResidual!==null ?
-      geoResidual : residual.mag;
+      geoResidual : residualUtmM;
     const residualMethod=geoResidual!==null ?
-      "HAVERSINE_LATLON" : "ETRS89_UTM30";
+      "HAVERSINE_LATLON" :
+      (residual ? "ETRS89_UTM30" : "PENDIENTE");
+    const status=hasIndependent ?
+      "REFERENCIA_INDEPENDIENTE_INFORMADA" :
+      "PENDIENTE_REFERENCIA_IGN_PNOA";
 
     const control={
       at:new Date().toISOString(),
@@ -706,22 +716,30 @@
       lon:state.selected.lon,
       calcE:state.selected.e,
       calcN:state.selected.n,
-      refE:residual.refE,
-      refN:residual.refN,
+      refE:residual ? residual.refE : null,
+      refN:residual ? residual.refN : null,
       refLat:refLat,
       refLon:refLon,
-      deltaE:residual.de,
-      deltaN:residual.dn,
-      residualUtmM:residual.mag,
+      deltaE:deltaE,
+      deltaN:deltaN,
+      residualUtmM:residualUtmM,
       residualGeoM:geoResidual,
       residualM:primaryResidual,
       residualMethod:residualMethod,
-      status:"REGISTRADO"
+      status:status
     };
     state.controls.unshift(control);
     saveLocal();
     renderControls();
-    setMessage("Control registrado. Residual "+n(control.residualM,3)+" m.","ok");
+    $("q47ReferenceState").textContent=hasIndependent ?
+      "INFORMADA · pendiente de certificación" :
+      "PENDIENTE · IGN/PNOA";
+    setMessage(
+      hasIndependent ?
+      "Control registrado con referencia informada; aún requiere comprobar que la fuente sea independiente y oficial." :
+      "Candidato Q47 registrado. Queda PENDIENTE hasta identificar el mismo objeto en IGN/PNOA.",
+      hasIndependent ? "working" : "ok"
+    );
   }
 
   function startExclusion() {
@@ -829,8 +847,8 @@
         n(c.rawX,2)+" / "+n(c.rawY,2),
         "Q47."+c.subquad,
         n(c.calcE,2)+" / "+n(c.calcN,2),
-        n(c.deltaE,2)+" / "+n(c.deltaN,2),
-        n(c.residualM,2)+" m"
+        c.status==="PENDIENTE_REFERENCIA_IGN_PNOA" ? "PENDIENTE IGN/PNOA" : "REF. INFORMADA",
+        c.residualM===null ? "PENDIENTE" : n(c.residualM,2)+" m"
       ].forEach(text=>{
         const cell=document.createElement("td");
         cell.textContent=text;
@@ -878,13 +896,19 @@
         "|E_CALC_ETRS89="+c.calcE+"|N_CALC_ETRS89="+c.calcN+
         (c.refLat!==null ? "|LAT_REF="+c.refLat : "")+
         (c.refLon!==null ? "|LON_REF="+c.refLon : ""));
-      lines.push("Q47_AUDIT_IGN|PUNTO="+c.name+
-        "|E_ETRS89="+c.refE+"|N_ETRS89="+c.refN+
-        "|DELTA_E_M="+c.deltaE+"|DELTA_N_M="+c.deltaN+
-        "|RESIDUAL_M="+c.residualM+
-        "|RESIDUAL_METODO="+c.residualMethod+
-        "|RESIDUAL_UTM_M="+c.residualUtmM+
-        (c.residualGeoM!==null ? "|RESIDUAL_GEO_M="+c.residualGeoM : ""));
+      if (c.status==="PENDIENTE_REFERENCIA_IGN_PNOA") {
+        lines.push("Q47_AUDIT_IGN|PUNTO="+c.name+
+          "|REFERENCIA=IGN_PNOA_PENDIENTE"+
+          "|RESIDUAL_M=PENDIENTE");
+      } else {
+        lines.push("Q47_AUDIT_IGN|PUNTO="+c.name+
+          "|E_ETRS89="+c.refE+"|N_ETRS89="+c.refN+
+          "|DELTA_E_M="+c.deltaE+"|DELTA_N_M="+c.deltaN+
+          "|RESIDUAL_M="+c.residualM+
+          "|RESIDUAL_METODO="+c.residualMethod+
+          "|RESIDUAL_UTM_M="+c.residualUtmM+
+          (c.residualGeoM!==null ? "|RESIDUAL_GEO_M="+c.residualGeoM : ""));
+      }
       lines.push("Q47_AUDIT_ESTADO|PUNTO="+c.name+
         "|ESTADO="+c.status);
     });
@@ -902,7 +926,7 @@
     const a=document.createElement("a");
     const stamp=new Date().toISOString().replace(/[:.]/g,"-");
     a.href=url;
-    a.download="Fugawi_Q47_Validacion_v003_"+stamp+".txt";
+    a.download="Fugawi_Q47_Validacion_v004_"+stamp+".txt";
     document.body.appendChild(a);
     a.click();
     a.remove();
