@@ -131,3 +131,12 @@
 .q47-advanced{border:1px solid var(--line);border-radius:12px;padding:10px;background:#091525}
 .q47-advanced summary{cursor:pointer;color:var(--muted);font-size:.7rem;font-weight:800}
 .q47-advanced[open] summary{margin-bottom:10px;color:var(--text)}
+
+.q47-legend{
+  display:inline-flex;align-items:center;gap:6px;color:var(--muted);
+  font-size:.68rem;white-space:nowrap
+}
+.q47-legend i{
+  width:13px;height:13px;border-radius:4px;background:rgba(5,11,19,.72);
+  border:1px solid rgba(240,189,98,.45)
+}
