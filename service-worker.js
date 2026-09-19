@@ -1,11 +1,11 @@
-const CACHE = "fugawi-control-v003-r3";
+const CACHE = "fugawi-control-v004";
 const ASSETS = [
   "./",
   "./index.html",
-  "./styles.css?v=003-r3",
-  "./q47.css?v=003-r3",
-  "./app.js?v=003-r3",
-  "./q47.js?v=003-r3",
+  "./styles.css?v=004",
+  "./q47.css?v=004",
+  "./app.js?v=004",
+  "./q47.js?v=004",
   "./manifest.webmanifest"
 ];
 
