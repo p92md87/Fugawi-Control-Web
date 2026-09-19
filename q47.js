@@ -2,15 +2,15 @@
   "use strict";
 
   const $ = id => document.getElementById(id);
-  const VERSION = "v004";
+  const VERSION = "v005";
   const BASE = "P3N_042";
-  const REF_W = 18316;
-  const REF_H = 13828;
+  const REF_W = 18315;
+  const REF_H = 13827;
   const FRAC_U = 0.441195799;
   const FRAC_V = 0.701011619;
-  const STORAGE_ZONES = "fugawiQ47ExclusionZonesV004";
-  const STORAGE_CONTROLS = "fugawiQ47ControlsV004";
-  const CROP_PADDING = 260;
+  const STORAGE_ZONES = "fugawiQ47ExclusionZonesV005";
+  const STORAGE_CONTROLS = "fugawiQ47ControlsV005";
+  const CROP_PADDING = 180;
 
   const I1 = {id:65,x:9105.78,y:5259.32,lat:41.0748,lon:-5.38198};
   const I2 = {id:66,x:10283.9,y:5231.68,lat:41.0772,lon:-5.26304};
@@ -223,6 +223,32 @@
     return inside;
   }
 
+  function nearestQ47Boundary(x,y) {
+    const sides=["SUR","ESTE","NORTE","OESTE"];
+    let best=null;
+    for (let i=0;i<Q47.length;i+=1) {
+      const a=Q47[i];
+      const b=Q47[(i+1)%Q47.length];
+      const vx=b.x-a.x;
+      const vy=b.y-a.y;
+      const len2=vx*vx+vy*vy;
+      let t=((x-a.x)*vx+(y-a.y)*vy)/len2;
+      t=clamp(t,0,1);
+      const nx=a.x+t*vx;
+      const ny=a.y+t*vy;
+      const d=Math.hypot(x-nx,y-ny);
+      if (!best || d<best.distancePx) {
+        best={
+          side:sides[i],
+          distancePx:d,
+          nearestX:nx,
+          nearestY:ny
+        };
+      }
+    }
+    return best;
+  }
+
   function exclusionAt(x,y) {
     return state.zones.find(z=>
       x>=Math.min(z.x1,z.x2) &&
@@ -354,14 +380,14 @@
 
     if (exact) {
       setMessage(
-        "Raster reconocido con dimensiones de referencia. Q47 preparado; toca un objeto físico inequívoco.",
+        "Raster reconocido en el sistema lógico 18315 × 13827. Q47 preparado; toca sólo dentro de la zona no oscurecida.",
         "ok"
       );
     } else {
       setMessage(
         "Raster cargado. Dimensiones "+size.w+" × "+size.h+
         " px; la referencia Q47 original es "+REF_W+" × "+REF_H+
-        ". Se aplicará escalado proporcional y conviene verificar la alineación visual.",
+        ". Se aplicará escalado proporcional; la zona exterior a Q47 queda oscurecida.",
         "working"
       );
     }
@@ -423,6 +449,22 @@
     if (close) ctx.closePath();
   }
 
+  function shadeOutsideQ47(ctx) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(0,0,$("q47Canvas").width,$("q47Canvas").height);
+    const first=rawToCanvas(Q47[0].x,Q47[0].y);
+    ctx.moveTo(first.x,first.y);
+    for (let i=1;i<Q47.length;i+=1) {
+      const p=rawToCanvas(Q47[i].x,Q47[i].y);
+      ctx.lineTo(p.x,p.y);
+    }
+    ctx.closePath();
+    ctx.fillStyle="rgba(5,11,19,.62)";
+    ctx.fill("evenodd");
+    ctx.restore();
+  }
+
   function redraw() {
     const canvas=$("q47Canvas");
     if (!canvas || !state.sourceCrop) return;
@@ -438,6 +480,8 @@
         0,0,canvas.width,canvas.height
       );
     }
+
+    shadeOutsideQ47(ctx);
 
     ctx.save();
     ctx.lineJoin="round";
@@ -547,14 +591,31 @@
     resetResultFields();
 
     if (!pointInPolygon(rawX,rawY,Q47)) {
-      state.selected={rawX:rawX,rawY:rawY,rejected:true,reason:"FUERA_Q47"};
+      const near=nearestQ47Boundary(rawX,rawY);
+      state.selected={
+        rawX:rawX,
+        rawY:rawY,
+        rejected:true,
+        reason:"FUERA_Q47",
+        nearestSide:near.side,
+        distancePx:near.distancePx
+      };
       state.rejections.push({
         at:new Date().toISOString(),
         rawX:rawX,
         rawY:rawY,
-        reason:"FUERA_Q47"
+        reason:"FUERA_Q47",
+        nearestSide:near.side,
+        distancePx:near.distancePx,
+        nearestX:near.nearestX,
+        nearestY:near.nearestY
       });
-      setMessage("Control rechazado automáticamente: el punto está fuera del perímetro Q47.","error");
+      setMessage(
+        "Control rechazado: está fuera de Q47, a "+
+        n(near.distancePx,1)+" px del borde "+near.side+
+        ". La zona oscurecida es sólo contexto.",
+        "error"
+      );
       redraw();
       return;
     }
@@ -865,6 +926,8 @@
       "|GENERADO="+new Date().toISOString());
     lines.push("Q47_RASTER|NOMBRE="+(state.fileName || "NO_CARGADO")+
       "|W="+(state.sourceW || 0)+"|H="+(state.sourceH || 0));
+    lines.push("Q47_REFERENCIA_PIXEL|W="+REF_W+"|H="+REF_H+
+      "|SISTEMA=LOGICO_SALAMANCA");
     lines.push("Q47_SUBMALLA=ACTIVA");
     lines.push("Q47_SUBMALLA_PERIMETRO=INTACTO");
     lines.push("Q47_SUBMALLA_CELDAS=4");
@@ -883,7 +946,11 @@
       lines.push("Q47_AUDIT_ESTADO|PUNTO=SIN_NOMBRE"+
         "|PIX_X="+r.rawX+"|PIX_Y="+r.rawY+
         "|ESTADO=RECHAZADO|MOTIVO="+r.reason+
-        (r.zoneId ? "|ZONA="+r.zoneId : ""));
+        (r.zoneId ? "|ZONA="+r.zoneId : "")+
+        (r.nearestSide ? "|BORDE_Q47="+r.nearestSide : "")+
+        (Number.isFinite(r.distancePx) ? "|DIST_Q47_PIX="+r.distancePx : "")+
+        (Number.isFinite(r.nearestX) ? "|Q47_NEAR_X="+r.nearestX : "")+
+        (Number.isFinite(r.nearestY) ? "|Q47_NEAR_Y="+r.nearestY : ""));
     });
 
     [...state.controls].reverse().forEach(c=>{
@@ -926,7 +993,7 @@
     const a=document.createElement("a");
     const stamp=new Date().toISOString().replace(/[:.]/g,"-");
     a.href=url;
-    a.download="Fugawi_Q47_Validacion_v004_"+stamp+".txt";
+    a.download="Fugawi_Q47_Validacion_v005_"+stamp+".txt";
     document.body.appendChild(a);
     a.click();
     a.remove();
