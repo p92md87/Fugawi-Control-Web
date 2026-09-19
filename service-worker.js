@@ -1,5 +1,13 @@
-const CACHE = "fugawi-control-v003-r2";
-const ASSETS = ["./", "./index.html", "./styles.css", "./q47.css?v=003-r2", "./app.js", "./q47.js?v=003-r2", "./manifest.webmanifest"];
+const CACHE = "fugawi-control-v003-r3";
+const ASSETS = [
+  "./",
+  "./index.html",
+  "./styles.css?v=003-r3",
+  "./q47.css?v=003-r3",
+  "./app.js?v=003-r3",
+  "./q47.js?v=003-r3",
+  "./manifest.webmanifest"
+];
 
 self.addEventListener("install", event => {
   self.skipWaiting();
@@ -12,7 +20,9 @@ self.addEventListener("activate", event => {
   event.waitUntil(
     caches.keys()
       .then(keys => Promise.all(
-        keys.filter(key => key !== CACHE).map(key => caches.delete(key))
+        keys
+          .filter(key => key.startsWith("fugawi-control-") && key !== CACHE)
+          .map(key => caches.delete(key))
       ))
       .then(() => self.clients.claim())
   );
@@ -21,13 +31,29 @@ self.addEventListener("activate", event => {
 self.addEventListener("fetch", event => {
   if (event.request.method !== "GET") return;
 
+  const url=new URL(event.request.url);
+  const isAppAsset=
+    url.origin===self.location.origin &&
+    (
+      event.request.mode==="navigate" ||
+      /\.(?:js|css|html|webmanifest)$/.test(url.pathname)
+    );
+
+  if (isAppAsset) {
+    event.respondWith(
+      fetch(event.request,{cache:"no-store"})
+        .then(response => {
+          const copy=response.clone();
+          caches.open(CACHE).then(cache => cache.put(event.request,copy));
+          return response;
+        })
+        .catch(() => caches.match(event.request))
+    );
+    return;
+  }
+
   event.respondWith(
     fetch(event.request)
-      .then(response => {
-        const copy = response.clone();
-        caches.open(CACHE).then(cache => cache.put(event.request, copy));
-        return response;
-      })
       .catch(() => caches.match(event.request))
   );
 });
