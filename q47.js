@@ -2,7 +2,7 @@
   "use strict";
 
   const $ = id => document.getElementById(id);
-  const VERSION = "v005";
+  const VERSION = "v006";
   const BASE = "P3N_042";
   const REF_W = 18316;
   const REF_H = 13828;
@@ -10,8 +10,8 @@
   const INPUT_REF_H = 13827;
   const FRAC_U = 0.441195799;
   const FRAC_V = 0.701011619;
-  const STORAGE_ZONES = "fugawiQ47ExclusionZonesV005";
-  const STORAGE_CONTROLS = "fugawiQ47ControlsV005";
+  const STORAGE_ZONES = "fugawiQ47ExclusionZonesV006";
+  const STORAGE_CONTROLS = "fugawiQ47ControlsV006";
   const CROP_PADDING = 180;
 
   const I1 = {id:65,x:9105.78,y:5259.32,lat:41.0748,lon:-5.38198};
@@ -69,7 +69,8 @@
     controls:loadJson(STORAGE_CONTROLS,[]),
     rejections:[],
     zoneDraft:null,
-    mode:"control"
+    mode:"control",
+    sessionStartedAt:new Date().toISOString()
   };
 
   function loadJson(key,fallback) {
@@ -521,6 +522,19 @@
     ctx.lineWidth=4;
     ctx.stroke();
 
+    if (state.selected) {
+      const s=state.selected;
+      lines.push("Q47_SELECCION_ACTUAL|PIX_X="+s.rawX+
+        "|PIX_Y="+s.rawY+
+        "|ESTADO="+(s.rejected ? "RECHAZADO" : "SELECCIONADO")+
+        (s.reason ? "|MOTIVO="+s.reason : "")+
+        (s.subquad ? "|SUBCUAD="+s.subquad : "")+
+        (Number.isFinite(s.u) ? "|U="+s.u : "")+
+        (Number.isFinite(s.v) ? "|V="+s.v : "")+
+        (Number.isFinite(s.lat) ? "|LAT_CALC="+s.lat : "")+
+        (Number.isFinite(s.lon) ? "|LON_CALC="+s.lon : ""));
+    }
+
     state.zones.forEach(z=>{
       const a=rawToCanvas(Math.min(z.x1,z.x2),Math.min(z.y1,z.y2));
       const b=rawToCanvas(Math.max(z.x1,z.x2),Math.max(z.y1,z.y2));
@@ -594,6 +608,37 @@
       "q47RawX","q47RawY","q47Subquad","q47UV",
       "q47Lat","q47Lon","q47CalcE","q47CalcN","q47Residual"
     ].forEach(id=>$(id).textContent="—");
+  }
+
+  function clearControlInputs() {
+    ["q47ControlName","q47RefE","q47RefN","q47RefLat","q47RefLon"]
+      .forEach(id=>$(id).value="");
+    $("q47ReferenceState").textContent="PENDIENTE · IGN/PNOA";
+  }
+
+  function newQ47Test() {
+    const ok=confirm(
+      "¿Iniciar una nueva prueba Q47? Se borrarán controles, rechazos y selección. El raster cargado y las zonas excluidas se conservarán."
+    );
+    if (!ok) return;
+
+    state.controls=[];
+    state.rejections=[];
+    state.selected=null;
+    state.zoneDraft=null;
+    state.mode="control";
+    state.sessionStartedAt=new Date().toISOString();
+    $("q47AddExclusionBtn").classList.remove("active");
+    localStorage.removeItem(STORAGE_CONTROLS);
+    saveLocal();
+    resetResultFields();
+    clearControlInputs();
+    renderControls();
+    redraw();
+    setMessage(
+      "Nueva prueba Q47 iniciada. No hay controles heredados de la prueba anterior.",
+      "ok"
+    );
   }
 
   function selectControl(rawX,rawY) {
@@ -933,6 +978,8 @@
     lines.push("FUGAWI_IA_CONTROL_Q47_"+VERSION.toUpperCase());
     lines.push("Q47_WEB|VERSION="+VERSION+"|P3N_BASE="+BASE+
       "|GENERADO="+new Date().toISOString());
+    lines.push("Q47_PRUEBA|INICIO="+state.sessionStartedAt+
+      "|CONTROLES_HEREDADOS=0");
     lines.push("Q47_RASTER|NOMBRE="+(state.fileName || "NO_CARGADO")+
       "|W="+(state.sourceW || 0)+"|H="+(state.sourceH || 0));
     lines.push("Q47_REFERENCIA_PIXEL|W="+REF_W+"|H="+REF_H+
@@ -994,7 +1041,8 @@
 
     lines.push("Q47_RESUMEN|CONTROLES="+state.controls.length+
       "|EXCLUSIONES="+state.zones.length+
-      "|RECHAZOS_SESION="+state.rejections.length);
+      "|RECHAZOS_SESION="+state.rejections.length+
+      "|SELECCION_ACTUAL="+(state.selected ? 1 : 0));
     lines.push("Q47_P3N_042_MODIFICADO=0");
     return lines.join("\n")+"\n";
   }
@@ -1005,7 +1053,7 @@
     const a=document.createElement("a");
     const stamp=new Date().toISOString().replace(/[:.]/g,"-");
     a.href=url;
-    a.download="Fugawi_Q47_Validacion_v005_"+stamp+".txt";
+    a.download="Fugawi_Q47_Validacion_v006_"+stamp+".txt";
     document.body.appendChild(a);
     a.click();
     a.remove();
@@ -1104,6 +1152,7 @@
     $("q47ClearZonesBtn").addEventListener("click",clearZones);
     $("q47ExportBtn").addEventListener("click",downloadTrace);
     $("q47ClearControlsBtn").addEventListener("click",clearControls);
+    $("q47NewTestBtn").addEventListener("click",newQ47Test);
     window.addEventListener("resize",redraw);
   }
 
