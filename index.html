@@ -4,9 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b1220">
-<title>Fugawi IA Control v002</title>
+<title>Fugawi IA Control v003</title>
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="stylesheet" href="./styles.css">
+<link rel="stylesheet" href="./q47.css">
 </head>
 <body>
 <header class="topbar">
@@ -14,7 +15,7 @@
     <div class="brand-mark">F</div>
     <div>
       <div class="eyebrow">CENTRO DE MANDO · FUGAWI</div>
-      <h1>Fugawi IA Control <span>v002</span></h1>
+      <h1>Fugawi IA Control <span>v003</span></h1>
     </div>
   </div>
   <div class="top-actions">
@@ -40,11 +41,11 @@
   <section class="status-strip" aria-label="Estado del proyecto">
     <div class="status-item">
       <span class="status-icon">▣</span>
-      <div><small>VERSIÓN OPERATIVA</small><strong id="statusCurrent">P3N_039</strong></div>
+      <div><small>VERSIÓN OPERATIVA</small><strong id="statusCurrent">P3N_042</strong></div>
     </div>
     <div class="status-item">
       <span class="status-icon">→</span>
-      <div><small>SIGUIENTE VERSIÓN</small><strong id="statusNext">P3N_040</strong></div>
+      <div><small>SIGUIENTE VERSIÓN</small><strong id="statusNext">P3N_043</strong></div>
     </div>
     <div class="status-item">
       <span class="status-icon">◇</span>
@@ -102,6 +103,101 @@
         <span class="action-text"><strong>Añadir / ejecutar pruebas</strong><small>Crear verificaciones automáticas y detectar regresiones.</small></span>
         <span class="action-cta">Seleccionar →</span>
       </button>
+
+      <button class="q47-launch-card" id="q47EntryBtn" type="button">
+        <span class="action-symbol">⌖</span>
+        <span class="action-text"><strong>Validar geometría / Q47</strong><small>Cargar Salamanca, ampliar Q47, tocar un control físico y calcularlo con la submalla de P3N_042.</small></span>
+        <span class="action-cta">Abrir validador Q47 →</span>
+      </button>
+    </div>
+  </section>
+
+
+  <section class="section-block q47-validator" id="q47Validator" hidden>
+    <div class="section-title">
+      <div><span class="step-badge">Q47</span><h2>Validar geometría / Q47</h2></div>
+      <div class="q47-head-actions">
+        <span class="q47-badge" id="q47RuntimeBadge">AUTOTEST Q47</span>
+        <button id="q47CloseBtn" class="secondary" type="button">Cerrar</button>
+      </div>
+    </div>
+
+    <div class="q47-toolbar">
+      <label class="q47-file">Seleccionar 4-5 SALAMANCA.PNG
+        <input id="q47RasterInput" type="file" accept="image/png,.png">
+      </label>
+      <button id="q47AddExclusionBtn" class="secondary" type="button">Añadir zona excluida</button>
+      <button id="q47UndoZoneBtn" class="secondary" type="button">Deshacer zona</button>
+      <button id="q47ClearZonesBtn" class="secondary" type="button">Limpiar zonas</button>
+      <span class="q47-raster-meta" id="q47RasterMeta">Raster no cargado · el archivo permanece en este iPad</span>
+    </div>
+
+    <div class="q47-layout">
+      <div class="q47-map-card">
+        <canvas id="q47Canvas" width="1100" height="900"></canvas>
+        <div class="q47-map-hint" id="q47MapHint"><div><strong>Selecciona el raster Salamanca</strong><span>La Web recortará automáticamente Q47 y dibujará sus cuatro subcuadriláteros sin subir el PNG al repositorio.</span></div></div>
+      </div>
+
+      <aside class="q47-inspector">
+        <div class="q47-message" id="q47Message">Autotest preparado. Selecciona el raster para comenzar.</div>
+
+        <div class="q47-metrics">
+          <div><small>PIX X</small><strong id="q47RawX">—</strong></div>
+          <div><small>PIX Y</small><strong id="q47RawY">—</strong></div>
+          <div><small>SUBCUAD</small><strong id="q47Subquad">—</strong></div>
+          <div><small>U / V</small><strong id="q47UV">—</strong></div>
+          <div><small>LAT CALC</small><strong id="q47Lat">—</strong></div>
+          <div><small>LON CALC</small><strong id="q47Lon">—</strong></div>
+          <div><small>E CALC ETRS89</small><strong id="q47CalcE">—</strong></div>
+          <div><small>N CALC ETRS89</small><strong id="q47CalcN">—</strong></div>
+          <div><small>RESIDUAL</small><strong id="q47Residual">—</strong></div>
+          <div><small>BASE</small><strong>P3N_042 · intacta</strong></div>
+        </div>
+
+        <div class="q47-form">
+          <label>Nombre del objeto físico
+            <input id="q47ControlName" placeholder="Ej.: puente, cruce carretera-ferrocarril…">
+          </label>
+          <div class="q47-form-grid">
+            <label>E oficial ETRS89 / UTM30
+              <input id="q47RefE" inputmode="decimal" placeholder="m">
+            </label>
+            <label>N oficial ETRS89 / UTM30
+              <input id="q47RefN" inputmode="decimal" placeholder="m">
+            </label>
+            <label>Lat oficial (opcional)
+              <input id="q47RefLat" inputmode="decimal" placeholder="grados">
+            </label>
+            <label>Lon oficial (opcional)
+              <input id="q47RefLon" inputmode="decimal" placeholder="grados">
+            </label>
+          </div>
+          <p class="q47-note">El residual principal se calcula en metros con ΔE/ΔN. Lat/Lon sólo añade una comprobación geodésica adicional.</p>
+          <div class="q47-register-bar">
+            <button id="q47RegisterBtn" class="primary" type="button">Registrar control</button>
+            <button id="q47ExportBtn" class="secondary" type="button">Exportar traza .txt</button>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <div class="q47-zone-bar">
+      <strong>Zonas excluidas:</strong>
+      <div class="q47-zone-list" id="q47ZoneList"></div>
+    </div>
+
+    <div class="q47-log">
+      <div class="q47-log-head">
+        <h3>Controles Q47 registrados</h3>
+        <div><button id="q47ClearControlsBtn" class="text-button danger" type="button">Vaciar controles</button></div>
+      </div>
+      <div class="q47-table-wrap">
+        <table class="q47-table">
+          <thead><tr><th>Control</th><th>Píxel X/Y</th><th>Subcuad</th><th>E/N calculada</th><th>ΔE/ΔN</th><th>Residual</th></tr></thead>
+          <tbody id="q47ControlRows"></tbody>
+        </table>
+      </div>
+      <p class="q47-privacy">El raster se procesa localmente en el navegador. La v003 no modifica <strong>P3N_042</strong> ni incorpora automáticamente ningún control a Fugawi.</p>
     </div>
   </section>
 
@@ -188,8 +284,8 @@
               <option value="operational">OPERATIVO · requiere aprobación</option>
             </select>
           </label>
-          <label>Versión operativa<input id="currentVersion" value="Fugawi_P3N_039_Salamanca_perimetro_estable.txt"></label>
-          <label>Última certificada<input id="certifiedVersion" value="Fugawi_P3N_039_Salamanca_perimetro_estable.txt"></label>
+          <label>Versión operativa<input id="currentVersion" value="Fugawi_P3N_042_Q47_auditoria_runtime_fix.txt"></label>
+          <label>Última certificada<input id="certifiedVersion" value="Fugawi_P3N_042_Q47_auditoria_runtime_fix.txt"></label>
           <button id="saveConfigBtn" class="secondary full">Guardar configuración</button>
         </div>
       </details>
@@ -229,7 +325,7 @@
     <div class="card-simple">
       <div class="section-title compact">
         <div><span class="mini-icon">⚙</span><h2>Estado de automatización</h2></div>
-        <span class="phase-pill">v002</span>
+        <span class="phase-pill">v003</span>
       </div>
       <div class="automation-list">
         <div><span class="auto-dot ok"></span><p><strong>GitHub Pages</strong><small>Web publicada y actualizable.</small></p><b>ACTIVO</b></div>
@@ -245,9 +341,10 @@
 </main>
 
 <footer>
-  <div><strong>Fugawi IA Control v002</strong><span>Panel visual de desarrollo guiado.</span></div>
+  <div><strong>Fugawi IA Control v003</strong><span>Panel visual de desarrollo guiado y validación geométrica Q47.</span></div>
   <span>Sin claves ni código operativo de Fugawi en esta web pública.</span>
 </footer>
 <script src="./app.js"></script>
+<script src="./q47.js"></script>
 </body>
 </html>
