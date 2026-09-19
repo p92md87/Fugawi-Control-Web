@@ -3,143 +3,251 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#111827">
-<title>Fugawi IA Control v001</title>
+<meta name="theme-color" content="#0b1220">
+<title>Fugawi IA Control v002</title>
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
 <header class="topbar">
-  <div>
-    <div class="eyebrow">FUGAWI · PANEL DE INGENIERÍA</div>
-    <h1>Fugawi IA Control <span>v001</span></h1>
+  <div class="brand">
+    <div class="brand-mark">F</div>
+    <div>
+      <div class="eyebrow">CENTRO DE MANDO · FUGAWI</div>
+      <h1>Fugawi IA Control <span>v002</span></h1>
+    </div>
   </div>
-  <div class="badge">GITHUB PAGES</div>
+  <div class="top-actions">
+    <span class="live-dot"><i></i> WEB OPERATIVA</span>
+    <button id="openRepoTopBtn" class="icon-button" title="Abrir repositorio Fugawi">GitHub ↗</button>
+  </div>
 </header>
 
-<main class="layout">
-<section class="card">
-  <h2>Proyecto</h2>
-  <div class="grid two">
-    <label>Propietario GitHub
-      <input id="repoOwner" autocomplete="off" value="p92md87">
-    </label>
-    <label>Repositorio
-      <input id="repoName" autocomplete="off" value="Fugawi">
-    </label>
-    <label>Rama base
-      <input id="baseBranch" autocomplete="off" value="main">
-    </label>
-    <label>Modo de trabajo
-      <select id="workMode">
-        <option value="analysis">ANÁLISIS · no modifica archivos</option>
-        <option value="experimental" selected>EXPERIMENTAL · rama/archivos, sin integrar</option>
-        <option value="operational">OPERATIVO · requiere aprobación explícita</option>
-      </select>
-    </label>
-  </div>
-  <div class="grid two">
-    <label>Versión operativa
-      <input id="currentVersion" autocomplete="off" value="Fugawi_P3N_039_Salamanca_perimetro_estable.txt">
-    </label>
-    <label>Última versión certificada
-      <input id="certifiedVersion" autocomplete="off" value="Fugawi_P3N_039_Salamanca_perimetro_estable.txt">
-    </label>
-  </div>
-  <div class="toolbar">
-    <button id="saveConfigBtn" class="secondary">Guardar configuración</button>
-    <button id="openRepoBtn" class="secondary">Abrir Fugawi</button>
-    <button id="openActionsBtn" class="secondary">Abrir Actions</button>
-  </div>
-</section>
+<main class="shell">
+  <section class="hero">
+    <div class="hero-copy">
+      <p class="kicker">DESARROLLO GUIADO CON IA</p>
+      <h2>¿Qué quieres hacer con Fugawi?</h2>
+      <p>Elige una tarea. La web preparará una orden técnica con las reglas de Fugawi para que puedas enviarla a la IA sin tener que recordar cada restricción.</p>
+    </div>
+    <aside class="next-step" id="nextStepBox">
+      <span class="next-label">SIGUIENTE PASO</span>
+      <strong id="nextStepTitle">Selecciona una acción</strong>
+      <p id="nextStepText">Empieza eligiendo una de las tareas de abajo.</p>
+    </aside>
+  </section>
 
-<section class="card">
-  <div class="section-head">
-    <h2>Orden de ingeniería</h2>
-    <div id="nextVersion" class="version-chip">Siguiente: P3N_040</div>
-  </div>
+  <section class="status-strip" aria-label="Estado del proyecto">
+    <div class="status-item">
+      <span class="status-icon">▣</span>
+      <div><small>VERSIÓN OPERATIVA</small><strong id="statusCurrent">P3N_039</strong></div>
+    </div>
+    <div class="status-item">
+      <span class="status-icon">→</span>
+      <div><small>SIGUIENTE VERSIÓN</small><strong id="statusNext">P3N_040</strong></div>
+    </div>
+    <div class="status-item">
+      <span class="status-icon">◇</span>
+      <div><small>MODO</small><strong id="statusMode">EXPERIMENTAL</strong></div>
+    </div>
+    <div class="status-item">
+      <span class="status-icon shield">✓</span>
+      <div><small>ARQUITECTURA</small><strong>PROTEGIDA</strong></div>
+    </div>
+    <div class="status-item">
+      <span class="status-icon">AI</span>
+      <div><small>VIBE CODING</small><strong>GUIADO</strong></div>
+    </div>
+  </section>
 
-  <div class="presets">
-    <button data-preset="regression">Corregir regresión</button>
-    <button data-preset="tests">Añadir prueba automática</button>
-    <button data-preset="refactor">Reestructurar subrutina</button>
-    <button data-preset="compare">Comparar versiones</button>
-    <button data-preset="next">Generar siguiente versión</button>
-  </div>
+  <section class="section-block">
+    <div class="section-title">
+      <div><span class="step-badge">1</span><h2>Elige qué quieres hacer</h2></div>
+      <p>Pulsa una tarjeta. Puedes cambiar de tarea antes de generar la orden.</p>
+    </div>
 
-  <label class="block">Solicitud
-    <textarea id="taskText" rows="7" placeholder="Ej.: Corrige esta regresión sin alterar la arquitectura aprobada."></textarea>
-  </label>
+    <div class="action-grid" id="actionGrid">
+      <button class="action-card" data-action="regression">
+        <span class="action-symbol regression">↺</span>
+        <span class="action-text"><strong>Corregir regresión</strong><small>Recuperar el comportamiento correcto sin alterar otros bloques.</small></span>
+        <span class="action-cta">Seleccionar →</span>
+      </button>
 
-  <div class="grid two">
-    <label>Archivo o bloque afectado
-      <input id="targetScope" placeholder="Opcional: archivo, subrutina, módulo...">
-    </label>
-    <label>Referencia correcta
-      <input id="referenceVersion" placeholder="Opcional: versión anterior válida">
-    </label>
-  </div>
+      <button class="action-card" data-action="improvement">
+        <span class="action-symbol improvement">＋</span>
+        <span class="action-text"><strong>Añadir mejora</strong><small>Incorporar una función nueva manteniendo la arquitectura aprobada.</small></span>
+        <span class="action-cta">Seleccionar →</span>
+      </button>
 
-  <fieldset>
-    <legend>Controles exigidos</legend>
-    <label class="check"><input id="chkArchitecture" type="checkbox" checked>No alterar arquitectura aprobada</label>
-    <label class="check"><input id="chkRegression" type="checkbox" checked>Comparar sólo bloques afectados</label>
-    <label class="check"><input id="chkSyntax" type="checkbox" checked>Auditar sintaxis y colisiones</label>
-    <label class="check"><input id="chkTrace" type="checkbox" checked>Registrar archivos críticos y ruta</label>
-    <label class="check"><input id="chkTests" type="checkbox" checked>Ejecutar pruebas antes de integrar</label>
-  </fieldset>
+      <button class="action-card" data-action="refactor">
+        <span class="action-symbol refactor">⌘</span>
+        <span class="action-text"><strong>Reestructurar código</strong><small>Ordenar o simplificar una subrutina sin cambiar su resultado.</small></span>
+        <span class="action-cta">Seleccionar →</span>
+      </button>
 
-  <div class="toolbar">
-    <button id="buildBtn" class="primary">Generar orden</button>
-    <button id="copyBtn" class="secondary" disabled>Copiar</button>
-    <button id="shareBtn" class="secondary" disabled>Compartir</button>
-    <button id="openChatGPTBtn" class="secondary">Abrir ChatGPT</button>
-  </div>
-</section>
+      <button class="action-card" data-action="compare">
+        <span class="action-symbol compare">⇄</span>
+        <span class="action-text"><strong>Comparar versiones</strong><small>Localizar diferencias, cambios funcionales y posibles regresiones.</small></span>
+        <span class="action-cta">Seleccionar →</span>
+      </button>
 
-<section class="card">
-  <div class="section-head">
-    <h2>Orden generada</h2>
-    <span id="statusText" class="muted">Pendiente</span>
-  </div>
-  <pre id="generatedTask" class="output">Todavía no se ha generado ninguna orden.</pre>
-  <div class="toolbar">
-    <button id="saveTaskBtn" class="secondary" disabled>Guardar en historial</button>
-    <button id="exportTaskBtn" class="secondary" disabled>Exportar .txt</button>
-  </div>
-</section>
+      <button class="action-card" data-action="next">
+        <span class="action-symbol next">↑</span>
+        <span class="action-text"><strong>Generar nueva versión</strong><small>Preparar la siguiente numeración correlativa con trazabilidad.</small></span>
+        <span class="action-cta">Seleccionar →</span>
+      </button>
 
-<section class="card">
-  <div class="section-head">
-    <h2>Automatización</h2>
-    <div class="badge warn">PUENTE IA: FASE 2</div>
-  </div>
-  <div class="status-grid">
-    <div><strong>GitHub Pages</strong><span>Frontend v001</span></div>
-    <div><strong>GitHub Actions</strong><span>Publicación automática</span></div>
-    <div><strong>Codex/OpenAI</strong><span>Conexión en v002</span></div>
-    <div><strong>Escritura GitHub</strong><span>Desactivada en v001</span></div>
-  </div>
-  <p class="note">Esta versión no contiene tokens ni claves. Las credenciales de la futura automatización deberán permanecer fuera del JavaScript público.</p>
-</section>
+      <button class="action-card" data-action="tests">
+        <span class="action-symbol tests">✓</span>
+        <span class="action-text"><strong>Añadir / ejecutar pruebas</strong><small>Crear verificaciones automáticas y detectar regresiones.</small></span>
+        <span class="action-cta">Seleccionar →</span>
+      </button>
+    </div>
+  </section>
 
-<section class="card">
-  <div class="section-head">
-    <h2>Historial local</h2>
-    <button id="clearHistoryBtn" class="danger subtle">Vaciar</button>
-  </div>
-  <div id="history" class="history empty">No hay órdenes guardadas.</div>
-  <div class="toolbar">
-    <button id="exportHistoryBtn" class="secondary">Exportar historial JSON</button>
-  </div>
-</section>
+  <section class="workflow">
+    <div class="workflow-step active" id="flow1"><span>1</span><div><strong>Elegir tarea</strong><small>Qué quieres hacer</small></div></div>
+    <div class="workflow-line"></div>
+    <div class="workflow-step" id="flow2"><span>2</span><div><strong>Describir</strong><small>Qué debe cambiar</small></div></div>
+    <div class="workflow-line"></div>
+    <div class="workflow-step" id="flow3"><span>3</span><div><strong>Revisar</strong><small>Reglas y alcance</small></div></div>
+    <div class="workflow-line"></div>
+    <div class="workflow-step" id="flow4"><span>4</span><div><strong>Generar</strong><small>Orden lista para IA</small></div></div>
+  </section>
+
+  <section class="workbench" id="workbench">
+    <div class="main-panel">
+      <div class="section-title compact">
+        <div><span class="step-badge">2</span><h2>Describe lo que necesitas</h2></div>
+        <span id="selectedActionPill" class="selected-pill">Sin acción seleccionada</span>
+      </div>
+
+      <label class="task-label" for="taskText">Solicitud para Fugawi</label>
+      <textarea id="taskText" rows="7" placeholder="Ejemplo: El borde inferior vuelve a invadir la zona blanca. Recupera únicamente la lógica correcta de la última versión válida y no alteres la malla interior."></textarea>
+
+      <div class="examples">
+        <span>Ejemplos rápidos:</span>
+        <button type="button" data-example="border">Borde inferior</button>
+        <button type="button" data-example="syntax">Error de sintaxis</button>
+        <button type="button" data-example="grid">Submalla</button>
+      </div>
+
+      <div class="optional-grid">
+        <label>Archivo / bloque afectado
+          <input id="targetScope" placeholder="Opcional">
+        </label>
+        <label>Versión correcta de referencia
+          <input id="referenceVersion" placeholder="Opcional">
+        </label>
+      </div>
+
+      <div class="guard-panel">
+        <div class="guard-head">
+          <div>
+            <span class="guard-icon">◆</span>
+            <span><strong>Protecciones de ingeniería activas</strong><small>Estas reglas se incorporarán a la orden.</small></span>
+          </div>
+          <span class="guard-count" id="guardCount">5/5</span>
+        </div>
+        <div class="guard-grid">
+          <label class="check"><input id="chkArchitecture" type="checkbox" checked><span><strong>Arquitectura protegida</strong><small>No modificar sin aprobación.</small></span></label>
+          <label class="check"><input id="chkRegression" type="checkbox" checked><span><strong>Regresión acotada</strong><small>Comparar sólo bloques afectados.</small></span></label>
+          <label class="check"><input id="chkSyntax" type="checkbox" checked><span><strong>Sintaxis auditada</strong><small>Identificadores y Smart BASIC.</small></span></label>
+          <label class="check"><input id="chkTrace" type="checkbox" checked><span><strong>Trazabilidad</strong><small>Archivos críticos y rutas.</small></span></label>
+          <label class="check"><input id="chkTests" type="checkbox" checked><span><strong>Pruebas antes de integrar</strong><small>No validar sólo por ausencia de errores.</small></span></label>
+        </div>
+      </div>
+
+      <div class="primary-actions">
+        <button id="buildBtn" class="primary large">Generar orden para IA <span>→</span></button>
+        <span class="helper">No modifica todavía el repositorio.</span>
+      </div>
+    </div>
+
+    <aside class="side-panel">
+      <div class="guide-card">
+        <span class="guide-tag">QUÉ DEBES HACER</span>
+        <ol id="guideList">
+          <li class="done"><span>1</span><p><strong>Elige una tarea</strong><small>Selecciona una tarjeta de la parte superior.</small></p></li>
+          <li><span>2</span><p><strong>Describe el problema</strong><small>Explica qué observas y qué resultado esperas.</small></p></li>
+          <li><span>3</span><p><strong>Genera la orden</strong><small>La web añadirá automáticamente las reglas.</small></p></li>
+          <li><span>4</span><p><strong>Envíala a la IA</strong><small>En v002 este paso sigue siendo manual.</small></p></li>
+        </ol>
+      </div>
+
+      <details class="settings-card">
+        <summary>Configuración del proyecto <span>⌄</span></summary>
+        <div class="settings-body">
+          <label>Propietario GitHub<input id="repoOwner" value="p92md87"></label>
+          <label>Repositorio privado<input id="repoName" value="Fugawi"></label>
+          <label>Rama base<input id="baseBranch" value="main"></label>
+          <label>Modo
+            <select id="workMode">
+              <option value="analysis">ANÁLISIS · sin cambios</option>
+              <option value="experimental" selected>EXPERIMENTAL · sin integrar</option>
+              <option value="operational">OPERATIVO · requiere aprobación</option>
+            </select>
+          </label>
+          <label>Versión operativa<input id="currentVersion" value="Fugawi_P3N_039_Salamanca_perimetro_estable.txt"></label>
+          <label>Última certificada<input id="certifiedVersion" value="Fugawi_P3N_039_Salamanca_perimetro_estable.txt"></label>
+          <button id="saveConfigBtn" class="secondary full">Guardar configuración</button>
+        </div>
+      </details>
+    </aside>
+  </section>
+
+  <section class="result-card" id="resultCard">
+    <div class="section-title compact">
+      <div><span class="step-badge success">3</span><h2>Orden preparada</h2></div>
+      <span id="statusText" class="result-status">Todavía no generada</span>
+    </div>
+    <div class="empty-result" id="emptyResult">
+      <span>◎</span>
+      <strong>Aquí aparecerá la orden técnica</strong>
+      <p>Primero selecciona una tarea, describe lo que necesitas y pulsa “Generar orden para IA”.</p>
+    </div>
+    <pre id="generatedTask" class="output hidden"></pre>
+    <div class="result-actions hidden" id="resultActions">
+      <button id="shareBtn" class="primary">Compartir / enviar</button>
+      <button id="copyBtn" class="secondary">Copiar</button>
+      <button id="openChatGPTBtn" class="secondary">Abrir ChatGPT ↗</button>
+      <button id="saveTaskBtn" class="secondary">Guardar historial</button>
+      <button id="exportTaskBtn" class="secondary">Exportar .txt</button>
+    </div>
+  </section>
+
+  <section class="lower-grid">
+    <div class="card-simple">
+      <div class="section-title compact">
+        <div><span class="mini-icon">◷</span><h2>Historial reciente</h2></div>
+        <button id="clearHistoryBtn" class="text-button danger">Vaciar</button>
+      </div>
+      <div id="history" class="history empty">Todavía no hay órdenes guardadas.</div>
+      <button id="exportHistoryBtn" class="secondary full small">Exportar historial JSON</button>
+    </div>
+
+    <div class="card-simple">
+      <div class="section-title compact">
+        <div><span class="mini-icon">⚙</span><h2>Estado de automatización</h2></div>
+        <span class="phase-pill">v002</span>
+      </div>
+      <div class="automation-list">
+        <div><span class="auto-dot ok"></span><p><strong>GitHub Pages</strong><small>Web publicada y actualizable.</small></p><b>ACTIVO</b></div>
+        <div><span class="auto-dot ok"></span><p><strong>Generador de órdenes</strong><small>Aplica reglas de Fugawi.</small></p><b>ACTIVO</b></div>
+        <div><span class="auto-dot pending"></span><p><strong>Agente Codex / IA</strong><small>Ejecución directa sobre GitHub.</small></p><b>PRÓXIMA FASE</b></div>
+      </div>
+      <div class="repo-links">
+        <button id="openRepoBtn" class="secondary">Abrir Fugawi ↗</button>
+        <button id="openActionsBtn" class="secondary">GitHub Actions ↗</button>
+      </div>
+    </div>
+  </section>
 </main>
 
 <footer>
-  <span>Fugawi IA Control v001</span>
-  <span>Configuración guardada únicamente en este navegador.</span>
+  <div><strong>Fugawi IA Control v002</strong><span>Panel visual de desarrollo guiado.</span></div>
+  <span>Sin claves ni código operativo de Fugawi en esta web pública.</span>
 </footer>
-
 <script src="./app.js"></script>
 </body>
 </html>
