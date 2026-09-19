@@ -4,8 +4,10 @@
   const $ = id => document.getElementById(id);
   const VERSION = "v005";
   const BASE = "P3N_042";
-  const REF_W = 18315;
-  const REF_H = 13827;
+  const REF_W = 18316;
+  const REF_H = 13828;
+  const INPUT_REF_W = 18315;
+  const INPUT_REF_H = 13827;
   const FRAC_U = 0.441195799;
   const FRAC_V = 0.701011619;
   const STORAGE_ZONES = "fugawiQ47ExclusionZonesV005";
@@ -366,7 +368,8 @@
     fitCanvas();
     redraw();
 
-    const exact=size.w===REF_W && size.h===REF_H;
+    const exactInput=size.w===INPUT_REF_W && size.h===INPUT_REF_H;
+    const exactGeometry=size.w===REF_W && size.h===REF_H;
     const formatText=header.isPng ?
       "PNG verificado" :
       "imagen decodificada por el navegador";
@@ -378,16 +381,22 @@
       file.name+" · "+size.w+" × "+size.h+" px"+sizeText+
       " · "+formatText+" · recorte Q47 local";
 
-    if (exact) {
+    if (exactInput) {
       setMessage(
-        "Raster reconocido en el sistema lógico 18315 × 13827. Q47 preparado; toca sólo dentro de la zona no oscurecida.",
+        "Raster 18315 × 13827 reconocido. La Web lo convierte al espacio geométrico P3N 18316 × 13828. Toca sólo dentro de Q47, en la zona no oscurecida.",
+        "ok"
+      );
+    } else if (exactGeometry) {
+      setMessage(
+        "Raster 18316 × 13828 reconocido directamente en el espacio geométrico P3N. Toca sólo dentro de Q47, en la zona no oscurecida.",
         "ok"
       );
     } else {
       setMessage(
-        "Raster cargado. Dimensiones "+size.w+" × "+size.h+
-        " px; la referencia Q47 original es "+REF_W+" × "+REF_H+
-        ". Se aplicará escalado proporcional; la zona exterior a Q47 queda oscurecida.",
+        "Raster cargado con dimensiones "+size.w+" × "+size.h+
+        " px. Se convertirá proporcionalmente al espacio P3N "+
+        REF_W+" × "+REF_H+
+        "; verifica visualmente la alineación antes de registrar controles.",
         "working"
       );
     }
@@ -927,7 +936,10 @@
     lines.push("Q47_RASTER|NOMBRE="+(state.fileName || "NO_CARGADO")+
       "|W="+(state.sourceW || 0)+"|H="+(state.sourceH || 0));
     lines.push("Q47_REFERENCIA_PIXEL|W="+REF_W+"|H="+REF_H+
-      "|SISTEMA=LOGICO_SALAMANCA");
+      "|SISTEMA=P3N_GEOMETRIA");
+    lines.push("Q47_RASTER_LOGICO_ESPERADO|W="+INPUT_REF_W+
+      "|H="+INPUT_REF_H+
+      "|CONVERSION=ESCALA_PROPORCIONAL_A_P3N");
     lines.push("Q47_SUBMALLA=ACTIVA");
     lines.push("Q47_SUBMALLA_PERIMETRO=INTACTO");
     lines.push("Q47_SUBMALLA_CELDAS=4");
