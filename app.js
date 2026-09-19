@@ -2,8 +2,8 @@
   "use strict";
 
   const $ = id => document.getElementById(id);
-  const CONFIG_KEY = "fugawiControlConfigV002";
-  const OLD_CONFIG_KEY = "fugawiControlConfigV001";
+  const CONFIG_KEY = "fugawiControlConfigV003";
+  const OLD_CONFIG_KEY = "fugawiControlConfigV002";
   const HISTORY_KEY = "fugawiControlHistoryV001";
 
   const actions = {
@@ -90,7 +90,9 @@
       $("repoName").value = c.repo || "Fugawi";
       $("baseBranch").value = c.branch || "main";
       $("workMode").value = c.mode || "experimental";
-      $("currentVersion").value = c.current || $("currentVersion").value;
+      const cm = String(c.current || "").match(/P3N[_-]?(\d{3})/i);
+      const oldCurrent = cm ? Number(cm[1]) : 0;
+      $("currentVersion").value = oldCurrent >= 42 ? c.current : "Fugawi_P3N_042_Q47_auditoria_runtime_fix.txt";
       $("certifiedVersion").value = c.certified || $("certifiedVersion").value;
     } catch (_) {}
   }
@@ -429,7 +431,7 @@
 
   $("exportHistoryBtn").addEventListener("click", () => {
     download(
-      "Historial_Fugawi_Control_v002.json",
+      "Historial_Fugawi_Control_v003.json",
       JSON.stringify(history(), null, 2),
       "application/json;charset=utf-8"
     );
