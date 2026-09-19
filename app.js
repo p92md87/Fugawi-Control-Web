@@ -2,8 +2,8 @@
   "use strict";
 
   const $ = id => document.getElementById(id);
-  const CONFIG_KEY = "fugawiControlConfigV003";
-  const OLD_CONFIG_KEY = "fugawiControlConfigV002";
+  const CONFIG_KEY = "fugawiControlConfigV005";
+  const OLD_CONFIG_KEY = "fugawiControlConfigV003";
   const HISTORY_KEY = "fugawiControlHistoryV001";
 
   const actions = {
@@ -431,7 +431,7 @@
 
   $("exportHistoryBtn").addEventListener("click", () => {
     download(
-      "Historial_Fugawi_Control_v003.json",
+      "Historial_Fugawi_Control_v005.json",
       JSON.stringify(history(), null, 2),
       "application/json;charset=utf-8"
     );
@@ -468,7 +468,7 @@
         await Promise.all(
           keys
             .filter(key=>key.startsWith("fugawi-control-") &&
-              key!=="fugawi-control-v003-r3")
+              key!=="fugawi-control-v005")
             .map(key=>caches.delete(key))
         );
       } catch (_) {}
@@ -478,7 +478,7 @@
         (location.protocol === "https:" || location.hostname === "localhost")) {
       try {
         const registration=await navigator.serviceWorker.register(
-          "./service-worker.js?v=003-r3",
+          "./service-worker.js?v=005",
           {updateViaCache:"none"}
         );
         await registration.update();
