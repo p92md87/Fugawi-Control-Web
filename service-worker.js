@@ -1,5 +1,5 @@
-const CACHE = "fugawi-control-v002";
-const ASSETS = ["./", "./index.html", "./styles.css", "./app.js", "./manifest.webmanifest"];
+const CACHE = "fugawi-control-v003";
+const ASSETS = ["./", "./index.html", "./styles.css", "./q47.css", "./app.js", "./q47.js", "./manifest.webmanifest"];
 
 self.addEventListener("install", event => {
   self.skipWaiting();
