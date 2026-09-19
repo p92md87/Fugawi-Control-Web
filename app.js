@@ -461,8 +461,30 @@
   setFlow(1);
   setGuide(1);
 
-  if ("serviceWorker" in navigator &&
-      (location.protocol === "https:" || location.hostname === "localhost")) {
-    navigator.serviceWorker.register("./service-worker.js").catch(() => {});
+  async function refreshFugawiWebAssets() {
+    if ("caches" in window) {
+      try {
+        const keys=await caches.keys();
+        await Promise.all(
+          keys
+            .filter(key=>key.startsWith("fugawi-control-") &&
+              key!=="fugawi-control-v003-r3")
+            .map(key=>caches.delete(key))
+        );
+      } catch (_) {}
+    }
+
+    if ("serviceWorker" in navigator &&
+        (location.protocol === "https:" || location.hostname === "localhost")) {
+      try {
+        const registration=await navigator.serviceWorker.register(
+          "./service-worker.js?v=003-r3",
+          {updateViaCache:"none"}
+        );
+        await registration.update();
+      } catch (_) {}
+    }
   }
+
+  refreshFugawiWebAssets();
 })();
