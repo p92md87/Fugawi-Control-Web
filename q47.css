@@ -121,3 +121,13 @@
   .q47-metrics div:nth-last-child(-n+2){border-bottom:1px solid var(--line)}
   .q47-metrics div:last-child{border-bottom:0}
 }
+.q47-reference-state{
+  display:grid;gap:4px;padding:11px 12px;border:1px solid rgba(240,189,98,.35);
+  border-radius:12px;background:rgba(240,189,98,.06)
+}
+.q47-reference-state span{font-size:.61rem;color:var(--muted);letter-spacing:.05em;font-weight:800}
+.q47-reference-state strong{color:#f4d394;font-size:.82rem}
+.q47-reference-state small{color:var(--muted);font-size:.68rem;line-height:1.4}
+.q47-advanced{border:1px solid var(--line);border-radius:12px;padding:10px;background:#091525}
+.q47-advanced summary{cursor:pointer;color:var(--muted);font-size:.7rem;font-weight:800}
+.q47-advanced[open] summary{margin-bottom:10px;color:var(--text)}
