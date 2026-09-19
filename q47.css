@@ -140,3 +140,12 @@
   width:13px;height:13px;border-radius:4px;background:rgba(5,11,19,.72);
   border:1px solid rgba(240,189,98,.45)
 }
+
+.q47-new-test{
+  border-color:rgba(97,214,156,.42)!important;
+  color:#bcefd2!important
+}
+.q47-new-test:hover{
+  border-color:var(--good)!important;
+  background:rgba(97,214,156,.08)!important
+}
