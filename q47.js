@@ -67,11 +67,14 @@
     selected:null,
     zones:loadJson(STORAGE_ZONES,[]),
     controls:loadJson(STORAGE_CONTROLS,[]),
+    inheritedControls:0,
     rejections:[],
     zoneDraft:null,
     mode:"control",
     sessionStartedAt:new Date().toISOString()
   };
+
+  state.inheritedControls=state.controls.length;
 
   function loadJson(key,fallback) {
     try {
@@ -628,6 +631,7 @@
     state.zoneDraft=null;
     state.mode="control";
     state.sessionStartedAt=new Date().toISOString();
+    state.inheritedControls=0;
     $("q47AddExclusionBtn").classList.remove("active");
     localStorage.removeItem(STORAGE_CONTROLS);
     saveLocal();
@@ -979,7 +983,7 @@
     lines.push("Q47_WEB|VERSION="+VERSION+"|P3N_BASE="+BASE+
       "|GENERADO="+new Date().toISOString());
     lines.push("Q47_PRUEBA|INICIO="+state.sessionStartedAt+
-      "|CONTROLES_HEREDADOS=0");
+      "|CONTROLES_HEREDADOS="+state.inheritedControls);
     lines.push("Q47_RASTER|NOMBRE="+(state.fileName || "NO_CARGADO")+
       "|W="+(state.sourceW || 0)+"|H="+(state.sourceH || 0));
     lines.push("Q47_REFERENCIA_PIXEL|W="+REF_W+"|H="+REF_H+
