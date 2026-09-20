@@ -2,8 +2,8 @@
   "use strict";
 
   const $ = id => document.getElementById(id);
-  const VERSION = "v008";
-  const BUILD = "008.0";
+  const VERSION = "v009";
+  const BUILD = "009.0";
   const BASE = "P3N_042";
   const REF_W = 18316;
   const REF_H = 13828;
@@ -11,8 +11,8 @@
   const INPUT_REF_H = 13827;
   const FRAC_U = 0.441195799;
   const FRAC_V = 0.701011619;
-  const STORAGE_ZONES = "fugawiQ47ExclusionZonesV008";
-  const STORAGE_CONTROLS = "fugawiQ47ControlsV008";
+  const STORAGE_ZONES = "fugawiQ47ExclusionZonesV009";
+  const STORAGE_CONTROLS = "fugawiQ47ControlsV009";
   const CROP_PADDING = 180;
 
   const I1 = {id:65,x:9105.78,y:5259.32,lat:41.0748,lon:-5.38198};
@@ -678,7 +678,7 @@
 
     if (state.selected) {
       const p=rawToCanvas(state.selected.rawX,state.selected.rawY);
-      ctx.strokeStyle=state.selected.rejected ? "#ff8f9a" : "#ffffff";
+      ctx.strokeStyle="#ff2d2d";
       ctx.lineWidth=3;
       ctx.beginPath();
       ctx.arc(p.x,p.y,12,0,Math.PI*2);
@@ -1224,7 +1224,7 @@
     const a=document.createElement("a");
     const stamp=new Date().toISOString().replace(/[:.]/g,"-");
     a.href=url;
-    a.download="Fugawi_Q47_Validacion_v008_"+stamp+".txt";
+    a.download="Fugawi_Q47_Validacion_v009_"+stamp+".txt";
     document.body.appendChild(a);
     a.click();
     a.remove();
