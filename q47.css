@@ -149,3 +149,25 @@
   border-color:var(--good)!important;
   background:rgba(97,214,156,.08)!important
 }
+
+.q47-cert-card{
+  display:grid;gap:8px;padding:11px 12px;
+  border:1px solid rgba(216,167,255,.40);
+  border-radius:14px;background:rgba(130,76,180,.08)
+}
+.q47-cert-head{
+  display:flex;justify-content:space-between;gap:10px;
+  align-items:center;flex-wrap:wrap
+}
+.q47-cert-head span{
+  color:#d8a7ff;font-size:.61rem;font-weight:900;
+  letter-spacing:.05em
+}
+.q47-cert-head strong{font-size:.78rem}
+.q47-cert-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:6px
+}
+.q47-cert-grid small,.q47-cert-card>small{
+  color:var(--muted);font-size:.66rem;line-height:1.4
+}
+.q47-cert-grid b{color:#f3e4ff}
