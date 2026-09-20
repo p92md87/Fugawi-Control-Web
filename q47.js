@@ -2,8 +2,8 @@
   "use strict";
 
   const $ = id => document.getElementById(id);
-  const VERSION = "v007";
-  const BUILD = "007.0";
+  const VERSION = "v008";
+  const BUILD = "008.0";
   const BASE = "P3N_042";
   const REF_W = 18316;
   const REF_H = 13828;
@@ -11,8 +11,8 @@
   const INPUT_REF_H = 13827;
   const FRAC_U = 0.441195799;
   const FRAC_V = 0.701011619;
-  const STORAGE_ZONES = "fugawiQ47ExclusionZonesV007";
-  const STORAGE_CONTROLS = "fugawiQ47ControlsV007";
+  const STORAGE_ZONES = "fugawiQ47ExclusionZonesV008";
+  const STORAGE_CONTROLS = "fugawiQ47ControlsV008";
   const CROP_PADDING = 180;
 
   const I1 = {id:65,x:9105.78,y:5259.32,lat:41.0748,lon:-5.38198};
@@ -25,6 +25,21 @@
     y:4441.385330,
     lat:41.138959560314,
     lon:-5.331734591888
+  };
+
+  const Q47_REGRESSION_02 = {
+    id:"TEST_Q47_02",
+    x:9893.92,
+    y:4693.69,
+    lat:41.118667361632,
+    lon:-5.302340503458
+  };
+  const CERT_LA_CAROLINA = {
+    id:"VG_LA_CAROLINA_45367",
+    x:9893.92,
+    y:4693.69,
+    e:307003.229,
+    n:4554487.232
   };
 
   function lerpPoint(a,b,t,id) {
@@ -203,6 +218,71 @@
       )
     );
     return {e:easting,n:northing};
+  }
+
+  function certifiedDiagnostic() {
+    const solved=solveQ47Pixel(
+      CERT_LA_CAROLINA.x,
+      CERT_LA_CAROLINA.y
+    );
+    if (!solved) return null;
+    const de=solved.e-CERT_LA_CAROLINA.e;
+    const dn=solved.n-CERT_LA_CAROLINA.n;
+    return {
+      solved:solved,
+      de:de,
+      dn:dn,
+      residual:Math.hypot(de,dn)
+    };
+  }
+
+  function regressionReferenceDiagnostic() {
+    const utm=latLonToUtm30(
+      Q47_REGRESSION_02.lat,
+      Q47_REGRESSION_02.lon
+    );
+    const de=utm.e-CERT_LA_CAROLINA.e;
+    const dn=utm.n-CERT_LA_CAROLINA.n;
+    return {
+      e:utm.e,
+      n:utm.n,
+      de:de,
+      dn:dn,
+      residual:Math.hypot(de,dn)
+    };
+  }
+
+  function updateCertifiedPanel() {
+    const d=certifiedDiagnostic();
+    if (!d) {
+      $("q47CertResidual").textContent="SIN SOLUCIÓN";
+      $("q47CertDeltaE").textContent="—";
+      $("q47CertDeltaN").textContent="—";
+      return;
+    }
+    $("q47CertResidual").textContent=n(d.residual,2)+" m";
+    $("q47CertDeltaE").textContent=n(d.de,2)+" m";
+    $("q47CertDeltaN").textContent=n(d.dn,2)+" m";
+    if (!state.selected) {
+      $("q47TapVsCert").textContent=
+        "Toca el mapa para comparar tu selección con este control.";
+      return;
+    }
+    const dx=state.selected.rawX-CERT_LA_CAROLINA.x;
+    const dy=state.selected.rawY-CERT_LA_CAROLINA.y;
+    const dp=Math.hypot(dx,dy);
+    let modelM=null;
+    if (!state.selected.rejected) {
+      modelM=Math.hypot(
+        state.selected.e-d.solved.e,
+        state.selected.n-d.solved.n
+      );
+    }
+    $("q47TapVsCert").textContent=
+      "Selección vs certificado: ΔX "+n(dx,2)+
+      " px · ΔY "+n(dy,2)+
+      " px · distancia "+n(dp,2)+" px"+
+      (modelM===null ? "" : " · ≈ "+n(modelM,1)+" m Q47");
   }
 
   function haversine(lat1,lon1,lat2,lon2) {
@@ -480,6 +560,7 @@
   }
 
   function redraw() {
+    updateCertifiedPanel();
     const canvas=$("q47Canvas");
     if (!canvas || !state.sourceCrop) return;
     const ctx=canvas.getContext("2d");
@@ -571,6 +652,29 @@
         ctx.fillText("C",p.x+15,p.y-14);
       }
     });
+
+    const certP=rawToCanvas(
+      CERT_LA_CAROLINA.x,
+      CERT_LA_CAROLINA.y
+    );
+    ctx.save();
+    ctx.strokeStyle="#d8a7ff";
+    ctx.fillStyle="rgba(216,167,255,.18)";
+    ctx.lineWidth=3;
+    ctx.beginPath();
+    ctx.moveTo(certP.x,certP.y-11);
+    ctx.lineTo(certP.x+11,certP.y);
+    ctx.lineTo(certP.x,certP.y+11);
+    ctx.lineTo(certP.x-11,certP.y);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle="#f3e4ff";
+    ctx.font="800 12px system-ui";
+    ctx.textAlign="left";
+    ctx.textBaseline="middle";
+    ctx.fillText("LC 45367",certP.x+15,certP.y-14);
+    ctx.restore();
 
     if (state.selected) {
       const p=rawToCanvas(state.selected.rawX,state.selected.rawY);
@@ -1003,6 +1107,61 @@
     lines.push("Q47_ANCLA|PIX_X="+C.x+"|PIX_Y="+C.y+
       "|LAT="+C.lat+"|LON="+C.lon);
 
+    lines.push(
+      "Q47_AUTOTEST_TIPO=REGRESION_INTERNA_NO_VALIDACION_GEOGRAFICA"
+    );
+    const cert=certifiedDiagnostic();
+    if (cert) {
+      let certState="SUPERA_300M";
+      if (cert.residual<=200) {
+        certState="OBJETIVO_PREFERENTE";
+      } else if (cert.residual<=300) {
+        certState="ACEPTABLE_OPERATIVO_NO_PREFERENTE";
+      }
+      lines.push("Q47_CONTROL_CERTIFICADO_HISTORICO"+
+        "|PUNTO="+CERT_LA_CAROLINA.id+
+        "|PIX_X="+CERT_LA_CAROLINA.x+
+        "|PIX_Y="+CERT_LA_CAROLINA.y+
+        "|E_REF_ETRS89="+CERT_LA_CAROLINA.e+
+        "|N_REF_ETRS89="+CERT_LA_CAROLINA.n+
+        "|E_CALC_ETRS89="+cert.solved.e+
+        "|N_CALC_ETRS89="+cert.solved.n+
+        "|DELTA_E_M="+cert.de+
+        "|DELTA_N_M="+cert.dn+
+        "|RESIDUAL_M="+cert.residual+
+        "|ESTADO="+certState);
+    }
+    const regressionRef=regressionReferenceDiagnostic();
+    lines.push("Q47_TEST_INTERNO_REFERENCIA"+
+      "|ID="+Q47_REGRESSION_02.id+
+      "|LAT="+Q47_REGRESSION_02.lat+
+      "|LON="+Q47_REGRESSION_02.lon+
+      "|E_CALC="+regressionRef.e+
+      "|N_CALC="+regressionRef.n+
+      "|IGN_E="+CERT_LA_CAROLINA.e+
+      "|IGN_N="+CERT_LA_CAROLINA.n+
+      "|DIF_E_M="+regressionRef.de+
+      "|DIF_N_M="+regressionRef.dn+
+      "|DIF_M="+regressionRef.residual+
+      "|USO=SOLO_REGRESION_INTERNA");
+
+    if (state.selected) {
+      const dx=state.selected.rawX-CERT_LA_CAROLINA.x;
+      const dy=state.selected.rawY-CERT_LA_CAROLINA.y;
+      let modelM=null;
+      if (cert && !state.selected.rejected) {
+        modelM=Math.hypot(
+          state.selected.e-cert.solved.e,
+          state.selected.n-cert.solved.n
+        );
+      }
+      lines.push("Q47_SELECCION_VS_CERTIFICADO"+
+        "|DX_PIX="+dx+
+        "|DY_PIX="+dy+
+        "|DIST_PIX="+Math.hypot(dx,dy)+
+        (modelM===null ? "" : "|DIST_MODELO_M="+modelM));
+    }
+
     if (state.selected) {
       lines.push(selectionTraceLine(state.selected));
     }
@@ -1065,7 +1224,7 @@
     const a=document.createElement("a");
     const stamp=new Date().toISOString().replace(/[:.]/g,"-");
     a.href=url;
-    a.download="Fugawi_Q47_Validacion_v007_"+stamp+".txt";
+    a.download="Fugawi_Q47_Validacion_v008_"+stamp+".txt";
     document.body.appendChild(a);
     a.click();
     a.remove();
@@ -1086,18 +1245,18 @@
   function runSelfTest() {
     const tests=[
       {
-        name:"Vallesa",
+        name:"TEST_Q47_ANCLA",
         x:9601.197356,
         y:4441.385330,
         lat:41.138959560314,
         lon:-5.331734591888
       },
       {
-        name:"La Carolina",
-        x:9893.92,
-        y:4693.69,
-        lat:41.118667361632,
-        lon:-5.302340503458
+        name:Q47_REGRESSION_02.id,
+        x:Q47_REGRESSION_02.x,
+        y:Q47_REGRESSION_02.y,
+        lat:Q47_REGRESSION_02.lat,
+        lon:Q47_REGRESSION_02.lon
       }
     ];
     const results=tests.map(t=>{
@@ -1113,7 +1272,19 @@
       selectionLine.includes("|SUBCUAD=") &&
       selectionLine.includes("|LAT_CALC=") &&
       selectionLine.includes("|E_CALC_ETRS89=");
-    const pass=results.every(Boolean) && tracePass;
+    const cert=certifiedDiagnostic();
+    const regressionRef=regressionReferenceDiagnostic();
+    const certPass=Boolean(cert) &&
+      cert.residual>292 &&
+      cert.residual<294;
+    const regressionPass=
+      regressionRef.residual>292 &&
+      regressionRef.residual<294;
+    const pass=
+      results.every(Boolean) &&
+      tracePass &&
+      certPass &&
+      regressionPass;
     const badge=$("q47RuntimeBadge");
     badge.textContent=pass ? "AUTOTEST Q47 · PASS" : "AUTOTEST Q47 · FAIL";
     badge.classList.toggle("fail",!pass);
@@ -1180,6 +1351,7 @@
   resetResultFields();
   renderZones();
   renderControls();
+  updateCertifiedPanel();
   runSelfTest();
   if (location.hash==="#q47") {
     $("q47Validator").hidden=false;
