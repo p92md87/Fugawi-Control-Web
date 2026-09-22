@@ -3,7 +3,7 @@
 Panel web de ingeniería para preparar y auditar órdenes de desarrollo del proyecto Fugawi.
 
 ## Estado
-- **v010**: interfaz guiada por tareas, validador geométrico Q47 y capturador RAW genérico, optimizada para iPad.
+- **v011**: corrige la carga del módulo «Captura RAW de controles» en la página publicada; mantiene el validador Q47 y el capturador RAW genérico optimizados para iPad.
 - Muestra a primera vista versión operativa, siguiente versión, modo, protección de arquitectura y estado del flujo.
 - Incluye tarjetas para regresiones, mejoras, reestructuración, comparación, nuevas versiones y pruebas.
 - Genera órdenes técnicas con las protecciones de ingeniería de Fugawi.
