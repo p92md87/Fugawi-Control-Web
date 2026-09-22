@@ -1,0 +1,428 @@
+(() => {
+  "use strict";
+
+  const $ = id => document.getElementById(id);
+  const VERSION = "v010";
+  const BUILD = "010.0";
+  const STORAGE_CONTROLS = "fugawiRawControlsV010";
+  const DOMAIN = "PIXEL_RASTER_ORIGINAL";
+
+  const state = {
+    file:null,
+    fileName:"",
+    sourceW:0,
+    sourceH:0,
+    fileSize:0,
+    mime:"",
+    sha256:"",
+    rasterKey:"",
+    objectUrl:"",
+    selected:null,
+    controls:loadJson(STORAGE_CONTROLS,[]),
+    zoom:1,
+    sessionStartedAt:new Date().toISOString()
+  };
+
+  function loadJson(key,fallback) {
+    try {
+      const raw=localStorage.getItem(key);
+      if (!raw) return fallback;
+      const value=JSON.parse(raw);
+      return Array.isArray(value) ? value : fallback;
+    } catch (_) {
+      return fallback;
+    }
+  }
+
+  function saveLocal() {
+    localStorage.setItem(STORAGE_CONTROLS,JSON.stringify(state.controls));
+  }
+
+  function n(v,d=3) {
+    return Number.isFinite(v) ? Number(v).toFixed(d) : "—";
+  }
+
+  function safeName(text) {
+    return String(text || "raster")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g,"")
+      .replace(/[^a-zA-Z0-9_-]+/g,"_")
+      .replace(/^_+|_+$/g,"") || "raster";
+  }
+
+  function escapeTrace(text) {
+    return String(text || "")
+      .replace(/\r?\n/g," ")
+      .replace(/\|/g,"/")
+      .trim();
+  }
+
+  function setMessage(text,type="") {
+    const node=$("rawMessage");
+    node.textContent=text;
+    node.className="q47-message"+(type ? " "+type : "");
+  }
+
+  async function sha256File(file) {
+    try {
+      if (!window.crypto || !window.crypto.subtle) return "NO_DISPONIBLE";
+      const buffer=await file.arrayBuffer();
+      const digest=await crypto.subtle.digest("SHA-256",buffer);
+      return Array.from(new Uint8Array(digest))
+        .map(v=>v.toString(16).padStart(2,"0"))
+        .join("");
+    } catch (_) {
+      return "NO_DISPONIBLE";
+    }
+  }
+
+  function clearImage() {
+    if (state.objectUrl) URL.revokeObjectURL(state.objectUrl);
+    state.objectUrl="";
+    state.file=null;
+    state.fileName="";
+    state.sourceW=0;
+    state.sourceH=0;
+    state.fileSize=0;
+    state.mime="";
+    state.sha256="";
+    state.rasterKey="";
+    state.selected=null;
+    $("rawImage").removeAttribute("src");
+    $("rawCrosshair").hidden=true;
+    $("rawMapHint").classList.remove("hidden");
+    clearSelectionFields();
+    drawLoupe();
+  }
+
+  function rasterKey() {
+    if (state.sha256 && state.sha256!=="NO_DISPONIBLE") {
+      return state.sha256;
+    }
+    return state.fileName+"|"+state.sourceW+"x"+state.sourceH+"|"+state.fileSize;
+  }
+
+  function currentControls() {
+    if (!state.rasterKey) return [];
+    return state.controls.filter(c=>c.rasterKey===state.rasterKey);
+  }
+
+  function setZoom(value) {
+    if (!state.sourceW) return;
+    state.zoom=value;
+    const stage=$("rawStage");
+    const viewport=$("rawViewport");
+    const usable=Math.max(320,viewport.clientWidth-2);
+    const width=Math.round(usable*value);
+    const height=Math.round(width*state.sourceH/state.sourceW);
+    stage.style.width=width+"px";
+    stage.style.height=height+"px";
+    $("rawZoom").textContent=value+"× visual";
+    [1,2,4].forEach(z=>{
+      const b=$("rawZoom"+z+"Btn");
+      if (b) b.classList.toggle("active",z===value);
+    });
+    positionCrosshair();
+  }
+
+  async function loadRaster(file) {
+    clearImage();
+    setMessage("Leyendo el raster exacto sin transformar sus coordenadas…","working");
+    state.file=file;
+    state.fileName=file.name;
+    state.fileSize=file.size || 0;
+    state.mime=file.type || "";
+    state.objectUrl=URL.createObjectURL(file);
+
+    const img=$("rawImage");
+    await new Promise((resolve,reject)=>{
+      img.onload=resolve;
+      img.onerror=()=>reject(new Error("El navegador no puede decodificar este raster como imagen."));
+      img.src=state.objectUrl;
+    });
+
+    state.sourceW=img.naturalWidth || img.width;
+    state.sourceH=img.naturalHeight || img.height;
+    if (!state.sourceW || !state.sourceH) {
+      throw new Error("No se han podido determinar las dimensiones RAW del raster.");
+    }
+
+    state.sha256=await sha256File(file);
+    state.rasterKey=rasterKey();
+    state.selected=null;
+    state.sessionStartedAt=new Date().toISOString();
+
+    $("rawMapHint").classList.add("hidden");
+    $("rawRasterMeta").textContent=
+      state.fileName+" · "+state.sourceW+" × "+state.sourceH+" px · "+
+      (state.fileSize ? (state.fileSize/1048576).toFixed(1)+" MB · " : "")+
+      "DOMINIO="+DOMAIN;
+    $("rawWidth").textContent=state.sourceW;
+    $("rawHeight").textContent=state.sourceH;
+    $("rawDomain").textContent=DOMAIN;
+    $("rawHash").textContent=
+      state.sha256==="NO_DISPONIBLE" ? "NO DISPONIBLE" : state.sha256.slice(0,16)+"…";
+    setZoom(1);
+    renderControls();
+    setMessage(
+      "Raster reconocido. La captura conserva el dominio RAW original: no se aplica ninguna conversión de píxel. Amplía a 2× o 4× y toca el objeto físico.",
+      "ok"
+    );
+  }
+
+  function eventToRaw(event) {
+    const img=$("rawImage");
+    const rect=img.getBoundingClientRect();
+    if (!rect.width || !rect.height) return null;
+    const fx=(event.clientX-rect.left)/rect.width;
+    const fy=(event.clientY-rect.top)/rect.height;
+    if (fx<0 || fx>1 || fy<0 || fy>1) return null;
+    return {
+      x:fx*state.sourceW,
+      y:fy*state.sourceH
+    };
+  }
+
+  function selectRaw(x,y) {
+    if (!state.sourceW || !state.sourceH) return;
+    state.selected={
+      x:Math.max(0,Math.min(state.sourceW-1,x)),
+      y:Math.max(0,Math.min(state.sourceH-1,y))
+    };
+    $("rawX").textContent=n(state.selected.x,3);
+    $("rawY").textContent=n(state.selected.y,3);
+    positionCrosshair();
+    drawLoupe();
+    setMessage("Píxel RAW seleccionado. Verifica la cruceta roja y ajusta ±1 px si es necesario.","ok");
+  }
+
+  function positionCrosshair() {
+    const cross=$("rawCrosshair");
+    if (!state.selected || !state.sourceW || !state.sourceH) {
+      cross.hidden=true;
+      return;
+    }
+    cross.hidden=false;
+    cross.style.left=(state.selected.x/state.sourceW*100)+"%";
+    cross.style.top=(state.selected.y/state.sourceH*100)+"%";
+  }
+
+  function nudge(dx,dy) {
+    if (!state.selected) {
+      setMessage("Selecciona primero un punto sobre el raster.","error");
+      return;
+    }
+    selectRaw(state.selected.x+dx,state.selected.y+dy);
+  }
+
+  function drawLoupe() {
+    const canvas=$("rawLoupe");
+    if (!canvas) return;
+    const ctx=canvas.getContext("2d");
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle="#050b13";
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+    if (!state.selected || !state.sourceW) return;
+
+    const img=$("rawImage");
+    const span=40;
+    const half=span/2;
+    const sx=Math.max(0,Math.min(state.sourceW-span,state.selected.x-half));
+    const sy=Math.max(0,Math.min(state.sourceH-span,state.selected.y-half));
+    const sw=Math.min(span,state.sourceW);
+    const sh=Math.min(span,state.sourceH);
+    ctx.imageSmoothingEnabled=false;
+    ctx.drawImage(img,sx,sy,sw,sh,0,0,canvas.width,canvas.height);
+    ctx.strokeStyle="#ff2d2d";
+    ctx.lineWidth=2;
+    ctx.beginPath();
+    ctx.moveTo(canvas.width/2-22,canvas.height/2);
+    ctx.lineTo(canvas.width/2+22,canvas.height/2);
+    ctx.moveTo(canvas.width/2,canvas.height/2-22);
+    ctx.lineTo(canvas.width/2,canvas.height/2+22);
+    ctx.stroke();
+  }
+
+  function clearSelectionFields() {
+    $("rawX").textContent="—";
+    $("rawY").textContent="—";
+    $("rawWidth").textContent=state.sourceW || "—";
+    $("rawHeight").textContent=state.sourceH || "—";
+    $("rawDomain").textContent=state.sourceW ? DOMAIN : "—";
+    $("rawHash").textContent="—";
+    $("rawZoom").textContent="—";
+  }
+
+  function nextControlId() {
+    const count=currentControls().length+1;
+    return "CF"+String(count).padStart(3,"0");
+  }
+
+  function registerControl() {
+    if (!state.selected || !state.rasterKey) {
+      setMessage("No hay un píxel RAW seleccionado para registrar.","error");
+      return;
+    }
+    const name=$("rawControlName").value.trim();
+    if (!name) {
+      setMessage("Describe el objeto físico antes de registrarlo.","error");
+      $("rawControlName").focus();
+      return;
+    }
+    const control={
+      at:new Date().toISOString(),
+      id:nextControlId(),
+      type:$("rawControlType").value,
+      name:name,
+      notes:$("rawControlNotes").value.trim(),
+      raster:state.fileName,
+      rasterKey:state.rasterKey,
+      sha256:state.sha256,
+      width:state.sourceW,
+      height:state.sourceH,
+      rawX:state.selected.x,
+      rawY:state.selected.y,
+      domain:DOMAIN,
+      status:"CAPTURA_RAW_PENDIENTE_REFERENCIA_OFICIAL"
+    };
+    state.controls.push(control);
+    saveLocal();
+    renderControls();
+    $("rawControlName").value="";
+    $("rawControlNotes").value="";
+    setMessage(control.id+" registrado en PIXEL_RASTER_ORIGINAL. No se ha calculado ninguna coordenada geográfica.","ok");
+  }
+
+  function renderControls() {
+    const body=$("rawControlRows");
+    body.innerHTML="";
+    const controls=currentControls();
+    if (!controls.length) {
+      const row=document.createElement("tr");
+      const cell=document.createElement("td");
+      cell.colSpan=5;
+      cell.className="q47-empty-table";
+      cell.textContent=state.rasterKey ? "Todavía no hay controles RAW registrados para este raster." : "Carga un raster para comenzar.";
+      row.appendChild(cell);
+      body.appendChild(row);
+      return;
+    }
+    controls.forEach(c=>{
+      const row=document.createElement("tr");
+      [c.id,c.name,c.type,n(c.rawX,3)+" / "+n(c.rawY,3),"PENDIENTE IGN/PNOA"]
+        .forEach(value=>{
+          const cell=document.createElement("td");
+          cell.textContent=value;
+          row.appendChild(cell);
+        });
+      body.appendChild(row);
+    });
+  }
+
+  function traceText() {
+    const controls=currentControls();
+    const lines=[];
+    lines.push("FUGAWI_IA_CONTROL_RAW_"+VERSION.toUpperCase());
+    lines.push("RAW_WEB|VERSION="+VERSION+"|BUILD="+BUILD+"|GENERADO="+new Date().toISOString());
+    lines.push("RAW_SESSION|INICIO="+state.sessionStartedAt);
+    lines.push("RAW_RASTER|NOMBRE="+escapeTrace(state.fileName)+"|W="+state.sourceW+"|H="+state.sourceH+"|BYTES="+state.fileSize+"|MIME="+escapeTrace(state.mime)+"|SHA256="+state.sha256);
+    lines.push("RAW_DOMAIN|DOMINIO="+DOMAIN+"|ORIGEN=SUPERIOR_IZQUIERDO|X=DERECHA|Y=ABAJO|TRANSFORMACIONES_PIXEL=0");
+    controls.forEach(c=>{
+      lines.push("RAW_CONTROL|ID="+c.id+"|TIPO="+escapeTrace(c.type)+"|NOMBRE="+escapeTrace(c.name)+"|PIX_X="+c.rawX+"|PIX_Y="+c.rawY+"|DOMINIO="+c.domain+"|ESTADO="+c.status+(c.notes ? "|NOTAS="+escapeTrace(c.notes) : ""));
+    });
+    lines.push("RAW_RESUMEN|CONTROLES="+controls.length+"|COORDENADAS_OFICIALES=NO_CALCULADAS|MALLA=NO_MODIFICADA");
+    return lines.join("\n")+"\n";
+  }
+
+  function downloadTrace() {
+    if (!state.rasterKey) {
+      setMessage("Carga primero el raster exacto.","error");
+      return;
+    }
+    const blob=new Blob([traceText()],{type:"text/plain;charset=utf-8"});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement("a");
+    const stamp=new Date().toISOString().replace(/[:.]/g,"-");
+    a.href=url;
+    a.download="Fugawi_RAW_"+safeName(state.fileName.replace(/\.[^.]+$/, ""))+"_"+stamp+".txt";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),1000);
+    setMessage("Traza RAW exportada. Contiene el raster, su SHA-256 y los controles capturados.","ok");
+  }
+
+  function clearCurrentControls() {
+    if (!state.rasterKey) return;
+    const count=currentControls().length;
+    if (!count) return;
+    if (!confirm("¿Eliminar los "+count+" controles RAW registrados para este raster?")) return;
+    state.controls=state.controls.filter(c=>c.rasterKey!==state.rasterKey);
+    saveLocal();
+    renderControls();
+    setMessage("Controles RAW de este raster eliminados.","ok");
+  }
+
+  function newSession() {
+    state.sessionStartedAt=new Date().toISOString();
+    state.selected=null;
+    $("rawCrosshair").hidden=true;
+    $("rawControlName").value="";
+    $("rawControlNotes").value="";
+    $("rawX").textContent="—";
+    $("rawY").textContent="—";
+    drawLoupe();
+    setMessage("Nueva sesión RAW iniciada. Los controles ya registrados se conservan.","ok");
+  }
+
+  function openRaw() {
+    $("rawValidator").hidden=false;
+    $("rawValidator").scrollIntoView({behavior:"smooth",block:"start"});
+    location.hash="raw";
+  }
+
+  function closeRaw() {
+    $("rawValidator").hidden=true;
+    if (location.hash==="#raw") {
+      history.replaceState(null,"",location.pathname+location.search);
+    }
+  }
+
+  function wire() {
+    $("rawEntryBtn").addEventListener("click",openRaw);
+    $("rawCloseBtn").addEventListener("click",closeRaw);
+    $("rawRasterInput").addEventListener("change",event=>{
+      const file=event.target.files && event.target.files[0];
+      if (!file) return;
+      loadRaster(file).catch(err=>{
+        setMessage(err.message || "No se pudo cargar el raster.","error");
+      });
+    });
+    $("rawImage").addEventListener("pointerdown",event=>{
+      if (!state.sourceW) return;
+      const raw=eventToRaw(event);
+      if (raw) selectRaw(raw.x,raw.y);
+    });
+    $("rawZoom1Btn").addEventListener("click",()=>setZoom(1));
+    $("rawZoom2Btn").addEventListener("click",()=>setZoom(2));
+    $("rawZoom4Btn").addEventListener("click",()=>setZoom(4));
+    $("rawLeftBtn").addEventListener("click",()=>nudge(-1,0));
+    $("rawRightBtn").addEventListener("click",()=>nudge(1,0));
+    $("rawUpBtn").addEventListener("click",()=>nudge(0,-1));
+    $("rawDownBtn").addEventListener("click",()=>nudge(0,1));
+    $("rawRegisterBtn").addEventListener("click",registerControl);
+    $("rawExportBtn").addEventListener("click",downloadTrace);
+    $("rawClearControlsBtn").addEventListener("click",clearCurrentControls);
+    $("rawNewSessionBtn").addEventListener("click",newSession);
+    window.addEventListener("resize",()=>{
+      if (state.sourceW) setZoom(state.zoom);
+    });
+  }
+
+  if (!$("rawValidator")) return;
+  wire();
+  clearSelectionFields();
+  renderControls();
+  $("rawRuntimeBadge").textContent="RAW · SIN TRANSFORMACIÓN";
+  if (location.hash==="#raw") $("rawValidator").hidden=false;
+})();
