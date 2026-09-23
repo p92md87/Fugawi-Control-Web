@@ -222,6 +222,7 @@
   }
 
   function activateGranadaCampaign() {
+    $("rawValidator").hidden=false;
     state.campaignActive=true;
     $("rawControlName").readOnly=true;
     $("rawControlType").disabled=true;
@@ -544,7 +545,7 @@
   function renderControls() {
     const body=$("rawControlRows");
     body.innerHTML="";
-    const controls=currentControls();
+    const controls=state.campaignActive ? campaignControls() : currentControls();
     if (!controls.length) {
       const row=document.createElement("tr");
       const cell=document.createElement("td");
@@ -568,7 +569,7 @@
   }
 
   function traceText() {
-    const controls=currentControls();
+    const controls=state.campaignActive ? campaignControls() : currentControls();
     const lines=[];
     lines.push("FUGAWI_IA_CONTROL_RAW_"+VERSION.toUpperCase());
     lines.push("RAW_WEB|VERSION="+VERSION+"|BUILD="+BUILD+"|GENERADO="+new Date().toISOString());
@@ -641,14 +642,31 @@
 
   function clearCurrentControls() {
     if (!state.rasterKey) return;
-    const count=currentControls().length;
+    const controls=state.campaignActive ? campaignControls() : currentControls();
+    const count=controls.length;
     if (!count) return;
-    if (!confirm("¿Eliminar los "+count+" controles RAW registrados para este raster?")) return;
-    state.controls=state.controls.filter(c=>c.rasterKey!==state.rasterKey);
+    const text=state.campaignActive ?
+      "¿Eliminar los "+count+" controles de la campaña Granada para este raster?" :
+      "¿Eliminar los "+count+" controles RAW registrados para este raster?";
+    if (!confirm(text)) return;
+
+    if (state.campaignActive) {
+      state.controls=state.controls.filter(c=>
+        !(c.rasterKey===state.rasterKey && c.campaign===GRANADA_CAMPAIGN.id)
+      );
+    } else {
+      state.controls=state.controls.filter(c=>c.rasterKey!==state.rasterKey);
+    }
+
     saveLocal();
     renderControls();
     if (state.campaignActive) selectNextCampaignTarget();
-    setMessage("Controles RAW de este raster eliminados.","ok");
+    setMessage(
+      state.campaignActive ?
+        "Controles de la campaña Granada eliminados." :
+        "Controles RAW de este raster eliminados.",
+      "ok"
+    );
   }
 
   function newSession() {
@@ -679,6 +697,12 @@
 
   function wire() {
     $("rawEntryBtn").addEventListener("click",openRaw);
+    if ($("rawGranadaEntryBtn")) {
+      $("rawGranadaEntryBtn").addEventListener("click",()=>{
+        openRaw();
+        activateGranadaCampaign();
+      });
+    }
     $("rawCloseBtn").addEventListener("click",closeRaw);
     $("rawRasterInput").addEventListener("change",event=>{
       const file=event.target.files && event.target.files[0];
