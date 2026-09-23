@@ -2,8 +2,8 @@
   "use strict";
 
   const $ = id => document.getElementById(id);
-  const VERSION = "v015";
-  const BUILD = "015.0";
+  const VERSION = "v016";
+  const BUILD = "016.0";
   const STORAGE_CONTROLS = "fugawiRawControlsV010";
   const DOMAIN = "PIXEL_RASTER_ORIGINAL";
   const GRANADA_CAMPAIGN = {
@@ -71,6 +71,12 @@
     selected:null,
     controls:loadJson(STORAGE_CONTROLS,[]),
     zoom:1,
+    pointers:new Map(),
+    gestureMode:"",
+    gestureMoved:false,
+    gestureHadPinch:false,
+    panStart:null,
+    pinchStart:null,
     campaignActive:false,
     campaignTargetId:"",
     sessionStartedAt:new Date().toISOString()
@@ -302,22 +308,161 @@
     return state.controls.filter(c=>c.rasterKey===state.rasterKey);
   }
 
-  function setZoom(value) {
+  function clampZoom(value) {
+    return Math.max(1,Math.min(8,value));
+  }
+
+  function setZoom(value,anchorX=null,anchorY=null) {
     if (!state.sourceW) return;
-    state.zoom=value;
+
     const stage=$("rawStage");
     const viewport=$("rawViewport");
+    const oldWidth=stage.getBoundingClientRect().width || viewport.clientWidth;
+    const oldHeight=stage.getBoundingClientRect().height || viewport.clientHeight;
+    const localAnchorX=Number.isFinite(anchorX) ? anchorX : viewport.clientWidth/2;
+    const localAnchorY=Number.isFinite(anchorY) ? anchorY : viewport.clientHeight/2;
+    const normX=oldWidth>0 ?
+      (viewport.scrollLeft+localAnchorX)/oldWidth : 0.5;
+    const normY=oldHeight>0 ?
+      (viewport.scrollTop+localAnchorY)/oldHeight : 0.5;
+
+    state.zoom=clampZoom(value);
     const usable=Math.max(320,viewport.clientWidth-2);
-    const width=Math.round(usable*value);
+    const width=Math.round(usable*state.zoom);
     const height=Math.round(width*state.sourceH/state.sourceW);
     stage.style.width=width+"px";
     stage.style.height=height+"px";
-    $("rawZoom").textContent=value+"× visual";
+
+    requestAnimationFrame(()=>{
+      if (Number.isFinite(anchorX) && Number.isFinite(anchorY)) {
+        viewport.scrollLeft=Math.max(0,normX*width-localAnchorX);
+        viewport.scrollTop=Math.max(0,normY*height-localAnchorY);
+      }
+      positionCrosshair();
+    });
+
+    $("rawZoom").textContent=
+      (Math.round(state.zoom*100)/100).toFixed(
+        Math.abs(state.zoom-Math.round(state.zoom))<0.005 ? 0 : 2
+      )+"× visual";
     [1,2,4].forEach(z=>{
       const b=$("rawZoom"+z+"Btn");
-      if (b) b.classList.toggle("active",z===value);
+      if (b) b.classList.toggle("active",Math.abs(state.zoom-z)<0.02);
     });
-    positionCrosshair();
+  }
+
+  function pointerDistance(a,b) {
+    return Math.hypot(a.x-b.x,a.y-b.y);
+  }
+
+  function pointerMidpoint(a,b,viewport) {
+    const rect=viewport.getBoundingClientRect();
+    return {
+      x:(a.x+b.x)/2-rect.left,
+      y:(a.y+b.y)/2-rect.top
+    };
+  }
+
+  function beginPan(pointer) {
+    const viewport=$("rawViewport");
+    state.gestureMode="pan";
+    state.gestureMoved=false;
+    state.panStart={
+      pointerX:pointer.x,
+      pointerY:pointer.y,
+      scrollLeft:viewport.scrollLeft,
+      scrollTop:viewport.scrollTop
+    };
+  }
+
+  function beginPinch() {
+    const points=[...state.pointers.values()];
+    if (points.length<2) return;
+    const viewport=$("rawViewport");
+    const a=points[0];
+    const b=points[1];
+    state.gestureMode="pinch";
+    state.gestureHadPinch=true;
+    state.gestureMoved=true;
+    state.pinchStart={
+      distance:Math.max(1,pointerDistance(a,b)),
+      zoom:state.zoom,
+      midpoint:pointerMidpoint(a,b,viewport)
+    };
+  }
+
+  function rawPointerDown(event) {
+    if (!state.sourceW) return;
+    const viewport=$("rawViewport");
+    viewport.setPointerCapture(event.pointerId);
+    state.pointers.set(event.pointerId,{x:event.clientX,y:event.clientY});
+
+    if (state.pointers.size===1) {
+      state.gestureHadPinch=false;
+      beginPan({x:event.clientX,y:event.clientY});
+    } else if (state.pointers.size===2) {
+      beginPinch();
+    }
+    event.preventDefault();
+  }
+
+  function rawPointerMove(event) {
+    if (!state.pointers.has(event.pointerId)) return;
+    state.pointers.set(event.pointerId,{x:event.clientX,y:event.clientY});
+    const viewport=$("rawViewport");
+
+    if (state.pointers.size>=2) {
+      const points=[...state.pointers.values()];
+      const a=points[0];
+      const b=points[1];
+      if (state.gestureMode!=="pinch" || !state.pinchStart) beginPinch();
+      const distance=Math.max(1,pointerDistance(a,b));
+      const midpoint=pointerMidpoint(a,b,viewport);
+      const factor=distance/state.pinchStart.distance;
+      setZoom(
+        state.pinchStart.zoom*factor,
+        midpoint.x,
+        midpoint.y
+      );
+      event.preventDefault();
+      return;
+    }
+
+    if (state.gestureMode==="pan" && state.panStart) {
+      const p=[...state.pointers.values()][0];
+      const dx=p.x-state.panStart.pointerX;
+      const dy=p.y-state.panStart.pointerY;
+      if (Math.hypot(dx,dy)>6) state.gestureMoved=true;
+      viewport.scrollLeft=state.panStart.scrollLeft-dx;
+      viewport.scrollTop=state.panStart.scrollTop-dy;
+      event.preventDefault();
+    }
+  }
+
+  function rawPointerEnd(event) {
+    if (!state.pointers.has(event.pointerId)) return;
+    const ended={x:event.clientX,y:event.clientY};
+    state.pointers.delete(event.pointerId);
+
+    if (state.gestureMode==="pan" &&
+        !state.gestureMoved &&
+        !state.gestureHadPinch) {
+      const raw=eventToRaw(event);
+      if (raw) selectRaw(raw.x,raw.y);
+    }
+
+    if (state.pointers.size===1) {
+      const p=[...state.pointers.values()][0];
+      beginPan(p);
+      state.gestureMoved=true;
+    } else if (state.pointers.size===0) {
+      state.gestureMode="";
+      state.panStart=null;
+      state.pinchStart=null;
+      state.gestureMoved=false;
+      state.gestureHadPinch=false;
+    }
+    event.preventDefault();
   }
 
   async function loadRaster(file) {
@@ -713,11 +858,12 @@
         setMessage(err.message || "No se pudo cargar el raster.","error");
       });
     });
-    $("rawImage").addEventListener("pointerdown",event=>{
-      if (!state.sourceW) return;
-      const raw=eventToRaw(event);
-      if (raw) selectRaw(raw.x,raw.y);
-    });
+    const rawViewport=$("rawViewport");
+    rawViewport.addEventListener("pointerdown",rawPointerDown);
+    rawViewport.addEventListener("pointermove",rawPointerMove);
+    rawViewport.addEventListener("pointerup",rawPointerEnd);
+    rawViewport.addEventListener("pointercancel",rawPointerEnd);
+    rawViewport.addEventListener("contextmenu",event=>event.preventDefault());
     $("rawZoom1Btn").addEventListener("click",()=>setZoom(1));
     $("rawZoom2Btn").addEventListener("click",()=>setZoom(2));
     $("rawZoom4Btn").addEventListener("click",()=>setZoom(4));
@@ -740,6 +886,6 @@
   wire();
   clearSelectionFields();
   renderControls();
-  $("rawRuntimeBadge").textContent="RAW · v015 · 0 TRANSFORMACIONES";
+  $("rawRuntimeBadge").textContent="RAW · v016 · GESTOS TÁCTILES";
   if (location.hash==="#raw") $("rawValidator").hidden=false;
 })();
