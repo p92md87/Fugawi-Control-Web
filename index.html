@@ -4,11 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b1220">
-<title>Fugawi IA Control v015</title>
+<title>Fugawi IA Control v016</title>
 <link rel="manifest" href="./manifest.webmanifest">
-<link rel="stylesheet" href="./styles.css?v=015">
-<link rel="stylesheet" href="./q47.css?v=015">
-<link rel="stylesheet" href="./raw.css?v=015">
+<link rel="stylesheet" href="./styles.css?v=016">
+<link rel="stylesheet" href="./q47.css?v=016">
+<link rel="stylesheet" href="./raw.css?v=016">
 </head>
 <body>
 <header class="topbar">
@@ -16,11 +16,11 @@
     <div class="brand-mark">F</div>
     <div>
       <div class="eyebrow">CENTRO DE MANDO · FUGAWI</div>
-      <h1>Fugawi IA Control <span>v015</span></h1>
+      <h1>Fugawi IA Control <span>v016</span></h1>
     </div>
   </div>
   <div class="top-actions">
-    <span class="live-dot"><i></i> WEB OPERATIVA · BUILD 015.0</span>
+    <span class="live-dot"><i></i> WEB OPERATIVA · BUILD 016.0</span>
     <button id="openRepoTopBtn" class="icon-button" title="Abrir repositorio Fugawi">GitHub ↗</button>
   </div>
 </header>
@@ -255,6 +255,7 @@
       <button id="rawZoom1Btn" class="secondary raw-zoom-btn active" type="button">Ajustar 1×</button>
       <button id="rawZoom2Btn" class="secondary raw-zoom-btn" type="button">Precisión 2×</button>
       <button id="rawZoom4Btn" class="secondary raw-zoom-btn" type="button">Precisión 4×</button>
+      <span class="raw-gesture-hint">1 dedo = mover · 2 dedos = zoom · toque = seleccionar</span>
       <button id="rawNewSessionBtn" class="secondary q47-new-test" type="button">Nueva sesión RAW</button>
       <button id="rawGranadaCampaignBtn" class="secondary raw-campaign-start" type="button">Campaña Granada 6 puntos</button>
       <span class="q47-raster-meta" id="rawRasterMeta">Raster no cargado · el archivo permanece en este iPad</span>
@@ -328,7 +329,7 @@
         </div>
 
         <div class="raw-domain-note">
-          La ampliación local y las flechas ±1 px están en la columna contigua al mapa y nunca ocultan el raster. Cada pulsación desplaza exactamente 1 píxel RAW.
+          El raster admite desplazamiento con un dedo y zoom continuo con dos dedos. Un toque breve selecciona el píxel RAW; las flechas corrigen después ±1 píxel.
         </div>
 
         <div class="q47-form raw-form">
@@ -370,7 +371,7 @@
           <tbody id="rawControlRows"></tbody>
         </table>
       </div>
-      <p class="q47-privacy">El raster permanece local en el navegador. La v015 registra <strong>PIXEL_RASTER_ORIGINAL</strong>, dimensiones naturales y SHA-256 cuando el navegador lo permite. La campaña Granada valida además 18748×13831 y el SHA-256 esperado antes de aceptar capturas. No aplica ninguna transformación cartográfica.</p>
+      <p class="q47-privacy">El raster permanece local en el navegador. La v016 registra <strong>PIXEL_RASTER_ORIGINAL</strong>, dimensiones naturales y SHA-256 cuando el navegador lo permite. La campaña Granada valida además 18748×13831 y el SHA-256 esperado antes de aceptar capturas. No aplica ninguna transformación cartográfica.</p>
     </div>
   </section>
 
@@ -498,7 +499,7 @@
     <div class="card-simple">
       <div class="section-title compact">
         <div><span class="mini-icon">⚙</span><h2>Estado de automatización</h2></div>
-        <span class="phase-pill">v015</span>
+        <span class="phase-pill">v016</span>
       </div>
       <div class="automation-list">
         <div><span class="auto-dot ok"></span><p><strong>GitHub Pages</strong><small>Web publicada y actualizable.</small></p><b>ACTIVO</b></div>
@@ -514,11 +515,11 @@
 </main>
 
 <footer>
-  <div><strong>Fugawi IA Control v015</strong><span>Panel visual de desarrollo guiado y validación geométrica Q47.</span></div>
+  <div><strong>Fugawi IA Control v016</strong><span>Panel visual de desarrollo guiado y validación geométrica Q47.</span></div>
   <span>Sin claves ni código operativo de Fugawi en esta web pública.</span>
 </footer>
-<script src="./app.js?v=015"></script>
-<script src="./q47.js?v=015"></script>
-<script src="./raw.js?v=015"></script>
+<script src="./app.js?v=016"></script>
+<script src="./q47.js?v=016"></script>
+<script src="./raw.js?v=016"></script>
 </body>
 </html>
