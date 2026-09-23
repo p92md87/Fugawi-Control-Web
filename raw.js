@@ -243,6 +243,7 @@
     const next=GRANADA_CAMPAIGN.targets.find(t=>!campaignCaptured(t.id));
     if (next) {
       setCampaignTarget(next.id);
+      if (state.sourceW && state.sourceH) goToCampaignZone();
       return;
     }
     state.campaignTargetId="";
