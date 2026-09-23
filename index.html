@@ -4,11 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b1220">
-<title>Fugawi IA Control v011</title>
+<title>Fugawi IA Control v012</title>
 <link rel="manifest" href="./manifest.webmanifest">
-<link rel="stylesheet" href="./styles.css?v=011">
-<link rel="stylesheet" href="./q47.css?v=011">
-<link rel="stylesheet" href="./raw.css?v=011">
+<link rel="stylesheet" href="./styles.css?v=012">
+<link rel="stylesheet" href="./q47.css?v=012">
+<link rel="stylesheet" href="./raw.css?v=012">
 </head>
 <body>
 <header class="topbar">
@@ -16,11 +16,11 @@
     <div class="brand-mark">F</div>
     <div>
       <div class="eyebrow">CENTRO DE MANDO · FUGAWI</div>
-      <h1>Fugawi IA Control <span>v011</span></h1>
+      <h1>Fugawi IA Control <span>v012</span></h1>
     </div>
   </div>
   <div class="top-actions">
-    <span class="live-dot"><i></i> WEB OPERATIVA · BUILD 011.0</span>
+    <span class="live-dot"><i></i> WEB OPERATIVA · BUILD 012.0</span>
     <button id="openRepoTopBtn" class="icon-button" title="Abrir repositorio Fugawi">GitHub ↗</button>
   </div>
 </header>
@@ -115,6 +115,12 @@
         <span class="action-symbol">◎</span>
         <span class="action-text"><strong>Captura RAW de controles</strong><small>Cargar cualquier raster exacto y registrar controles directamente en PIXEL_RASTER_ORIGINAL, sin Q47 ni conversiones de píxel.</small></span>
         <span class="action-cta">Abrir capturador RAW →</span>
+      </button>
+
+      <button class="q47-launch-card raw-launch-card raw-granada-launch-card" id="rawGranadaEntryBtn" type="button">
+        <span class="action-symbol">6</span>
+        <span class="action-text"><strong>Granada · 6 controles IGN/PNOA</strong><small>Campaña guiada y secuencial para capturar seis controles físicos independientes sobre GRANADA 3_6.PNG, conservando PIXEL_RASTER_ORIGINAL.</small></span>
+        <span class="action-cta">Abrir campaña Granada →</span>
       </button>
     </div>
   </section>
@@ -250,6 +256,7 @@
       <button id="rawZoom2Btn" class="secondary raw-zoom-btn" type="button">Precisión 2×</button>
       <button id="rawZoom4Btn" class="secondary raw-zoom-btn" type="button">Precisión 4×</button>
       <button id="rawNewSessionBtn" class="secondary q47-new-test" type="button">Nueva sesión RAW</button>
+      <button id="rawGranadaCampaignBtn" class="secondary raw-campaign-start" type="button">Campaña Granada 6 puntos</button>
       <span class="q47-raster-meta" id="rawRasterMeta">Raster no cargado · el archivo permanece en este iPad</span>
       <span class="q47-legend"><i></i> cruceta roja = píxel RAW seleccionado</span>
     </div>
@@ -279,6 +286,29 @@
           <div><small>ZOOM VISUAL</small><strong id="rawZoom">—</strong></div>
           <div><small>SHA-256</small><strong id="rawHash">—</strong></div>
           <div><small>TRANSFORMACIÓN</small><strong>0 · ninguna</strong></div>
+        </div>
+
+        <div class="raw-campaign-card" id="rawGranadaCampaign" hidden>
+          <div class="raw-campaign-head">
+            <div>
+              <span>CAMPAÑA INDEPENDIENTE</span>
+              <strong>Granada · 6 controles IGN/PNOA</strong>
+            </div>
+            <div class="raw-campaign-progress">
+              <small>CAPTURADOS</small>
+              <strong id="rawCampaignProgress">0 / 6</strong>
+            </div>
+          </div>
+          <div class="raw-campaign-raster pending" id="rawCampaignRasterState">
+            Carga primero el raster exacto GRANADA 3_6.PNG.
+          </div>
+          <div class="raw-campaign-current" id="rawCampaignCurrent" hidden>
+            <small id="rawCampaignCurrentId">—</small>
+            <strong id="rawCampaignCurrentText">—</strong>
+          </div>
+          <div class="raw-campaign-targets" id="rawCampaignTargets"></div>
+          <p class="q47-note">Selecciona exclusivamente el centro geométrico del objeto físico indicado. No uses rótulos, centros de población ni la posición sugerida por la malla. La referencia oficial IGN/PNOA se contrastará después.</p>
+          <button id="rawCampaignExitBtn" class="secondary full small" type="button">Salir de campaña y volver a RAW genérico</button>
         </div>
 
         <div class="raw-loupe-card">
@@ -335,7 +365,7 @@
           <tbody id="rawControlRows"></tbody>
         </table>
       </div>
-      <p class="q47-privacy">El raster permanece local en el navegador. La v011 registra <strong>PIXEL_RASTER_ORIGINAL</strong>, dimensiones naturales y SHA-256 cuando el navegador lo permite. No aplica ninguna transformación cartográfica.</p>
+      <p class="q47-privacy">El raster permanece local en el navegador. La v012 registra <strong>PIXEL_RASTER_ORIGINAL</strong>, dimensiones naturales y SHA-256 cuando el navegador lo permite. La campaña Granada valida además 18748×13831 y el SHA-256 esperado antes de aceptar capturas. No aplica ninguna transformación cartográfica.</p>
     </div>
   </section>
 
@@ -463,7 +493,7 @@
     <div class="card-simple">
       <div class="section-title compact">
         <div><span class="mini-icon">⚙</span><h2>Estado de automatización</h2></div>
-        <span class="phase-pill">v011</span>
+        <span class="phase-pill">v012</span>
       </div>
       <div class="automation-list">
         <div><span class="auto-dot ok"></span><p><strong>GitHub Pages</strong><small>Web publicada y actualizable.</small></p><b>ACTIVO</b></div>
@@ -479,11 +509,11 @@
 </main>
 
 <footer>
-  <div><strong>Fugawi IA Control v011</strong><span>Panel visual de desarrollo guiado y validación geométrica Q47.</span></div>
+  <div><strong>Fugawi IA Control v012</strong><span>Panel visual de desarrollo guiado y validación geométrica Q47.</span></div>
   <span>Sin claves ni código operativo de Fugawi en esta web pública.</span>
 </footer>
-<script src="./app.js?v=011"></script>
-<script src="./q47.js?v=011"></script>
-<script src="./raw.js?v=011"></script>
+<script src="./app.js?v=012"></script>
+<script src="./q47.js?v=012"></script>
+<script src="./raw.js?v=012"></script>
 </body>
 </html>
