@@ -4,11 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b1220">
-<title>Fugawi IA Control v016</title>
+<title>Fugawi IA Control v017</title>
 <link rel="manifest" href="./manifest.webmanifest">
-<link rel="stylesheet" href="./styles.css?v=016">
-<link rel="stylesheet" href="./q47.css?v=016">
-<link rel="stylesheet" href="./raw.css?v=016">
+<link rel="stylesheet" href="./styles.css?v=017">
+<link rel="stylesheet" href="./q47.css?v=017">
+<link rel="stylesheet" href="./raw.css?v=017">
 </head>
 <body>
 <header class="topbar">
@@ -16,11 +16,11 @@
     <div class="brand-mark">F</div>
     <div>
       <div class="eyebrow">CENTRO DE MANDO · FUGAWI</div>
-      <h1>Fugawi IA Control <span>v016</span></h1>
+      <h1>Fugawi IA Control <span>v017</span></h1>
     </div>
   </div>
   <div class="top-actions">
-    <span class="live-dot"><i></i> WEB OPERATIVA · BUILD 016.0</span>
+    <span class="live-dot"><i></i> WEB OPERATIVA · BUILD 017.0</span>
     <button id="openRepoTopBtn" class="icon-button" title="Abrir repositorio Fugawi">GitHub ↗</button>
   </div>
 </header>
@@ -322,9 +322,10 @@
           <div class="raw-campaign-current" id="rawCampaignCurrent" hidden>
             <small id="rawCampaignCurrentId">—</small>
             <strong id="rawCampaignCurrentText">—</strong>
+            <button id="rawCampaignGoZoneBtn" class="secondary raw-go-zone-current" type="button">Ir a zona aproximada</button>
           </div>
           <div class="raw-campaign-targets" id="rawCampaignTargets"></div>
-          <p class="q47-note">Selecciona exclusivamente el centro geométrico del objeto físico indicado. No uses rótulos, centros de población ni la posición sugerida por la malla. La referencia oficial IGN/PNOA se contrastará después.</p>
+          <p class="q47-note">«Ir a zona» sólo centra una región amplia del raster para facilitar la búsqueda. No coloca la cruceta ni propone el píxel exacto. Selecciona exclusivamente el centro geométrico del objeto físico indicado.</p>
           <button id="rawCampaignExitBtn" class="secondary full small" type="button">Salir de campaña y volver a RAW genérico</button>
         </div>
 
@@ -371,7 +372,7 @@
           <tbody id="rawControlRows"></tbody>
         </table>
       </div>
-      <p class="q47-privacy">El raster permanece local en el navegador. La v016 registra <strong>PIXEL_RASTER_ORIGINAL</strong>, dimensiones naturales y SHA-256 cuando el navegador lo permite. La campaña Granada valida además 18748×13831 y el SHA-256 esperado antes de aceptar capturas. No aplica ninguna transformación cartográfica.</p>
+      <p class="q47-privacy">El raster permanece local en el navegador. La v017 registra <strong>PIXEL_RASTER_ORIGINAL</strong>, dimensiones naturales y SHA-256. La campaña Granada v002 incorpora navegación aproximada por zonas sin sugerir el punto exacto y sustituye Moreda, que quedaba fuera de la malla útil, por la Presa de Iznájar.</p>
     </div>
   </section>
 
@@ -499,7 +500,7 @@
     <div class="card-simple">
       <div class="section-title compact">
         <div><span class="mini-icon">⚙</span><h2>Estado de automatización</h2></div>
-        <span class="phase-pill">v016</span>
+        <span class="phase-pill">v017</span>
       </div>
       <div class="automation-list">
         <div><span class="auto-dot ok"></span><p><strong>GitHub Pages</strong><small>Web publicada y actualizable.</small></p><b>ACTIVO</b></div>
@@ -515,11 +516,11 @@
 </main>
 
 <footer>
-  <div><strong>Fugawi IA Control v016</strong><span>Panel visual de desarrollo guiado y validación geométrica Q47.</span></div>
+  <div><strong>Fugawi IA Control v017</strong><span>Panel visual de desarrollo guiado y validación geométrica Q47.</span></div>
   <span>Sin claves ni código operativo de Fugawi en esta web pública.</span>
 </footer>
-<script src="./app.js?v=016"></script>
-<script src="./q47.js?v=016"></script>
-<script src="./raw.js?v=016"></script>
+<script src="./app.js?v=017"></script>
+<script src="./q47.js?v=017"></script>
+<script src="./raw.js?v=017"></script>
 </body>
 </html>
