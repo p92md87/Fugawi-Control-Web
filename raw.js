@@ -2,10 +2,61 @@
   "use strict";
 
   const $ = id => document.getElementById(id);
-  const VERSION = "v011";
-  const BUILD = "011.0";
+  const VERSION = "v012";
+  const BUILD = "012.0";
   const STORAGE_CONTROLS = "fugawiRawControlsV010";
   const DOMAIN = "PIXEL_RASTER_ORIGINAL";
+  const GRANADA_CAMPAIGN = {
+    id:"GRANADA_6_IGN_PNOA_V001",
+    rasterName:"GRANADA 3_6.PNG",
+    width:18748,
+    height:13831,
+    sha256:"a366c87f84901066e2c04125ba6f4ef1dcebe11206b11e88eb6d2305a3eca3d5",
+    targets:[
+      {
+        id:"GR-CF01",
+        name:"Estación de Archidona · paso carretera-ferrocarril",
+        type:"CRUCE_CARRETERA_FERROCARRIL",
+        zone:"Oeste",
+        criterion:"Centro geométrico del cruce entre el eje ferroviario y el eje viario."
+      },
+      {
+        id:"GR-CF02",
+        name:"Presa de Los Bermejales",
+        type:"PRESA",
+        zone:"Suroeste / interior",
+        criterion:"Cruce del eje de coronación de la presa con el eje del cauce."
+      },
+      {
+        id:"GR-CF03",
+        name:"Presa de Cubillas",
+        type:"PRESA",
+        zone:"Centro-norte",
+        criterion:"Cruce del eje de coronación de la presa con el eje del cauce."
+      },
+      {
+        id:"GR-CF04",
+        name:"Moreda · bifurcación ferroviaria",
+        type:"BIFURCACION_FERROVIARIA",
+        zone:"Noreste interior",
+        criterion:"Punto físico donde se separan los dos ramales ferroviarios."
+      },
+      {
+        id:"GR-CF05",
+        name:"Guadix · cruce viario-ferroviario inequívoco próximo a la estación",
+        type:"CRUCE_CARRETERA_FERROCARRIL",
+        zone:"Este",
+        criterion:"Centro geométrico del cruce físico; no usar rótulo ni centro de estación."
+      },
+      {
+        id:"GR-CF06",
+        name:"Gádor · cruce viario-ferroviario inequívoco próximo a la estación",
+        type:"CRUCE_CARRETERA_FERROCARRIL",
+        zone:"Extremo este",
+        criterion:"Centro geométrico del cruce físico; no usar rótulo ni centro de estación."
+      }
+    ]
+  };
 
   const state = {
     file:null,
@@ -20,6 +71,8 @@
     selected:null,
     controls:loadJson(STORAGE_CONTROLS,[]),
     zoom:1,
+    campaignActive:false,
+    campaignTargetId:"",
     sessionStartedAt:new Date().toISOString()
   };
 
@@ -55,6 +108,146 @@
       .replace(/\r?\n/g," ")
       .replace(/\|/g,"/")
       .trim();
+  }
+
+  function granadaRasterCheck() {
+    if (!state.sourceW || !state.sourceH) {
+      return {ok:false,level:"pending",text:"Carga primero el raster exacto GRANADA 3_6.PNG."};
+    }
+    if (state.sourceW!==GRANADA_CAMPAIGN.width || state.sourceH!==GRANADA_CAMPAIGN.height) {
+      return {
+        ok:false,
+        level:"error",
+        text:"Raster incompatible: se esperaban "+GRANADA_CAMPAIGN.width+" × "+GRANADA_CAMPAIGN.height+" px."
+      };
+    }
+    if (state.sha256 && state.sha256!=="NO_DISPONIBLE" &&
+        state.sha256.toLowerCase()!==GRANADA_CAMPAIGN.sha256) {
+      return {
+        ok:false,
+        level:"error",
+        text:"SHA-256 distinto del raster Granada certificado para esta campaña. No registres controles."
+      };
+    }
+    if (state.sha256==="NO_DISPONIBLE") {
+      return {
+        ok:true,
+        level:"warn",
+        text:"Dimensiones correctas. SHA-256 no disponible: captura permitida, pero quedará pendiente verificar identidad del raster."
+      };
+    }
+    return {
+      ok:true,
+      level:"ok",
+      text:"Raster Granada verificado: dimensiones y SHA-256 coinciden con GRANADA 3_6.PNG."
+    };
+  }
+
+  function campaignControls() {
+    return currentControls().filter(c=>c.campaign===GRANADA_CAMPAIGN.id);
+  }
+
+  function campaignCaptured(targetId) {
+    return campaignControls().some(c=>c.campaignTarget===targetId);
+  }
+
+  function campaignTarget() {
+    return GRANADA_CAMPAIGN.targets.find(t=>t.id===state.campaignTargetId) || null;
+  }
+
+  function setCampaignTarget(targetId) {
+    const target=GRANADA_CAMPAIGN.targets.find(t=>t.id===targetId);
+    if (!target) return;
+    state.campaignTargetId=target.id;
+    $("rawControlName").value=target.name;
+    $("rawControlName").readOnly=true;
+    $("rawControlType").value=target.type;
+    $("rawControlType").disabled=true;
+    $("rawCampaignCurrent").hidden=false;
+    $("rawCampaignCurrentId").textContent=target.id+" · "+target.zone;
+    $("rawCampaignCurrentText").textContent=target.name+" — "+target.criterion;
+    $("rawRegisterBtn").textContent="Registrar "+target.id;
+    renderCampaign();
+  }
+
+  function selectNextCampaignTarget() {
+    const next=GRANADA_CAMPAIGN.targets.find(t=>!campaignCaptured(t.id));
+    if (next) {
+      setCampaignTarget(next.id);
+      return;
+    }
+    state.campaignTargetId="";
+    $("rawCampaignCurrent").hidden=true;
+    $("rawControlName").value="";
+    $("rawControlName").readOnly=true;
+    $("rawControlType").disabled=true;
+    $("rawRegisterBtn").textContent="Campaña completa";
+    renderCampaign();
+  }
+
+  function renderCampaign() {
+    const panel=$("rawGranadaCampaign");
+    if (!panel) return;
+    panel.hidden=!state.campaignActive;
+    if (!state.campaignActive) return;
+
+    const check=granadaRasterCheck();
+    const stateNode=$("rawCampaignRasterState");
+    stateNode.textContent=check.text;
+    stateNode.className="raw-campaign-raster "+check.level;
+
+    const captured=campaignControls();
+    $("rawCampaignProgress").textContent=captured.length+" / "+GRANADA_CAMPAIGN.targets.length;
+
+    const list=$("rawCampaignTargets");
+    list.innerHTML="";
+    GRANADA_CAMPAIGN.targets.forEach(target=>{
+      const done=campaignCaptured(target.id);
+      const button=document.createElement("button");
+      button.type="button";
+      button.className="raw-campaign-target"+
+        (done ? " done" : "")+
+        (state.campaignTargetId===target.id ? " active" : "");
+      button.disabled=done;
+      const id=document.createElement("strong");
+      id.textContent=target.id;
+      const name=document.createElement("span");
+      name.textContent=target.name;
+      const meta=document.createElement("small");
+      meta.textContent=(done ? "CAPTURADO" : target.zone)+" · "+target.criterion;
+      button.append(id,name,meta);
+      if (!done) button.addEventListener("click",()=>setCampaignTarget(target.id));
+      list.appendChild(button);
+    });
+  }
+
+  function activateGranadaCampaign() {
+    state.campaignActive=true;
+    $("rawControlName").readOnly=true;
+    $("rawControlType").disabled=true;
+    const check=granadaRasterCheck();
+    if (!check.ok && check.level==="error") {
+      setMessage(check.text,"error");
+    } else if (!state.sourceW) {
+      setMessage("Campaña Granada activada. Selecciona el raster exacto GRANADA 3_6.PNG.","working");
+    } else {
+      setMessage(check.text,check.level==="ok" ? "ok" : "working");
+    }
+    selectNextCampaignTarget();
+    $("rawGranadaCampaign").scrollIntoView({behavior:"smooth",block:"start"});
+  }
+
+  function exitGranadaCampaign() {
+    state.campaignActive=false;
+    state.campaignTargetId="";
+    $("rawGranadaCampaign").hidden=true;
+    $("rawCampaignCurrent").hidden=true;
+    $("rawControlName").readOnly=false;
+    $("rawControlType").disabled=false;
+    $("rawControlName").value="";
+    $("rawControlNotes").value="";
+    $("rawRegisterBtn").textContent="Registrar control RAW";
+    setMessage("Modo RAW genérico activo.","ok");
   }
 
   function setMessage(text,type="") {
@@ -164,10 +357,20 @@
       state.sha256==="NO_DISPONIBLE" ? "NO DISPONIBLE" : state.sha256.slice(0,16)+"…";
     setZoom(1);
     renderControls();
-    setMessage(
-      "Raster reconocido. La captura conserva el dominio RAW original: no se aplica ninguna conversión de píxel. Amplía a 2× o 4× y toca el objeto físico.",
-      "ok"
-    );
+    if (state.campaignActive) {
+      const check=granadaRasterCheck();
+      renderCampaign();
+      if (!check.ok) {
+        setMessage(check.text,"error");
+      } else {
+        setMessage(check.text,check.level==="ok" ? "ok" : "working");
+      }
+    } else {
+      setMessage(
+        "Raster reconocido. La captura conserva el dominio RAW original: no se aplica ninguna conversión de píxel. Amplía a 2× o 4× y toca el objeto físico.",
+        "ok"
+      );
+    }
   }
 
   function eventToRaw(event) {
@@ -263,16 +466,36 @@
       setMessage("No hay un píxel RAW seleccionado para registrar.","error");
       return;
     }
-    const name=$("rawControlName").value.trim();
+
+    let target=null;
+    if (state.campaignActive) {
+      const check=granadaRasterCheck();
+      if (!check.ok) {
+        setMessage(check.text,"error");
+        return;
+      }
+      target=campaignTarget();
+      if (!target) {
+        setMessage("Selecciona un control de la campaña Granada.","error");
+        return;
+      }
+      if (campaignCaptured(target.id)) {
+        setMessage(target.id+" ya está capturado. Selecciona otro control.","error");
+        return;
+      }
+    }
+
+    const name=state.campaignActive ? target.name : $("rawControlName").value.trim();
     if (!name) {
       setMessage("Describe el objeto físico antes de registrarlo.","error");
       $("rawControlName").focus();
       return;
     }
+
     const control={
       at:new Date().toISOString(),
-      id:nextControlId(),
-      type:$("rawControlType").value,
+      id:state.campaignActive ? target.id : nextControlId(),
+      type:state.campaignActive ? target.type : $("rawControlType").value,
       name:name,
       notes:$("rawControlNotes").value.trim(),
       raster:state.fileName,
@@ -283,14 +506,39 @@
       rawX:state.selected.x,
       rawY:state.selected.y,
       domain:DOMAIN,
-      status:"CAPTURA_RAW_PENDIENTE_REFERENCIA_OFICIAL"
+      status:state.campaignActive ?
+        "CAPTURA_RAW_PENDIENTE_REFERENCIA_IGN_PNOA" :
+        "CAPTURA_RAW_PENDIENTE_REFERENCIA_OFICIAL"
     };
+
+    if (state.campaignActive) {
+      control.campaign=GRANADA_CAMPAIGN.id;
+      control.campaignTarget=target.id;
+      control.zone=target.zone;
+      control.captureCriterion=target.criterion;
+    }
+
     state.controls.push(control);
     saveLocal();
     renderControls();
-    $("rawControlName").value="";
     $("rawControlNotes").value="";
-    setMessage(control.id+" registrado en PIXEL_RASTER_ORIGINAL. No se ha calculado ninguna coordenada geográfica.","ok");
+
+    if (state.campaignActive) {
+      state.selected=null;
+      $("rawCrosshair").hidden=true;
+      $("rawX").textContent="—";
+      $("rawY").textContent="—";
+      drawLoupe();
+      selectNextCampaignTarget();
+      if (campaignControls().length===GRANADA_CAMPAIGN.targets.length) {
+        setMessage("Campaña Granada completa: 6/6 controles capturados. Exporta ahora la traza .txt.","ok");
+      } else {
+        setMessage(control.id+" capturado. Se ha activado el siguiente control; selecciona un nuevo píxel RAW.","ok");
+      }
+    } else {
+      $("rawControlName").value="";
+      setMessage(control.id+" registrado en PIXEL_RASTER_ORIGINAL. No se ha calculado ninguna coordenada geográfica.","ok");
+    }
   }
 
   function renderControls() {
@@ -327,10 +575,47 @@
     lines.push("RAW_SESSION|INICIO="+state.sessionStartedAt);
     lines.push("RAW_RASTER|NOMBRE="+escapeTrace(state.fileName)+"|W="+state.sourceW+"|H="+state.sourceH+"|BYTES="+state.fileSize+"|MIME="+escapeTrace(state.mime)+"|SHA256="+state.sha256);
     lines.push("RAW_DOMAIN|DOMINIO="+DOMAIN+"|ORIGEN=SUPERIOR_IZQUIERDO|X=DERECHA|Y=ABAJO|TRANSFORMACIONES_PIXEL=0");
+
+    const campaign=controls.filter(c=>c.campaign===GRANADA_CAMPAIGN.id);
+    if (campaign.length || state.campaignActive) {
+      const check=granadaRasterCheck();
+      lines.push(
+        "RAW_CAMPAIGN|ID="+GRANADA_CAMPAIGN.id+
+        "|OBJETIVO=6_CONTROLES_INDEPENDIENTES_GRANADA"+
+        "|REFERENCIA_POSTERIOR=IGN_PNOA"+
+        "|RASTER_ESPERADO="+escapeTrace(GRANADA_CAMPAIGN.rasterName)+
+        "|W_ESPERADO="+GRANADA_CAMPAIGN.width+
+        "|H_ESPERADO="+GRANADA_CAMPAIGN.height+
+        "|SHA256_ESPERADO="+GRANADA_CAMPAIGN.sha256+
+        "|RASTER_VALIDO="+(check.ok ? "SI" : "NO")
+      );
+    }
+
     controls.forEach(c=>{
-      lines.push("RAW_CONTROL|ID="+c.id+"|TIPO="+escapeTrace(c.type)+"|NOMBRE="+escapeTrace(c.name)+"|PIX_X="+c.rawX+"|PIX_Y="+c.rawY+"|DOMINIO="+c.domain+"|ESTADO="+c.status+(c.notes ? "|NOTAS="+escapeTrace(c.notes) : ""));
+      let line="RAW_CONTROL|ID="+c.id+
+        "|TIPO="+escapeTrace(c.type)+
+        "|NOMBRE="+escapeTrace(c.name)+
+        "|PIX_X="+c.rawX+
+        "|PIX_Y="+c.rawY+
+        "|DOMINIO="+c.domain+
+        "|ESTADO="+c.status;
+      if (c.campaign) {
+        line+="|CAMPANA="+escapeTrace(c.campaign)+
+          "|TARGET="+escapeTrace(c.campaignTarget)+
+          "|ZONA="+escapeTrace(c.zone)+
+          "|CRITERIO_CAPTURA="+escapeTrace(c.captureCriterion);
+      }
+      if (c.notes) line+="|NOTAS="+escapeTrace(c.notes);
+      lines.push(line);
     });
-    lines.push("RAW_RESUMEN|CONTROLES="+controls.length+"|COORDENADAS_OFICIALES=NO_CALCULADAS|MALLA=NO_MODIFICADA");
+
+    lines.push(
+      "RAW_RESUMEN|CONTROLES="+controls.length+
+      "|CAMPANA_GRANADA="+campaign.length+"/"+GRANADA_CAMPAIGN.targets.length+
+      "|CAMPANA_COMPLETA="+(campaign.length===GRANADA_CAMPAIGN.targets.length ? "SI" : "NO")+
+      "|COORDENADAS_OFICIALES=NO_CALCULADAS"+
+      "|MALLA=NO_MODIFICADA"
+    );
     return lines.join("\n")+"\n";
   }
 
@@ -344,7 +629,9 @@
     const a=document.createElement("a");
     const stamp=new Date().toISOString().replace(/[:.]/g,"-");
     a.href=url;
-    a.download="Fugawi_RAW_"+safeName(state.fileName.replace(/\.[^.]+$/, ""))+"_"+stamp+".txt";
+    a.download=state.campaignActive ?
+      "Fugawi_Granada_6_controles_RAW_"+stamp+".txt" :
+      "Fugawi_RAW_"+safeName(state.fileName.replace(/\.[^.]+$/, ""))+"_"+stamp+".txt";
     document.body.appendChild(a);
     a.click();
     a.remove();
@@ -360,6 +647,7 @@
     state.controls=state.controls.filter(c=>c.rasterKey!==state.rasterKey);
     saveLocal();
     renderControls();
+    if (state.campaignActive) selectNextCampaignTarget();
     setMessage("Controles RAW de este raster eliminados.","ok");
   }
 
@@ -367,11 +655,12 @@
     state.sessionStartedAt=new Date().toISOString();
     state.selected=null;
     $("rawCrosshair").hidden=true;
-    $("rawControlName").value="";
+    if (!state.campaignActive) $("rawControlName").value="";
     $("rawControlNotes").value="";
     $("rawX").textContent="—";
     $("rawY").textContent="—";
     drawLoupe();
+    if (state.campaignActive) selectNextCampaignTarget();
     setMessage("Nueva sesión RAW iniciada. Los controles ya registrados se conservan.","ok");
   }
 
@@ -414,6 +703,8 @@
     $("rawExportBtn").addEventListener("click",downloadTrace);
     $("rawClearControlsBtn").addEventListener("click",clearCurrentControls);
     $("rawNewSessionBtn").addEventListener("click",newSession);
+    $("rawGranadaCampaignBtn").addEventListener("click",activateGranadaCampaign);
+    $("rawCampaignExitBtn").addEventListener("click",exitGranadaCampaign);
     window.addEventListener("resize",()=>{
       if (state.sourceW) setZoom(state.zoom);
     });
@@ -423,6 +714,6 @@
   wire();
   clearSelectionFields();
   renderControls();
-  $("rawRuntimeBadge").textContent="RAW · SIN TRANSFORMACIÓN";
+  $("rawRuntimeBadge").textContent="RAW · v012 · 0 TRANSFORMACIONES";
   if (location.hash==="#raw") $("rawValidator").hidden=false;
 })();
