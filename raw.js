@@ -2,8 +2,8 @@
   "use strict";
 
   const $ = id => document.getElementById(id);
-  const VERSION = "v012";
-  const BUILD = "012.0";
+  const VERSION = "v013";
+  const BUILD = "013.0";
   const STORAGE_CONTROLS = "fugawiRawControlsV010";
   const DOMAIN = "PIXEL_RASTER_ORIGINAL";
   const GRANADA_CAMPAIGN = {
@@ -285,6 +285,7 @@
     $("rawImage").removeAttribute("src");
     $("rawCrosshair").hidden=true;
     $("rawMapHint").classList.remove("hidden");
+    $("rawNudgeDock").hidden=true;
     clearSelectionFields();
     drawLoupe();
   }
@@ -347,6 +348,7 @@
     state.sessionStartedAt=new Date().toISOString();
 
     $("rawMapHint").classList.add("hidden");
+    $("rawNudgeDock").hidden=false;
     $("rawRasterMeta").textContent=
       state.fileName+" · "+state.sourceW+" × "+state.sourceH+" px · "+
       (state.fileSize ? (state.fileSize/1048576).toFixed(1)+" MB · " : "")+
@@ -738,6 +740,6 @@
   wire();
   clearSelectionFields();
   renderControls();
-  $("rawRuntimeBadge").textContent="RAW · v012 · 0 TRANSFORMACIONES";
+  $("rawRuntimeBadge").textContent="RAW · v013 · 0 TRANSFORMACIONES";
   if (location.hash==="#raw") $("rawValidator").hidden=false;
 })();
