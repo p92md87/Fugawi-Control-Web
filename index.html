@@ -4,11 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b1220">
-<title>Fugawi IA Control v012</title>
+<title>Fugawi IA Control v013</title>
 <link rel="manifest" href="./manifest.webmanifest">
-<link rel="stylesheet" href="./styles.css?v=012">
-<link rel="stylesheet" href="./q47.css?v=012">
-<link rel="stylesheet" href="./raw.css?v=012">
+<link rel="stylesheet" href="./styles.css?v=013">
+<link rel="stylesheet" href="./q47.css?v=013">
+<link rel="stylesheet" href="./raw.css?v=013">
 </head>
 <body>
 <header class="topbar">
@@ -16,11 +16,11 @@
     <div class="brand-mark">F</div>
     <div>
       <div class="eyebrow">CENTRO DE MANDO · FUGAWI</div>
-      <h1>Fugawi IA Control <span>v012</span></h1>
+      <h1>Fugawi IA Control <span>v013</span></h1>
     </div>
   </div>
   <div class="top-actions">
-    <span class="live-dot"><i></i> WEB OPERATIVA · BUILD 012.0</span>
+    <span class="live-dot"><i></i> WEB OPERATIVA · BUILD 013.0</span>
     <button id="openRepoTopBtn" class="icon-button" title="Abrir repositorio Fugawi">GitHub ↗</button>
   </div>
 </header>
@@ -269,6 +269,15 @@
             <div class="raw-crosshair" id="rawCrosshair" hidden></div>
           </div>
         </div>
+        <div class="raw-nudge-dock" id="rawNudgeDock" hidden aria-label="Ajuste fino de un píxel">
+          <span>Ajuste ±1 px</span>
+          <div class="raw-nudge raw-nudge-map">
+            <button id="rawUpBtn" class="secondary up" type="button" title="1 píxel arriba">↑</button>
+            <button id="rawLeftBtn" class="secondary left" type="button" title="1 píxel izquierda">←</button>
+            <button id="rawDownBtn" class="secondary down" type="button" title="1 píxel abajo">↓</button>
+            <button id="rawRightBtn" class="secondary right" type="button" title="1 píxel derecha">→</button>
+          </div>
+        </div>
         <div class="q47-map-hint" id="rawMapHint">
           <div><strong>Selecciona el raster exacto</strong><span>La imagen se procesa localmente. El capturador utiliza directamente sus dimensiones naturales y no aplica Q47, reescalado cartográfico ni transformación de píxel.</span></div>
         </div>
@@ -317,13 +326,7 @@
             <strong>40 × 40 px RAW</strong>
           </div>
           <canvas id="rawLoupe" width="260" height="260"></canvas>
-          <div class="raw-nudge" aria-label="Ajuste fino de un píxel">
-            <button id="rawUpBtn" class="secondary up" type="button">↑</button>
-            <button id="rawLeftBtn" class="secondary left" type="button">←</button>
-            <button id="rawDownBtn" class="secondary down" type="button">↓</button>
-            <button id="rawRightBtn" class="secondary right" type="button">→</button>
-          </div>
-          <p class="q47-note">Las flechas desplazan la selección exactamente 1 píxel RAW. El zoom sólo modifica la visualización, nunca las coordenadas registradas.</p>
+          <p class="q47-note">Las flechas de ajuste están ahora superpuestas al mapa para mantenerlas visibles durante la localización. Cada pulsación desplaza la selección exactamente 1 píxel RAW. El zoom sólo modifica la visualización.</p>
         </div>
 
         <div class="q47-form raw-form">
@@ -365,7 +368,7 @@
           <tbody id="rawControlRows"></tbody>
         </table>
       </div>
-      <p class="q47-privacy">El raster permanece local en el navegador. La v012 registra <strong>PIXEL_RASTER_ORIGINAL</strong>, dimensiones naturales y SHA-256 cuando el navegador lo permite. La campaña Granada valida además 18748×13831 y el SHA-256 esperado antes de aceptar capturas. No aplica ninguna transformación cartográfica.</p>
+      <p class="q47-privacy">El raster permanece local en el navegador. La v013 registra <strong>PIXEL_RASTER_ORIGINAL</strong>, dimensiones naturales y SHA-256 cuando el navegador lo permite. La campaña Granada valida además 18748×13831 y el SHA-256 esperado antes de aceptar capturas. No aplica ninguna transformación cartográfica.</p>
     </div>
   </section>
 
@@ -493,7 +496,7 @@
     <div class="card-simple">
       <div class="section-title compact">
         <div><span class="mini-icon">⚙</span><h2>Estado de automatización</h2></div>
-        <span class="phase-pill">v012</span>
+        <span class="phase-pill">v013</span>
       </div>
       <div class="automation-list">
         <div><span class="auto-dot ok"></span><p><strong>GitHub Pages</strong><small>Web publicada y actualizable.</small></p><b>ACTIVO</b></div>
@@ -509,11 +512,11 @@
 </main>
 
 <footer>
-  <div><strong>Fugawi IA Control v012</strong><span>Panel visual de desarrollo guiado y validación geométrica Q47.</span></div>
+  <div><strong>Fugawi IA Control v013</strong><span>Panel visual de desarrollo guiado y validación geométrica Q47.</span></div>
   <span>Sin claves ni código operativo de Fugawi en esta web pública.</span>
 </footer>
-<script src="./app.js?v=012"></script>
-<script src="./q47.js?v=012"></script>
-<script src="./raw.js?v=012"></script>
+<script src="./app.js?v=013"></script>
+<script src="./q47.js?v=013"></script>
+<script src="./raw.js?v=013"></script>
 </body>
 </html>
