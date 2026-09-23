@@ -468,7 +468,7 @@
         await Promise.all(
           keys
             .filter(key=>key.startsWith("fugawi-control-") &&
-              key!=="fugawi-control-v014")
+              key!=="fugawi-control-v015")
             .map(key=>caches.delete(key))
         );
       } catch (_) {}
@@ -478,7 +478,7 @@
         (location.protocol === "https:" || location.hostname === "localhost")) {
       try {
         const registration=await navigator.serviceWorker.register(
-          "./service-worker.js?v=014",
+          "./service-worker.js?v=015",
           {updateViaCache:"none"}
         );
         await registration.update();
