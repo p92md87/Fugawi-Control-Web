@@ -10,14 +10,18 @@
 .raw-validator{scroll-margin-top:92px;border-color:rgba(97,214,156,.34)}
 .raw-viewport{
   position:relative;overflow:auto;max-height:72vh;min-height:520px;
-  background:#050b13;-webkit-overflow-scrolling:touch
+  background:#050b13;-webkit-overflow-scrolling:touch;
+  touch-action:none;overscroll-behavior:contain;
+  cursor:grab
 }
+.raw-viewport:active{cursor:grabbing}
 .raw-stage{
   position:relative;min-width:320px;min-height:220px;margin:0 auto
 }
 #rawImage{
   display:block;width:100%;height:100%;object-fit:fill;
-  user-select:none;-webkit-user-drag:none;touch-action:manipulation
+  user-select:none;-webkit-user-select:none;-webkit-user-drag:none;
+  touch-action:none
 }
 .raw-crosshair{
   position:absolute;width:0;height:0;pointer-events:none;z-index:4
@@ -210,4 +214,15 @@
 .raw-inspector{align-self:start}
 .raw-dock-note{
   margin:0;color:var(--muted);font-size:.62rem;line-height:1.35;text-align:center
+}
+
+.raw-gesture-hint{
+  display:inline-flex;align-items:center;min-height:34px;
+  padding:6px 10px;border:1px solid rgba(91,156,255,.34);
+  border-radius:999px;background:rgba(91,156,255,.06);
+  color:#b9d4ff;font-size:.66rem;font-weight:750;
+  white-space:nowrap
+}
+@media(max-width:760px){
+  .raw-gesture-hint{white-space:normal;border-radius:10px}
 }
