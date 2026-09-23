@@ -2,8 +2,8 @@
   "use strict";
 
   const $ = id => document.getElementById(id);
-  const VERSION = "v013";
-  const BUILD = "013.0";
+  const VERSION = "v014";
+  const BUILD = "014.0";
   const STORAGE_CONTROLS = "fugawiRawControlsV010";
   const DOMAIN = "PIXEL_RASTER_ORIGINAL";
   const GRANADA_CAMPAIGN = {
@@ -740,6 +740,6 @@
   wire();
   clearSelectionFields();
   renderControls();
-  $("rawRuntimeBadge").textContent="RAW · v013 · 0 TRANSFORMACIONES";
+  $("rawRuntimeBadge").textContent="RAW · v014 · 0 TRANSFORMACIONES";
   if (location.hash==="#raw") $("rawValidator").hidden=false;
 })();
