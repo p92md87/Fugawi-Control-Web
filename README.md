@@ -3,6 +3,7 @@
 Panel web de ingeniería para preparar y auditar órdenes de desarrollo del proyecto Fugawi.
 
 ## Estado
+- **v014**: agrupa la ampliación local 40×40 px RAW y las flechas de ajuste ±1 px en un único panel flotante sobre el mapa, para mantener mapa, lupa y ajuste fino en la misma zona visual durante la captura en iPad.
 - **v013**: mueve las flechas de ajuste fino ±1 px desde el inspector lateral a un control flotante superpuesto al mapa para mantenerlas visibles durante la localización en iPad. Conserva íntegra la campaña Granada v012 y el dominio RAW.
 - **v012**: añade una campaña guiada de seis controles independientes para Granada sobre `GRANADA 3_6.PNG`, con verificación estricta de 18748×13831 px y SHA-256, objetivos GR-CF01…GR-CF06, captura secuencial en `PIXEL_RASTER_ORIGINAL` y exportación de traza específica para contraste posterior IGN/PNOA. Mantiene el validador Q47 y el RAW genérico.
 - Muestra a primera vista versión operativa, siguiente versión, modo, protección de arquitectura y estado del flujo.
