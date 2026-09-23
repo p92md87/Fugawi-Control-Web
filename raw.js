@@ -2,12 +2,12 @@
   "use strict";
 
   const $ = id => document.getElementById(id);
-  const VERSION = "v016";
-  const BUILD = "016.0";
+  const VERSION = "v017";
+  const BUILD = "017.0";
   const STORAGE_CONTROLS = "fugawiRawControlsV010";
   const DOMAIN = "PIXEL_RASTER_ORIGINAL";
   const GRANADA_CAMPAIGN = {
-    id:"GRANADA_6_IGN_PNOA_V001",
+    id:"GRANADA_6_IGN_PNOA_V002",
     rasterName:"GRANADA 3_6.PNG",
     width:18748,
     height:13831,
@@ -18,42 +18,54 @@
         name:"Estación de Archidona · paso carretera-ferrocarril",
         type:"CRUCE_CARRETERA_FERROCARRIL",
         zone:"Oeste",
-        criterion:"Centro geométrico del cruce entre el eje ferroviario y el eje viario."
+        criterion:"Centro geométrico del cruce entre el eje ferroviario y el eje viario.",
+        navX:0.20,
+        navY:0.25
       },
       {
         id:"GR-CF02",
         name:"Presa de Los Bermejales",
         type:"PRESA",
         zone:"Suroeste / interior",
-        criterion:"Cruce del eje de coronación de la presa con el eje del cauce."
+        criterion:"Cruce del eje de coronación de la presa con el eje del cauce.",
+        navX:0.35,
+        navY:0.30
       },
       {
         id:"GR-CF03",
         name:"Presa de Cubillas",
         type:"PRESA",
         zone:"Centro-norte",
-        criterion:"Cruce del eje de coronación de la presa con el eje del cauce."
+        criterion:"Cruce del eje de coronación de la presa con el eje del cauce.",
+        navX:0.40,
+        navY:0.17
       },
       {
         id:"GR-CF04",
-        name:"Moreda · bifurcación ferroviaria",
-        type:"BIFURCACION_FERROVIARIA",
-        zone:"Noreste interior",
-        criterion:"Punto físico donde se separan los dos ramales ferroviarios."
+        name:"Presa de Iznájar",
+        type:"PRESA",
+        zone:"Noroeste / interior",
+        criterion:"Cruce del eje de coronación de la presa con el eje del cauce.",
+        navX:0.20,
+        navY:0.17
       },
       {
         id:"GR-CF05",
         name:"Guadix · cruce viario-ferroviario inequívoco próximo a la estación",
         type:"CRUCE_CARRETERA_FERROCARRIL",
         zone:"Este",
-        criterion:"Centro geométrico del cruce físico; no usar rótulo ni centro de estación."
+        criterion:"Centro geométrico del cruce físico; no usar rótulo ni centro de estación.",
+        navX:0.55,
+        navY:0.15
       },
       {
         id:"GR-CF06",
         name:"Gádor · cruce viario-ferroviario inequívoco próximo a la estación",
         type:"CRUCE_CARRETERA_FERROCARRIL",
         zone:"Extremo este",
-        criterion:"Centro geométrico del cruce físico; no usar rótulo ni centro de estación."
+        criterion:"Centro geométrico del cruce físico; no usar rótulo ni centro de estación.",
+        navX:0.73,
+        navY:0.32
       }
     ]
   };
@@ -161,10 +173,19 @@
     return GRANADA_CAMPAIGN.targets.find(t=>t.id===state.campaignTargetId) || null;
   }
 
+  function clearRawSelection() {
+    state.selected=null;
+    $("rawCrosshair").hidden=true;
+    $("rawX").textContent="—";
+    $("rawY").textContent="—";
+    drawLoupe();
+  }
+
   function setCampaignTarget(targetId) {
     const target=GRANADA_CAMPAIGN.targets.find(t=>t.id===targetId);
     if (!target) return;
     state.campaignTargetId=target.id;
+    clearRawSelection();
     $("rawControlName").value=target.name;
     $("rawControlName").readOnly=true;
     $("rawControlType").value=target.type;
@@ -174,6 +195,48 @@
     $("rawCampaignCurrentText").textContent=target.name+" — "+target.criterion;
     $("rawRegisterBtn").textContent="Registrar "+target.id;
     renderCampaign();
+  }
+
+  function goToCampaignZone() {
+    const target=campaignTarget();
+    if (!target || !state.sourceW || !state.sourceH) {
+      setMessage("Carga el raster y selecciona primero un control de campaña.","error");
+      return;
+    }
+
+    const viewport=$("rawViewport");
+    const zoom=Math.max(4,state.zoom);
+    setZoom(zoom);
+
+    requestAnimationFrame(()=>{
+      requestAnimationFrame(()=>{
+        const stage=$("rawStage");
+        const stageWidth=stage.getBoundingClientRect().width;
+        const stageHeight=stage.getBoundingClientRect().height;
+        const centerX=target.navX*stageWidth;
+        const centerY=target.navY*stageHeight;
+        viewport.scrollLeft=Math.max(
+          0,
+          Math.min(
+            stageWidth-viewport.clientWidth,
+            centerX-viewport.clientWidth/2
+          )
+        );
+        viewport.scrollTop=Math.max(
+          0,
+          Math.min(
+            stageHeight-viewport.clientHeight,
+            centerY-viewport.clientHeight/2
+          )
+        );
+        clearRawSelection();
+        setMessage(
+          target.id+
+          ": zona aproximada centrada. Busca visualmente el objeto, amplía con dos dedos y toca sólo cuando lo identifiques.",
+          "working"
+        );
+      });
+    });
   }
 
   function selectNextCampaignTarget() {
@@ -222,7 +285,12 @@
       const meta=document.createElement("small");
       meta.textContent=(done ? "CAPTURADO" : target.zone)+" · "+target.criterion;
       button.append(id,name,meta);
-      if (!done) button.addEventListener("click",()=>setCampaignTarget(target.id));
+      if (!done) {
+        button.addEventListener("click",()=>{
+          setCampaignTarget(target.id);
+          goToCampaignZone();
+        });
+      }
       list.appendChild(button);
     });
   }
@@ -512,6 +580,7 @@
         setMessage(check.text,"error");
       } else {
         setMessage(check.text,check.level==="ok" ? "ok" : "working");
+        if (state.campaignTargetId) goToCampaignZone();
       }
     } else {
       setMessage(
@@ -876,6 +945,7 @@
     $("rawClearControlsBtn").addEventListener("click",clearCurrentControls);
     $("rawNewSessionBtn").addEventListener("click",newSession);
     $("rawGranadaCampaignBtn").addEventListener("click",activateGranadaCampaign);
+    $("rawCampaignGoZoneBtn").addEventListener("click",goToCampaignZone);
     $("rawCampaignExitBtn").addEventListener("click",exitGranadaCampaign);
     window.addEventListener("resize",()=>{
       if (state.sourceW) setZoom(state.zoom);
@@ -886,6 +956,6 @@
   wire();
   clearSelectionFields();
   renderControls();
-  $("rawRuntimeBadge").textContent="RAW · v016 · GESTOS TÁCTILES";
+  $("rawRuntimeBadge").textContent="RAW · v017 · ZONAS + GESTOS";
   if (location.hash==="#raw") $("rawValidator").hidden=false;
 })();
