@@ -226,3 +226,11 @@
 @media(max-width:760px){
   .raw-gesture-hint{white-space:normal;border-radius:10px}
 }
+
+.raw-go-zone-current{
+  margin-top:4px;border-color:rgba(91,156,255,.58)!important;
+  color:#c9dcff!important;background:rgba(91,156,255,.08)!important
+}
+.raw-go-zone-current:hover{
+  border-color:#7baeff!important;background:rgba(91,156,255,.14)!important
+}
