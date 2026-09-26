@@ -4,11 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b1220">
-<title>Fugawi IA Control v023</title>
+<title>Fugawi IA Control v024</title>
 <link rel="manifest" href="./manifest.webmanifest">
-<link rel="stylesheet" href="./styles.css?v=023">
-<link rel="stylesheet" href="./q47.css?v=023">
-<link rel="stylesheet" href="./raw.css?v=023">
+<link rel="stylesheet" href="./styles.css?v=024">
+<link rel="stylesheet" href="./q47.css?v=024">
+<link rel="stylesheet" href="./raw.css?v=024">
 </head>
 <body>
 <header class="topbar">
@@ -16,11 +16,11 @@
     <div class="brand-mark">F</div>
     <div>
       <div class="eyebrow">CENTRO DE MANDO · FUGAWI</div>
-      <h1>Fugawi IA Control <span>v023</span></h1>
+      <h1>Fugawi IA Control <span>v024</span></h1>
     </div>
   </div>
   <div class="top-actions">
-    <span class="live-dot"><i></i> WEB OPERATIVA · BUILD 023.0</span>
+    <span class="live-dot"><i></i> WEB OPERATIVA · BUILD 024.0</span>
     <button id="openRepoTopBtn" class="icon-button" title="Abrir repositorio Fugawi">GitHub ↗</button>
   </div>
 </header>
@@ -302,6 +302,12 @@
         <button id="rawCampaignGoZoneBtn" class="secondary raw-go-zone-current" type="button">Ir al punto guía</button>
       </div>
       <p class="q47-note" id="rawCampaignNote">Selecciona primero 1, 2 o 3. La campaña indicará cómo confirmar el control.</p>
+      <div class="raw-campaign-export-bar">
+        <button id="rawCampaignExportBtn" class="primary raw-campaign-export" type="button" disabled>
+          COMPLETA LOS 3 PUNTOS PARA EXPORTAR
+        </button>
+        <small id="rawCampaignExportHint">Cuando marque 3 / 3, pulsa aquí para guardar el resultado .txt.</small>
+      </div>
       <button id="rawCampaignExitBtn" class="secondary full small" type="button">Salir de campaña y volver a RAW genérico</button>
     </div>
 
@@ -396,7 +402,7 @@
           <tbody id="rawControlRows"></tbody>
         </table>
       </div>
-      <p class="q47-privacy">El raster permanece local en el navegador. La v023 añade «Aceptar posición seleccionada» junto a las flechas rápidas. El control puede guardarse sin bajar al formulario inferior.</p>
+      <p class="q47-privacy">El raster permanece local en el navegador. La v024 añade un botón grande «EXPORTAR RESULTADO .TXT» dentro de la propia campaña. Se activa automáticamente al alcanzar 3/3 controles.</p>
     </div>
   </section>
 
@@ -524,7 +530,7 @@
     <div class="card-simple">
       <div class="section-title compact">
         <div><span class="mini-icon">⚙</span><h2>Estado de automatización</h2></div>
-        <span class="phase-pill">v023</span>
+        <span class="phase-pill">v024</span>
       </div>
       <div class="automation-list">
         <div><span class="auto-dot ok"></span><p><strong>GitHub Pages</strong><small>Web publicada y actualizable.</small></p><b>ACTIVO</b></div>
@@ -540,11 +546,11 @@
 </main>
 
 <footer>
-  <div><strong>Fugawi IA Control v023</strong><span>Panel visual de desarrollo guiado y validación geométrica Q47.</span></div>
+  <div><strong>Fugawi IA Control v024</strong><span>Panel visual de desarrollo guiado y validación geométrica Q47.</span></div>
   <span>Sin claves ni código operativo de Fugawi en esta web pública.</span>
 </footer>
-<script src="./app.js?v=023"></script>
-<script src="./q47.js?v=023"></script>
-<script src="./raw.js?v=023"></script>
+<script src="./app.js?v=024"></script>
+<script src="./q47.js?v=024"></script>
+<script src="./raw.js?v=024"></script>
 </body>
 </html>
