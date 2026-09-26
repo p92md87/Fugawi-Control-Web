@@ -2,8 +2,8 @@
   "use strict";
 
   const $ = id => document.getElementById(id);
-  const VERSION = "v020";
-  const BUILD = "020.0";
+  const VERSION = "v021";
+  const BUILD = "021.0";
   const STORAGE_CONTROLS = "fugawiRawControlsV010";
   const DOMAIN = "PIXEL_RASTER_ORIGINAL";
   const GRANADA_CAMPAIGN = {
@@ -132,6 +132,50 @@
     ]
   };
 
+  const BARCELONA_CLEAR_CAMPAIGN = {
+    id:"BARCELONA_3_CRUCES_CLAROS_V001",
+    rasterName:"Barcelona 5_2",
+    width:2047,
+    height:1536,
+    sha256:"c5e9fc3b76fd4ee83ebbc21f2be77b00407497e969706c952c4836091a62ac7e",
+    title:"Barcelona · 3 cruces claros",
+    objective:"3_CONTROLES_INDEPENDIENTES_BARCELONA_CRUCES_CARRETERA_FERROCARRIL",
+    downloadStem:"Fugawi_Barcelona_3_cruces_claros_RAW_",
+    requireManualConfirm:true,
+    allowProportionalRaster:true,
+    strictHash:false,
+    guideMode:"CRUCETA_GUIA_NORMALIZADA_CRUCE_CARRETERA_FERROCARRIL_V001",
+    targets:[
+      {
+        id:"BC-CL-001",
+        name:"Cervera · cruce carretera-ferrocarril",
+        type:"CRUCE_CARRETERA_FERROCARRIL",
+        zone:"Oeste · entorno de Cervera",
+        criterion:"Busca la línea ferroviaria negra con traviesas y fija exactamente su intersección geométrica con la carretera roja. No uses el cruce viario adyacente.",
+        guideX:762.0,
+        guideY:943.0
+      },
+      {
+        id:"BC-CL-002",
+        name:"Vic · cruce carretera-ferrocarril",
+        type:"CRUCE_CARRETERA_FERROCARRIL",
+        zone:"Centro · entorno de Vic",
+        criterion:"Fija el centro geométrico donde la línea ferroviaria negra norte-sur corta la carretera roja transversal. Ignora el nudo de carreteras contiguo.",
+        guideX:1298.0,
+        guideY:755.0
+      },
+      {
+        id:"BC-CL-003",
+        name:"Girona · cruce carretera-ferrocarril",
+        type:"CRUCE_CARRETERA_FERROCARRIL",
+        zone:"Este · entorno de Girona",
+        criterion:"Fija el centro geométrico donde la línea ferroviaria negra vertical corta la carretera roja al oeste inmediato del rótulo GERONA. No uses la autopista naranja.",
+        guideX:1598.0,
+        guideY:722.0
+      }
+    ]
+  };
+
   const BARCELONA_REVIEW_CAMPAIGN = {
     id:"BARCELONA_REVISION_3_CONFLUENCIAS_V001",
     rasterName:"Barcelona 5_2",
@@ -177,6 +221,7 @@
   };
 
   function activeCampaign() {
+    if (state.campaignKey==="barcelona_clear") return BARCELONA_CLEAR_CAMPAIGN;
     if (state.campaignKey==="barcelona_review") return BARCELONA_REVIEW_CAMPAIGN;
     if (state.campaignKey==="barcelona") return BARCELONA_CAMPAIGN;
     if (state.campaignKey==="granada") return GRANADA_CAMPAIGN;
@@ -488,6 +533,7 @@
     let spec=GRANADA_CAMPAIGN;
     if (key==="barcelona") spec=BARCELONA_CAMPAIGN;
     if (key==="barcelona_review") spec=BARCELONA_REVIEW_CAMPAIGN;
+    if (key==="barcelona_clear") spec=BARCELONA_CLEAR_CAMPAIGN;
     $("rawValidator").hidden=false;
     state.campaignActive=true;
     state.campaignKey=key;
@@ -517,6 +563,10 @@
 
   function activateBarcelonaReviewCampaign() {
     activateCampaign("barcelona_review");
+  }
+
+  function activateBarcelonaClearCampaign() {
+    activateCampaign("barcelona_clear");
   }
 
   function exitCampaign() {
@@ -856,6 +906,16 @@
     ctx.clearRect(0,0,canvas.width,canvas.height);
     ctx.fillStyle="#050b13";
     ctx.fillRect(0,0,canvas.width,canvas.height);
+
+    const contextCanvas=$("rawContext");
+    let contextCtx=null;
+    if (contextCanvas) {
+      contextCtx=contextCanvas.getContext("2d");
+      contextCtx.clearRect(0,0,contextCanvas.width,contextCanvas.height);
+      contextCtx.fillStyle="#050b13";
+      contextCtx.fillRect(0,0,contextCanvas.width,contextCanvas.height);
+    }
+
     if (!state.selected || !state.sourceW) return;
 
     const img=$("rawImage");
@@ -875,6 +935,35 @@
     ctx.moveTo(canvas.width/2,canvas.height/2-22);
     ctx.lineTo(canvas.width/2,canvas.height/2+22);
     ctx.stroke();
+
+    if (contextCanvas && contextCtx) {
+      const spanX=120;
+      const spanY=90;
+      const csx=Math.max(
+        0,
+        Math.min(state.sourceW-spanX,state.selected.x-spanX/2)
+      );
+      const csy=Math.max(
+        0,
+        Math.min(state.sourceH-spanY,state.selected.y-spanY/2)
+      );
+      const csw=Math.min(spanX,state.sourceW);
+      const csh=Math.min(spanY,state.sourceH);
+      contextCtx.imageSmoothingEnabled=false;
+      contextCtx.drawImage(
+        img,
+        csx,csy,csw,csh,
+        0,0,contextCanvas.width,contextCanvas.height
+      );
+      contextCtx.strokeStyle="#ff2d2d";
+      contextCtx.lineWidth=2;
+      contextCtx.beginPath();
+      contextCtx.moveTo(contextCanvas.width/2-28,contextCanvas.height/2);
+      contextCtx.lineTo(contextCanvas.width/2+28,contextCanvas.height/2);
+      contextCtx.moveTo(contextCanvas.width/2,contextCanvas.height/2-28);
+      contextCtx.lineTo(contextCanvas.width/2,contextCanvas.height/2+28);
+      contextCtx.stroke();
+    }
   }
 
   function clearSelectionFields() {
@@ -1174,6 +1263,12 @@
         activateBarcelonaReviewCampaign();
       });
     }
+    if ($("rawBarcelonaClearEntryBtn")) {
+      $("rawBarcelonaClearEntryBtn").addEventListener("click",()=>{
+        openRaw();
+        activateBarcelonaClearCampaign();
+      });
+    }
     $("rawCloseBtn").addEventListener("click",closeRaw);
     $("rawRasterInput").addEventListener("change",event=>{
       const file=event.target.files && event.target.files[0];
@@ -1202,6 +1297,7 @@
     $("rawGranadaCampaignBtn").addEventListener("click",activateGranadaCampaign);
     $("rawBarcelonaCampaignBtn").addEventListener("click",activateBarcelonaCampaign);
     $("rawBarcelonaReviewCampaignBtn").addEventListener("click",activateBarcelonaReviewCampaign);
+    $("rawBarcelonaClearCampaignBtn").addEventListener("click",activateBarcelonaClearCampaign);
     $("rawCampaignGoZoneBtn").addEventListener("click",goToCampaignZone);
     $("rawCampaignExitBtn").addEventListener("click",exitCampaign);
     window.addEventListener("resize",()=>{
@@ -1213,6 +1309,6 @@
   wire();
   clearSelectionFields();
   renderControls();
-  $("rawRuntimeBadge").textContent="RAW · v020 · REVISION DISTRIBUIDA";
+  $("rawRuntimeBadge").textContent="RAW · v021 · CRUCES CLAROS";
   if (location.hash==="#raw") $("rawValidator").hidden=false;
 })();
