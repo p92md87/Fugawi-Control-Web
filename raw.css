@@ -330,3 +330,40 @@
     white-space:normal
   }
 }
+
+
+/* v024 · exportación inequívoca dentro de la campaña */
+.raw-campaign-export-bar{
+  display:grid;
+  gap:6px;
+  padding:10px;
+  border:1px solid rgba(97,214,156,.24);
+  border-radius:12px;
+  background:rgba(97,214,156,.04)
+}
+.raw-campaign-export{
+  width:100%;
+  min-height:58px;
+  font-size:.95rem;
+  letter-spacing:.03em;
+  font-weight:900
+}
+.raw-campaign-export:disabled{
+  background:#203149;
+  border-color:#304663;
+  color:#7f93ad;
+  opacity:1;
+  cursor:not-allowed
+}
+.raw-campaign-export.ready{
+  background:var(--good);
+  border-color:var(--good);
+  color:#06131d;
+  box-shadow:0 0 0 3px rgba(97,214,156,.12)
+}
+.raw-campaign-export-bar small{
+  color:var(--muted);
+  font-size:.66rem;
+  line-height:1.4;
+  text-align:center
+}
