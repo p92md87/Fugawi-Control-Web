@@ -3,6 +3,7 @@
 Panel web de ingeniería para preparar y auditar órdenes de desarrollo del proyecto Fugawi.
 
 ## Estado
+- **v018**: añade campaña guiada Barcelona · 5 presas sobre el raster P3N_071. La Web coloca una cruceta roja aproximada en Camarasa, La Baells, Sau, Sant Ponç y la Llosa del Cavall, pero bloquea el registro hasta que el usuario confirme visualmente la posición tocando o moviendo la cruceta; conserva PIXEL_RASTER_ORIGINAL, SHA-256 y trazabilidad de la posición guía.
 - **v017**: añade «Ir a zona aproximada» a la campaña Granada. Cada objetivo centra automáticamente una región amplia del raster sin colocar cruceta ni sugerir píxel; conserva zoom táctil/paneo y pasa al área del siguiente control tras registrarlo. La campaña pasa a V002 y sustituye Moreda —fuera de la envolvente útil del raster— por la Presa de Iznájar. Publicación final coordinada con los assets v017.
 - **v016**: añade navegación táctil tipo Fugawi al capturador RAW: arrastre con un dedo para desplazar el raster, pellizco con dos dedos para zoom continuo 1×–8× manteniendo el área bajo los dedos, y toque breve para seleccionar el píxel RAW. Conserva los botones 1×/2×/4× y el ajuste fino ±1 px.
 - **v015**: mueve el conjunto ampliación local + flechas fuera de la superficie del mapa, colocándolo al inicio de la columna lateral contigua. En pantallas anchas queda alineado junto al mapa sin ocultarlo; en pantallas estrechas pasa a bloque normal sin superposición.
