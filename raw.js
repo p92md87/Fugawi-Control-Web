@@ -2,8 +2,8 @@
   "use strict";
 
   const $ = id => document.getElementById(id);
-  const VERSION = "v023";
-  const BUILD = "023.0";
+  const VERSION = "v024";
+  const BUILD = "024.0";
   const STORAGE_CONTROLS = "fugawiRawControlsV010";
   const DOMAIN = "PIXEL_RASTER_ORIGINAL";
   const GRANADA_CAMPAIGN = {
@@ -508,6 +508,22 @@
 
     const captured=campaignControls();
     $("rawCampaignProgress").textContent=captured.length+" / "+spec.targets.length;
+
+    const exportBtn=$("rawCampaignExportBtn");
+    const exportHint=$("rawCampaignExportHint");
+    const complete=captured.length===spec.targets.length;
+    if (exportBtn) {
+      exportBtn.disabled=!complete;
+      exportBtn.textContent=complete ?
+        "EXPORTAR RESULTADO .TXT" :
+        "COMPLETA LOS "+spec.targets.length+" PUNTOS PARA EXPORTAR";
+      exportBtn.classList.toggle("ready",complete);
+    }
+    if (exportHint) {
+      exportHint.textContent=complete ?
+        "Campaña completa. Pulsa el botón para descargar la traza y adjuntarla en el chat." :
+        "Faltan "+(spec.targets.length-captured.length)+" punto(s). El botón se activará al completar la campaña.";
+    }
 
     const list=$("rawCampaignTargets");
     list.innerHTML="";
@@ -1296,6 +1312,7 @@
     $("rawQuickAcceptBtn").addEventListener("click",registerControl);
     $("rawRegisterBtn").addEventListener("click",registerControl);
     $("rawExportBtn").addEventListener("click",downloadTrace);
+    $("rawCampaignExportBtn").addEventListener("click",downloadTrace);
     $("rawClearControlsBtn").addEventListener("click",clearCurrentControls);
     $("rawNewSessionBtn").addEventListener("click",newSession);
     $("rawGranadaCampaignBtn").addEventListener("click",activateGranadaCampaign);
@@ -1311,6 +1328,6 @@
   wire();
   clearSelectionFields();
   renderControls();
-  $("rawRuntimeBadge").textContent="RAW · v023 · ACEPTAR JUNTO A FLECHAS";
+  $("rawRuntimeBadge").textContent="RAW · v024 · EXPORTAR RESULTADO";
   if (location.hash==="#raw") $("rawValidator").hidden=false;
 })();
