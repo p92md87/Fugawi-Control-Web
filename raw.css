@@ -247,9 +247,8 @@
 /* v022 · selector de campaña visible y ajuste rápido accesible */
 .raw-campaign-top{
   margin:0 0 12px;
-  position:sticky;
-  top:86px;
-  z-index:18;
+  position:relative;
+  z-index:12;
   box-shadow:0 10px 28px rgba(0,0,0,.24)
 }
 .raw-campaign-top .raw-campaign-targets{
@@ -305,8 +304,7 @@
 .raw-quick-nudge-pad .down{grid-column:2;grid-row:2}
 .raw-quick-nudge-pad .right{grid-column:3;grid-row:2}
 @media(max-width:940px){
-  .raw-campaign-top,.raw-quick-nudge{position:relative;top:auto}
-  .raw-quick-nudge{flex-wrap:wrap}
+  .raw-quick-nudge{position:relative;top:auto;flex-wrap:wrap}
 }
 @media(max-width:700px){
   .raw-campaign-top .raw-campaign-targets{grid-template-columns:1fr}
