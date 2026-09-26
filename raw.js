@@ -2,8 +2,8 @@
   "use strict";
 
   const $ = id => document.getElementById(id);
-  const VERSION = "v031";
-  const BUILD = "031.0";
+  const VERSION = "v032";
+  const BUILD = "032.0";
   const STORAGE_CONTROLS = "fugawiRawControlsV010";
   const DOMAIN = "PIXEL_RASTER_ORIGINAL";
   const GRANADA_CAMPAIGN = {
@@ -133,14 +133,14 @@
   };
 
   const BARCELONA_CLEAR_CAMPAIGN = {
-    id:"BARCELONA_CUARTO_CONTROL_LA_BAELLS_V001",
+    id:"BARCELONA_CUARTO_CONTROL_PONT_MOLINA_V001",
     rasterName:"Barcelona 5_2.jpg",
     width:9208,
     height:6906,
     sha256:"bc01c91c709c5ba789ed7ed1196bd431eea795a6f53d6dfe1dff4014793078fe",
-    title:"Barcelona · cuarto control La Baells",
-    objective:"CUARTO_CONTROL_INDEPENDIENTE_BARCELONA_FACILMENTE_IDENTIFICABLE",
-    downloadStem:"Fugawi_Barcelona_La_Baells_cuarto_control_RAW_",
+    title:"Barcelona · cuarto control Pont de la Molina",
+    objective:"CUARTO_CONTROL_INDEPENDIENTE_BARCELONA_RURAL_PRE1980",
+    downloadStem:"Fugawi_Barcelona_Pont_Molina_cuarto_control_RAW_",
     requireManualConfirm:true,
     allowProportionalRaster:false,
     strictHash:true,
@@ -148,13 +148,13 @@
     guideMode:"ZONA_AMPLIA_SIN_CRUCETA_REFERENCIA_OFICIAL_V001",
     targets:[
       {
-        id:"BC-CF-005-LABAELLS",
-        name:"Presa de La Baells",
-        type:"PRESA",
-        zone:"Centro-norte · Llobregat · Cercs",
-        criterion:"Referencia oficial fijada antes de la captura. Identifica el gran cuerpo curvado de la presa de La Baells sobre el Llobregat y toca el centro físico de la coronación/cierre. No uses rótulos ni el centro del embalse.",
-        navX:0.5345,
-        navY:0.3999
+        id:"BC-CF-006-PONTMOLINA",
+        name:"Pont de la Molina · riera de Merlès",
+        type:"PUENTE",
+        zone:"Interior rural · Santa Maria de Merlès",
+        criterion:"Referencia oficial fijada antes de la captura. Identifica el puente de piedra sobre la riera de Merlès y toca el centro geométrico del tablero. No uses rótulos, casas próximas ni el centro del núcleo.",
+        navX:0.514,
+        navY:0.448
       }
     ]
   };
@@ -1342,6 +1342,6 @@
   wire();
   clearSelectionFields();
   renderControls();
-  $("rawRuntimeBadge").textContent="RAW · v031 · CUARTO CONTROL LA BAELLS · RASTER ESTRICTO";
+  $("rawRuntimeBadge").textContent="RAW · v032 · CUARTO CONTROL PONT MOLINA · RASTER ESTRICTO";
   if (location.hash==="#raw") $("rawValidator").hidden=false;
 })();
