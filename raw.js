@@ -2,8 +2,8 @@
   "use strict";
 
   const $ = id => document.getElementById(id);
-  const VERSION = "v028";
-  const BUILD = "028.1";
+  const VERSION = "v029";
+  const BUILD = "029.0";
   const STORAGE_CONTROLS = "fugawiRawControlsV010";
   const DOMAIN = "PIXEL_RASTER_ORIGINAL";
   const GRANADA_CAMPAIGN = {
@@ -133,41 +133,31 @@
   };
 
   const BARCELONA_CLEAR_CAMPAIGN = {
-    id:"BARCELONA_2_REFERENCIAS_NUEVAS_V002",
+    id:"BARCELONA_DARNIUS_ULTIMA_PRUEBA_V003",
     rasterName:"Barcelona 5_2.jpg",
     width:9208,
     height:6906,
     sha256:"bc01c91c709c5ba789ed7ed1196bd431eea795a6f53d6dfe1dff4014793078fe",
-    title:"Barcelona · 2 referencias nuevas",
-    objective:"2_CONTROLES_NUEVOS_PRELOCALIZADOS_EN_REFERENCIA_OFICIAL_ANTES_DE_CAPTURA",
-    downloadStem:"Fugawi_Barcelona_2_referencias_nuevas_RAW_",
+    title:"Barcelona · última prueba Darnius-Boadella",
+    objective:"RECAPTURA_UNICA_DARNIUS_BOADELLA_REFERENCIA_OFICIAL_CONGELADA",
+    downloadStem:"Fugawi_Barcelona_Darnius_ultima_prueba_RAW_",
     requireManualConfirm:true,
     allowProportionalRaster:false,
     strictHash:true,
-    minCaptureSeparationNorm:0.10,
-    guideMode:"ZONA_AMPLIA_SIN_CRUCETA_DESDE_REFERENCIA_EXTERNA_V004",
+    minCaptureSeparationNorm:0,
+    guideMode:"ZONA_AMPLIA_SIN_CRUCETA_REFERENCIA_OFICIAL_V005",
     targets:[
       {
-        id:"BC-NV-001",
-        name:"Presa de Talarn / Sant Antoni",
-        type:"PRESA",
-        zone:"Noroeste · Noguera Pallaresa",
-        criterion:"Referencia externa fijada antes de la captura. La Web sólo centra una zona amplia; identifica manualmente el cuerpo de presa en el mapa histórico y toca el punto físico. No uses rótulos ni el centro del embalse.",
-        navX:0.2783688324,
-        navY:0.3717825521
-      },
-      {
-        id:"BC-NV-002",
+        id:"BC-NV-002-R1",
         name:"Presa de Darnius-Boadella",
         type:"PRESA",
         zone:"Noreste · río Muga",
-        criterion:"Referencia externa fijada antes de la captura. Identifica manualmente el cuerpo de presa en el mapa histórico y selecciona el punto físico. No uses el centro del embalse ni la carretera de acceso.",
+        criterion:"Última prueba independiente. Identifica manualmente el cuerpo físico de la presa sobre el río Muga. No uses la carretera de acceso, el centro del embalse ni rótulos.",
         navX:0.7874499267,
         navY:0.2945345052
       }
     ]
   };
-
   const BARCELONA_REVIEW_CAMPAIGN = {
     id:"BARCELONA_REVISION_3_CONFLUENCIAS_V001",
     rasterName:"Barcelona 5_2",
@@ -406,7 +396,7 @@
 
     const viewport=$("rawViewport");
     state.campaignZoneTargetId="";
-    const zoom=Math.max(4,state.zoom);
+    const zoom=Math.max(spec.id==="BARCELONA_DARNIUS_ULTIMA_PRUEBA_V003" ? 6 : 4,state.zoom);
     setZoom(zoom);
 
     requestAnimationFrame(()=>{
@@ -1352,6 +1342,6 @@
   wire();
   clearSelectionFields();
   renderControls();
-  $("rawRuntimeBadge").textContent="RAW · v028 · 2 REFERENCIAS NUEVAS · RASTER ESTRICTO";
+  $("rawRuntimeBadge").textContent="RAW · v029 · ÚLTIMA PRUEBA DARNIUS · RASTER ESTRICTO";
   if (location.hash==="#raw") $("rawValidator").hidden=false;
 })();
