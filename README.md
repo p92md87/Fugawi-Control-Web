@@ -3,6 +3,7 @@
 Panel web de ingeniería para preparar y auditar órdenes de desarrollo del proyecto Fugawi.
 
 ## Estado
+- **v022**: limpia la interfaz Barcelona retirando las campañas obsoletas de 5 presas y 3 confluencias. La campaña vigente «3 cruces claros» muestra arriba un selector explícito 1/2/3 y añade un mando de flechas ±1 px junto al mapa para evitar desplazamientos largos por la página.
 - **v021**: añade «Barcelona · 3 cruces claros», campaña recomendada tras descartar las confluencias difíciles. Selecciona tres cruces carretera-ferrocarril claramente dibujados y separados geográficamente: Cervera (oeste), Vic (centro) y Girona (este). El inspector incorpora una vista de contexto 120×90 px RAW además de la lupa 40×40 px.
 - **v020**: añade «Barcelona · revisión 3 confluencias». Sustituye la repetición de presas por tres controles físicamente más inequívocos y separados: confluencia Noguera Pallaresa–Segre (oeste), Anoia–Llobregat (sur-centro) y Freser–Ter (noreste). Cada guía se normaliza al raster real y el registro exige ajuste/confirmación manual.
 - **v019**: corrige la campaña Barcelona cuando el raster local conserva el mismo encuadre pero tiene distinta resolución natural. Las coordenadas guía de referencia 2047×1536 se normalizan automáticamente al ancho/alto real cargado; además se bloquea «Ir al punto guía» si el raster no conserva la proporción del original. Se exportan por separado GUIA_REF y GUIA_RAW.
