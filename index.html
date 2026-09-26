@@ -4,11 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b1220">
-<title>Fugawi IA Control v020</title>
+<title>Fugawi IA Control v021</title>
 <link rel="manifest" href="./manifest.webmanifest">
-<link rel="stylesheet" href="./styles.css?v=020">
-<link rel="stylesheet" href="./q47.css?v=020">
-<link rel="stylesheet" href="./raw.css?v=020">
+<link rel="stylesheet" href="./styles.css?v=021">
+<link rel="stylesheet" href="./q47.css?v=021">
+<link rel="stylesheet" href="./raw.css?v=021">
 </head>
 <body>
 <header class="topbar">
@@ -16,11 +16,11 @@
     <div class="brand-mark">F</div>
     <div>
       <div class="eyebrow">CENTRO DE MANDO · FUGAWI</div>
-      <h1>Fugawi IA Control <span>v020</span></h1>
+      <h1>Fugawi IA Control <span>v021</span></h1>
     </div>
   </div>
   <div class="top-actions">
-    <span class="live-dot"><i></i> WEB OPERATIVA · BUILD 020.0</span>
+    <span class="live-dot"><i></i> WEB OPERATIVA · BUILD 021.0</span>
     <button id="openRepoTopBtn" class="icon-button" title="Abrir repositorio Fugawi">GitHub ↗</button>
   </div>
 </header>
@@ -133,6 +133,12 @@
         <span class="action-symbol">3</span>
         <span class="action-text"><strong>Barcelona · revisión 3 confluencias</strong><small>Tres controles nuevos, separados geográficamente y definidos por vértices hidrográficos: Camarasa, Martorell y Ripoll.</small></span>
         <span class="action-cta">Abrir revisión Barcelona →</span>
+      </button>
+
+      <button class="q47-launch-card raw-launch-card raw-granada-launch-card" id="rawBarcelonaClearEntryBtn" type="button">
+        <span class="action-symbol">3</span>
+        <span class="action-text"><strong>Barcelona · 3 cruces claros</strong><small>Nueva campaña recomendada: tres cruces carretera-ferrocarril separados en Cervera, Vic y Girona, con contexto ampliado para identificarlos con facilidad.</small></span>
+        <span class="action-cta">Abrir 3 cruces claros →</span>
       </button>
     </div>
   </section>
@@ -272,6 +278,7 @@
       <button id="rawGranadaCampaignBtn" class="secondary raw-campaign-start" type="button">Campaña Granada 6 puntos</button>
       <button id="rawBarcelonaCampaignBtn" class="secondary raw-campaign-start" type="button">Barcelona · 5 presas</button>
       <button id="rawBarcelonaReviewCampaignBtn" class="secondary raw-campaign-start" type="button">Barcelona · revisión 3 confluencias</button>
+      <button id="rawBarcelonaClearCampaignBtn" class="secondary raw-campaign-start" type="button">Barcelona · 3 cruces claros</button>
       <span class="q47-raster-meta" id="rawRasterMeta">Raster no cargado · el archivo permanece en este iPad</span>
       <span class="q47-legend"><i></i> cruceta roja = píxel RAW seleccionado</span>
     </div>
@@ -292,6 +299,11 @@
       <aside class="q47-inspector raw-inspector">
         <div class="raw-nudge-dock" id="rawNudgeDock" hidden aria-label="Ampliación local y ajuste fino">
           <div class="raw-dock-head">
+            <span>CONTEXTO DE BÚSQUEDA</span>
+            <strong>120 × 90 px RAW</strong>
+          </div>
+          <canvas id="rawContext" width="360" height="270"></canvas>
+          <div class="raw-dock-head raw-dock-subhead">
             <span>AMPLIACIÓN LOCAL</span>
             <strong>40 × 40 px RAW</strong>
           </div>
@@ -386,7 +398,7 @@
           <tbody id="rawControlRows"></tbody>
         </table>
       </div>
-      <p class="q47-privacy">El raster permanece local en el navegador. La v020 registra <strong>PIXEL_RASTER_ORIGINAL</strong>, dimensiones naturales y SHA-256. Barcelona incorpora una revisión independiente con tres confluencias separadas geográficamente y exige confirmación manual de cada vértice hidrográfico.</p>
+      <p class="q47-privacy">El raster permanece local en el navegador. La v021 registra <strong>PIXEL_RASTER_ORIGINAL</strong>, dimensiones naturales y SHA-256. Barcelona añade tres cruces carretera-ferrocarril en Cervera, Vic y Girona y muestra un contexto de 120×90 px RAW además de la lupa de 40×40 px.</p>
     </div>
   </section>
 
@@ -514,7 +526,7 @@
     <div class="card-simple">
       <div class="section-title compact">
         <div><span class="mini-icon">⚙</span><h2>Estado de automatización</h2></div>
-        <span class="phase-pill">v020</span>
+        <span class="phase-pill">v021</span>
       </div>
       <div class="automation-list">
         <div><span class="auto-dot ok"></span><p><strong>GitHub Pages</strong><small>Web publicada y actualizable.</small></p><b>ACTIVO</b></div>
@@ -530,11 +542,11 @@
 </main>
 
 <footer>
-  <div><strong>Fugawi IA Control v020</strong><span>Panel visual de desarrollo guiado y validación geométrica Q47.</span></div>
+  <div><strong>Fugawi IA Control v021</strong><span>Panel visual de desarrollo guiado y validación geométrica Q47.</span></div>
   <span>Sin claves ni código operativo de Fugawi en esta web pública.</span>
 </footer>
-<script src="./app.js?v=020"></script>
-<script src="./q47.js?v=020"></script>
-<script src="./raw.js?v=020"></script>
+<script src="./app.js?v=021"></script>
+<script src="./q47.js?v=021"></script>
+<script src="./raw.js?v=021"></script>
 </body>
 </html>
