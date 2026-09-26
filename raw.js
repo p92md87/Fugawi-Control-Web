@@ -2,8 +2,8 @@
   "use strict";
 
   const $ = id => document.getElementById(id);
-  const VERSION = "v017";
-  const BUILD = "017.0";
+  const VERSION = "v018";
+  const BUILD = "018.0";
   const STORAGE_CONTROLS = "fugawiRawControlsV010";
   const DOMAIN = "PIXEL_RASTER_ORIGINAL";
   const GRANADA_CAMPAIGN = {
@@ -70,6 +70,72 @@
     ]
   };
 
+  const BARCELONA_CAMPAIGN = {
+    id:"BARCELONA_5_PRESAS_V001",
+    rasterName:"Barcelona 5_2",
+    width:2047,
+    height:1536,
+    sha256:"c5e9fc3b76fd4ee83ebbc21f2be77b00407497e969706c952c4836091a62ac7e",
+    title:"Barcelona · 5 presas",
+    objective:"5_CONTROLES_INDEPENDIENTES_BARCELONA",
+    downloadStem:"Fugawi_Barcelona_5_presas_RAW_",
+    requireManualConfirm:true,
+    guideMode:"CRUCETA_GUIA_APROXIMADA_P3N071",
+    targets:[
+      {
+        id:"BC-CF-001",
+        name:"Presa de Camarasa",
+        type:"PRESA",
+        zone:"Oeste / Noguera Pallaresa",
+        criterion:"Identifica visualmente el cierre de la presa y confirma manualmente la cruceta antes de registrar.",
+        guideX:555.042,
+        guideY:767.188
+      },
+      {
+        id:"BC-CF-002",
+        name:"Presa de La Baells",
+        type:"PRESA",
+        zone:"Centro-norte / Llobregat",
+        criterion:"Identifica visualmente el cierre de la presa y confirma manualmente la cruceta antes de registrar.",
+        guideX:1094.120,
+        guideY:614.328
+      },
+      {
+        id:"BC-CF-003",
+        name:"Presa de Sau",
+        type:"PRESA",
+        zone:"Este / Ter",
+        criterion:"Identifica visualmente el cierre de la presa y confirma manualmente la cruceta antes de registrar.",
+        guideX:1384.130,
+        guideY:726.047
+      },
+      {
+        id:"BC-CF-004",
+        name:"Presa de Sant Ponç",
+        type:"PRESA",
+        zone:"Centro / Cardener",
+        criterion:"Identifica visualmente el cierre de la presa y confirma manualmente la cruceta antes de registrar.",
+        guideX:945.829,
+        guideY:730.082
+      },
+      {
+        id:"BC-CF-005",
+        name:"Presa de la Llosa del Cavall",
+        type:"PRESA",
+        zone:"Centro-norte / Cardener",
+        criterion:"Identifica visualmente el cierre de la presa y confirma manualmente la cruceta antes de registrar.",
+        guideX:933.875,
+        guideY:630.194
+      }
+    ]
+  };
+
+  function activeCampaign() {
+    if (state.campaignKey==="barcelona") return BARCELONA_CAMPAIGN;
+    if (state.campaignKey==="granada") return GRANADA_CAMPAIGN;
+    return null;
+  }
+
   const state = {
     file:null,
     fileName:"",
@@ -90,7 +156,9 @@
     panStart:null,
     pinchStart:null,
     campaignActive:false,
+    campaignKey:"",
     campaignTargetId:"",
+    selectionOrigin:"",
     sessionStartedAt:new Date().toISOString()
   };
 
@@ -128,23 +196,27 @@
       .trim();
   }
 
-  function granadaRasterCheck() {
-    if (!state.sourceW || !state.sourceH) {
-      return {ok:false,level:"pending",text:"Carga primero el raster exacto GRANADA 3_6.PNG."};
+  function campaignRasterCheck() {
+    const spec=activeCampaign();
+    if (!spec) {
+      return {ok:false,level:"pending",text:"Selecciona primero una campaña."};
     }
-    if (state.sourceW!==GRANADA_CAMPAIGN.width || state.sourceH!==GRANADA_CAMPAIGN.height) {
+    if (!state.sourceW || !state.sourceH) {
+      return {ok:false,level:"pending",text:"Carga primero el raster exacto "+spec.rasterName+"."};
+    }
+    if (state.sourceW!==spec.width || state.sourceH!==spec.height) {
       return {
         ok:false,
         level:"error",
-        text:"Raster incompatible: se esperaban "+GRANADA_CAMPAIGN.width+" × "+GRANADA_CAMPAIGN.height+" px."
+        text:"Raster incompatible: se esperaban "+spec.width+" × "+spec.height+" px."
       };
     }
     if (state.sha256 && state.sha256!=="NO_DISPONIBLE" &&
-        state.sha256.toLowerCase()!==GRANADA_CAMPAIGN.sha256) {
+        state.sha256.toLowerCase()!==spec.sha256) {
       return {
         ok:false,
         level:"error",
-        text:"SHA-256 distinto del raster Granada certificado para esta campaña. No registres controles."
+        text:"SHA-256 distinto del raster previsto para esta campaña. No registres controles."
       };
     }
     if (state.sha256==="NO_DISPONIBLE") {
@@ -157,12 +229,14 @@
     return {
       ok:true,
       level:"ok",
-      text:"Raster Granada verificado: dimensiones y SHA-256 coinciden con GRANADA 3_6.PNG."
+      text:"Raster verificado para "+spec.title+": dimensiones y SHA-256 coinciden."
     };
   }
 
   function campaignControls() {
-    return currentControls().filter(c=>c.campaign===GRANADA_CAMPAIGN.id);
+    const spec=activeCampaign();
+    if (!spec) return [];
+    return currentControls().filter(c=>c.campaign===spec.id);
   }
 
   function campaignCaptured(targetId) {
@@ -170,11 +244,14 @@
   }
 
   function campaignTarget() {
-    return GRANADA_CAMPAIGN.targets.find(t=>t.id===state.campaignTargetId) || null;
+    const spec=activeCampaign();
+    if (!spec) return null;
+    return spec.targets.find(t=>t.id===state.campaignTargetId) || null;
   }
 
   function clearRawSelection() {
     state.selected=null;
+    state.selectionOrigin="";
     $("rawCrosshair").hidden=true;
     $("rawX").textContent="—";
     $("rawY").textContent="—";
@@ -182,7 +259,9 @@
   }
 
   function setCampaignTarget(targetId) {
-    const target=GRANADA_CAMPAIGN.targets.find(t=>t.id===targetId);
+    const spec=activeCampaign();
+    if (!spec) return;
+    const target=spec.targets.find(t=>t.id===targetId);
     if (!target) return;
     state.campaignTargetId=target.id;
     clearRawSelection();
@@ -198,8 +277,9 @@
   }
 
   function goToCampaignZone() {
+    const spec=activeCampaign();
     const target=campaignTarget();
-    if (!target || !state.sourceW || !state.sourceH) {
+    if (!spec || !target || !state.sourceW || !state.sourceH) {
       setMessage("Carga el raster y selecciona primero un control de campaña.","error");
       return;
     }
@@ -213,8 +293,13 @@
         const stage=$("rawStage");
         const stageWidth=stage.getBoundingClientRect().width;
         const stageHeight=stage.getBoundingClientRect().height;
-        const centerX=target.navX*stageWidth;
-        const centerY=target.navY*stageHeight;
+        const hasGuide=Number.isFinite(target.guideX) && Number.isFinite(target.guideY);
+        const centerX=hasGuide ?
+          target.guideX/state.sourceW*stageWidth :
+          target.navX*stageWidth;
+        const centerY=hasGuide ?
+          target.guideY/state.sourceH*stageHeight :
+          target.navY*stageHeight;
         viewport.scrollLeft=Math.max(
           0,
           Math.min(
@@ -229,18 +314,30 @@
             centerY-viewport.clientHeight/2
           )
         );
-        clearRawSelection();
-        setMessage(
-          target.id+
-          ": zona aproximada centrada. Busca visualmente el objeto, amplía con dos dedos y toca sólo cuando lo identifiques.",
-          "working"
-        );
+
+        if (hasGuide) {
+          selectRaw(target.guideX,target.guideY,"guide");
+          setMessage(
+            target.id+
+            ": cruceta guía colocada aproximadamente. Identifica visualmente la presa y toca o mueve la cruceta antes de registrar.",
+            "working"
+          );
+        } else {
+          clearRawSelection();
+          setMessage(
+            target.id+
+            ": zona aproximada centrada. Busca visualmente el objeto, amplía con dos dedos y toca sólo cuando lo identifiques.",
+            "working"
+          );
+        }
       });
     });
   }
 
   function selectNextCampaignTarget() {
-    const next=GRANADA_CAMPAIGN.targets.find(t=>!campaignCaptured(t.id));
+    const spec=activeCampaign();
+    if (!spec) return;
+    const next=spec.targets.find(t=>!campaignCaptured(t.id));
     if (next) {
       setCampaignTarget(next.id);
       if (state.sourceW && state.sourceH) goToCampaignZone();
@@ -260,18 +357,25 @@
     if (!panel) return;
     panel.hidden=!state.campaignActive;
     if (!state.campaignActive) return;
+    const spec=activeCampaign();
+    if (!spec) return;
 
-    const check=granadaRasterCheck();
+    $("rawCampaignTitle").textContent=spec.title;
+    $("rawCampaignNote").textContent=spec.requireManualConfirm ?
+      "La cruceta roja inicial es sólo una guía aproximada. Para conservar la independencia del control, debes identificar visualmente el objeto y tocar o mover la cruceta al menos una vez antes de registrar." :
+      "«Ir a zona» sólo centra una región amplia del raster. Selecciona exclusivamente el centro geométrico del objeto físico indicado.";
+
+    const check=campaignRasterCheck();
     const stateNode=$("rawCampaignRasterState");
     stateNode.textContent=check.text;
     stateNode.className="raw-campaign-raster "+check.level;
 
     const captured=campaignControls();
-    $("rawCampaignProgress").textContent=captured.length+" / "+GRANADA_CAMPAIGN.targets.length;
+    $("rawCampaignProgress").textContent=captured.length+" / "+spec.targets.length;
 
     const list=$("rawCampaignTargets");
     list.innerHTML="";
-    GRANADA_CAMPAIGN.targets.forEach(target=>{
+    spec.targets.forEach(target=>{
       const done=campaignCaptured(target.id);
       const button=document.createElement("button");
       button.type="button";
@@ -296,16 +400,20 @@
     });
   }
 
-  function activateGranadaCampaign() {
+  function activateCampaign(key) {
+    const spec=key==="barcelona" ? BARCELONA_CAMPAIGN : GRANADA_CAMPAIGN;
     $("rawValidator").hidden=false;
     state.campaignActive=true;
+    state.campaignKey=key;
+    state.campaignTargetId="";
+    state.selectionOrigin="";
     $("rawControlName").readOnly=true;
     $("rawControlType").disabled=true;
-    const check=granadaRasterCheck();
+    const check=campaignRasterCheck();
     if (!check.ok && check.level==="error") {
       setMessage(check.text,"error");
     } else if (!state.sourceW) {
-      setMessage("Campaña Granada activada. Selecciona el raster exacto GRANADA 3_6.PNG.","working");
+      setMessage("Campaña "+spec.title+" activada. Selecciona el raster exacto.","working");
     } else {
       setMessage(check.text,check.level==="ok" ? "ok" : "working");
     }
@@ -313,9 +421,19 @@
     $("rawGranadaCampaign").scrollIntoView({behavior:"smooth",block:"start"});
   }
 
-  function exitGranadaCampaign() {
+  function activateGranadaCampaign() {
+    activateCampaign("granada");
+  }
+
+  function activateBarcelonaCampaign() {
+    activateCampaign("barcelona");
+  }
+
+  function exitCampaign() {
     state.campaignActive=false;
+    state.campaignKey="";
     state.campaignTargetId="";
+    state.selectionOrigin="";
     $("rawGranadaCampaign").hidden=true;
     $("rawCampaignCurrent").hidden=true;
     $("rawControlName").readOnly=false;
@@ -575,7 +693,7 @@
     setZoom(1);
     renderControls();
     if (state.campaignActive) {
-      const check=granadaRasterCheck();
+      const check=campaignRasterCheck();
       renderCampaign();
       if (!check.ok) {
         setMessage(check.text,"error");
@@ -604,17 +722,22 @@
     };
   }
 
-  function selectRaw(x,y) {
+  function selectRaw(x,y,origin="manual") {
     if (!state.sourceW || !state.sourceH) return;
     state.selected={
       x:Math.max(0,Math.min(state.sourceW-1,x)),
       y:Math.max(0,Math.min(state.sourceH-1,y))
     };
+    state.selectionOrigin=origin;
     $("rawX").textContent=n(state.selected.x,3);
     $("rawY").textContent=n(state.selected.y,3);
     positionCrosshair();
     drawLoupe();
-    setMessage("Píxel RAW seleccionado. Verifica la cruceta roja y ajusta ±1 px si es necesario.","ok");
+    if (origin==="guide") {
+      setMessage("Cruceta guía aproximada. Confirma visualmente el objeto y toca o mueve la cruceta antes de registrar.","working");
+    } else {
+      setMessage("Píxel RAW confirmado manualmente. Verifica la cruceta roja y ajusta ±1 px si es necesario.","ok");
+    }
   }
 
   function positionCrosshair() {
@@ -687,14 +810,19 @@
 
     let target=null;
     if (state.campaignActive) {
-      const check=granadaRasterCheck();
+      const spec=activeCampaign();
+      const check=campaignRasterCheck();
       if (!check.ok) {
         setMessage(check.text,"error");
         return;
       }
       target=campaignTarget();
       if (!target) {
-        setMessage("Selecciona un control de la campaña Granada.","error");
+        setMessage("Selecciona un control de la campaña activa.","error");
+        return;
+      }
+      if (spec && spec.requireManualConfirm && state.selectionOrigin==="guide") {
+        setMessage("La cruceta sigue en la posición guía. Toca la presa o mueve la cruceta al menos un píxel antes de registrar.","error");
         return;
       }
       if (campaignCaptured(target.id)) {
@@ -730,10 +858,16 @@
     };
 
     if (state.campaignActive) {
-      control.campaign=GRANADA_CAMPAIGN.id;
+      const spec=activeCampaign();
+      control.campaign=spec.id;
       control.campaignTarget=target.id;
       control.zone=target.zone;
       control.captureCriterion=target.criterion;
+      control.selectionOrigin=state.selectionOrigin || "manual";
+      if (Number.isFinite(target.guideX) && Number.isFinite(target.guideY)) {
+        control.guideX=target.guideX;
+        control.guideY=target.guideY;
+      }
     }
 
     state.controls.push(control);
@@ -748,8 +882,9 @@
       $("rawY").textContent="—";
       drawLoupe();
       selectNextCampaignTarget();
-      if (campaignControls().length===GRANADA_CAMPAIGN.targets.length) {
-        setMessage("Campaña Granada completa: 6/6 controles capturados. Exporta ahora la traza .txt.","ok");
+      const spec=activeCampaign();
+      if (campaignControls().length===spec.targets.length) {
+        setMessage("Campaña "+spec.title+" completa: "+spec.targets.length+"/"+spec.targets.length+" controles capturados. Exporta ahora la traza .txt.","ok");
       } else {
         setMessage(control.id+" capturado. Se ha activado el siguiente control; selecciona un nuevo píxel RAW.","ok");
       }
@@ -787,6 +922,7 @@
 
   function traceText() {
     const controls=state.campaignActive ? campaignControls() : currentControls();
+    const spec=state.campaignActive ? activeCampaign() : null;
     const lines=[];
     lines.push("FUGAWI_IA_CONTROL_RAW_"+VERSION.toUpperCase());
     lines.push("RAW_WEB|VERSION="+VERSION+"|BUILD="+BUILD+"|GENERADO="+new Date().toISOString());
@@ -794,18 +930,24 @@
     lines.push("RAW_RASTER|NOMBRE="+escapeTrace(state.fileName)+"|W="+state.sourceW+"|H="+state.sourceH+"|BYTES="+state.fileSize+"|MIME="+escapeTrace(state.mime)+"|SHA256="+state.sha256);
     lines.push("RAW_DOMAIN|DOMINIO="+DOMAIN+"|ORIGEN=SUPERIOR_IZQUIERDO|X=DERECHA|Y=ABAJO|TRANSFORMACIONES_PIXEL=0");
 
-    const campaign=controls.filter(c=>c.campaign===GRANADA_CAMPAIGN.id);
-    if (campaign.length || state.campaignActive) {
-      const check=granadaRasterCheck();
+    if (spec) {
+      const campaign=controls.filter(c=>c.campaign===spec.id);
+      const check=campaignRasterCheck();
       lines.push(
-        "RAW_CAMPAIGN|ID="+GRANADA_CAMPAIGN.id+
-        "|OBJETIVO=6_CONTROLES_INDEPENDIENTES_GRANADA"+
-        "|REFERENCIA_POSTERIOR=IGN_PNOA"+
-        "|RASTER_ESPERADO="+escapeTrace(GRANADA_CAMPAIGN.rasterName)+
-        "|W_ESPERADO="+GRANADA_CAMPAIGN.width+
-        "|H_ESPERADO="+GRANADA_CAMPAIGN.height+
-        "|SHA256_ESPERADO="+GRANADA_CAMPAIGN.sha256+
+        "RAW_CAMPAIGN|ID="+spec.id+
+        "|OBJETIVO="+spec.objective+
+        "|REFERENCIA_POSTERIOR=OFICIAL_INDEPENDIENTE"+
+        "|RASTER_ESPERADO="+escapeTrace(spec.rasterName)+
+        "|W_ESPERADO="+spec.width+
+        "|H_ESPERADO="+spec.height+
+        "|SHA256_ESPERADO="+spec.sha256+
+        "|GUIDE_MODE="+escapeTrace(spec.guideMode || "ZONA_APROXIMADA")+
         "|RASTER_VALIDO="+(check.ok ? "SI" : "NO")
+      );
+      lines.push(
+        "RAW_CAMPAIGN_PROGRESS|CONTROLES="+campaign.length+
+        "|TOTAL="+spec.targets.length+
+        "|COMPLETA="+(campaign.length===spec.targets.length ? "SI" : "NO")
       );
     }
 
@@ -821,7 +963,11 @@
         line+="|CAMPANA="+escapeTrace(c.campaign)+
           "|TARGET="+escapeTrace(c.campaignTarget)+
           "|ZONA="+escapeTrace(c.zone)+
-          "|CRITERIO_CAPTURA="+escapeTrace(c.captureCriterion);
+          "|CRITERIO_CAPTURA="+escapeTrace(c.captureCriterion)+
+          "|SELECCION_ORIGEN="+escapeTrace(c.selectionOrigin || "manual");
+        if (Number.isFinite(c.guideX) && Number.isFinite(c.guideY)) {
+          line+="|GUIA_X="+c.guideX+"|GUIA_Y="+c.guideY;
+        }
       }
       if (c.notes) line+="|NOTAS="+escapeTrace(c.notes);
       lines.push(line);
@@ -829,8 +975,6 @@
 
     lines.push(
       "RAW_RESUMEN|CONTROLES="+controls.length+
-      "|CAMPANA_GRANADA="+campaign.length+"/"+GRANADA_CAMPAIGN.targets.length+
-      "|CAMPANA_COMPLETA="+(campaign.length===GRANADA_CAMPAIGN.targets.length ? "SI" : "NO")+
       "|COORDENADAS_OFICIALES=NO_CALCULADAS"+
       "|MALLA=NO_MODIFICADA"
     );
@@ -847,8 +991,9 @@
     const a=document.createElement("a");
     const stamp=new Date().toISOString().replace(/[:.]/g,"-");
     a.href=url;
-    a.download=state.campaignActive ?
-      "Fugawi_Granada_6_controles_RAW_"+stamp+".txt" :
+    const spec=state.campaignActive ? activeCampaign() : null;
+    a.download=spec ?
+      spec.downloadStem+stamp+".txt" :
       "Fugawi_RAW_"+safeName(state.fileName.replace(/\.[^.]+$/, ""))+"_"+stamp+".txt";
     document.body.appendChild(a);
     a.click();
@@ -862,14 +1007,16 @@
     const controls=state.campaignActive ? campaignControls() : currentControls();
     const count=controls.length;
     if (!count) return;
-    const text=state.campaignActive ?
-      "¿Eliminar los "+count+" controles de la campaña Granada para este raster?" :
+    const spec=state.campaignActive ? activeCampaign() : null;
+    const text=spec ?
+      "¿Eliminar los "+count+" controles de la campaña "+spec.title+" para este raster?" :
       "¿Eliminar los "+count+" controles RAW registrados para este raster?";
     if (!confirm(text)) return;
 
     if (state.campaignActive) {
+      const spec=activeCampaign();
       state.controls=state.controls.filter(c=>
-        !(c.rasterKey===state.rasterKey && c.campaign===GRANADA_CAMPAIGN.id)
+        !(c.rasterKey===state.rasterKey && spec && c.campaign===spec.id)
       );
     } else {
       state.controls=state.controls.filter(c=>c.rasterKey!==state.rasterKey);
@@ -880,7 +1027,7 @@
     if (state.campaignActive) selectNextCampaignTarget();
     setMessage(
       state.campaignActive ?
-        "Controles de la campaña Granada eliminados." :
+        "Controles de la campaña activa eliminados." :
         "Controles RAW de este raster eliminados.",
       "ok"
     );
@@ -920,6 +1067,12 @@
         activateGranadaCampaign();
       });
     }
+    if ($("rawBarcelonaEntryBtn")) {
+      $("rawBarcelonaEntryBtn").addEventListener("click",()=>{
+        openRaw();
+        activateBarcelonaCampaign();
+      });
+    }
     $("rawCloseBtn").addEventListener("click",closeRaw);
     $("rawRasterInput").addEventListener("change",event=>{
       const file=event.target.files && event.target.files[0];
@@ -946,8 +1099,9 @@
     $("rawClearControlsBtn").addEventListener("click",clearCurrentControls);
     $("rawNewSessionBtn").addEventListener("click",newSession);
     $("rawGranadaCampaignBtn").addEventListener("click",activateGranadaCampaign);
+    $("rawBarcelonaCampaignBtn").addEventListener("click",activateBarcelonaCampaign);
     $("rawCampaignGoZoneBtn").addEventListener("click",goToCampaignZone);
-    $("rawCampaignExitBtn").addEventListener("click",exitGranadaCampaign);
+    $("rawCampaignExitBtn").addEventListener("click",exitCampaign);
     window.addEventListener("resize",()=>{
       if (state.sourceW) setZoom(state.zoom);
     });
@@ -957,6 +1111,6 @@
   wire();
   clearSelectionFields();
   renderControls();
-  $("rawRuntimeBadge").textContent="RAW · v017 · ZONAS + GESTOS";
+  $("rawRuntimeBadge").textContent="RAW · v018 · GUIA + CONFIRMACION";
   if (location.hash==="#raw") $("rawValidator").hidden=false;
 })();
