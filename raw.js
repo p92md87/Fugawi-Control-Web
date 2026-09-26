@@ -2,8 +2,8 @@
   "use strict";
 
   const $ = id => document.getElementById(id);
-  const VERSION = "v021";
-  const BUILD = "021.0";
+  const VERSION = "v022";
+  const BUILD = "022.0";
   const STORAGE_CONTROLS = "fugawiRawControlsV010";
   const DOMAIN = "PIXEL_RASTER_ORIGINAL";
   const GRANADA_CAMPAIGN = {
@@ -504,7 +504,7 @@
 
     const list=$("rawCampaignTargets");
     list.innerHTML="";
-    spec.targets.forEach(target=>{
+    spec.targets.forEach((target,index)=>{
       const done=campaignCaptured(target.id);
       const button=document.createElement("button");
       button.type="button";
@@ -513,11 +513,11 @@
         (state.campaignTargetId===target.id ? " active" : "");
       button.disabled=done;
       const id=document.createElement("strong");
-      id.textContent=target.id;
+      id.textContent=String(index+1);
       const name=document.createElement("span");
       name.textContent=target.name;
       const meta=document.createElement("small");
-      meta.textContent=(done ? "CAPTURADO" : target.zone)+" · "+target.criterion;
+      meta.textContent=target.id+" · "+(done ? "CAPTURADO" : target.zone)+" · "+target.criterion;
       button.append(id,name,meta);
       if (!done) {
         button.addEventListener("click",()=>{
@@ -1251,18 +1251,6 @@
         activateGranadaCampaign();
       });
     }
-    if ($("rawBarcelonaEntryBtn")) {
-      $("rawBarcelonaEntryBtn").addEventListener("click",()=>{
-        openRaw();
-        activateBarcelonaCampaign();
-      });
-    }
-    if ($("rawBarcelonaReviewEntryBtn")) {
-      $("rawBarcelonaReviewEntryBtn").addEventListener("click",()=>{
-        openRaw();
-        activateBarcelonaReviewCampaign();
-      });
-    }
     if ($("rawBarcelonaClearEntryBtn")) {
       $("rawBarcelonaClearEntryBtn").addEventListener("click",()=>{
         openRaw();
@@ -1290,13 +1278,15 @@
     $("rawRightBtn").addEventListener("click",()=>nudge(1,0));
     $("rawUpBtn").addEventListener("click",()=>nudge(0,-1));
     $("rawDownBtn").addEventListener("click",()=>nudge(0,1));
+    $("rawQuickLeftBtn").addEventListener("click",()=>nudge(-1,0));
+    $("rawQuickRightBtn").addEventListener("click",()=>nudge(1,0));
+    $("rawQuickUpBtn").addEventListener("click",()=>nudge(0,-1));
+    $("rawQuickDownBtn").addEventListener("click",()=>nudge(0,1));
     $("rawRegisterBtn").addEventListener("click",registerControl);
     $("rawExportBtn").addEventListener("click",downloadTrace);
     $("rawClearControlsBtn").addEventListener("click",clearCurrentControls);
     $("rawNewSessionBtn").addEventListener("click",newSession);
     $("rawGranadaCampaignBtn").addEventListener("click",activateGranadaCampaign);
-    $("rawBarcelonaCampaignBtn").addEventListener("click",activateBarcelonaCampaign);
-    $("rawBarcelonaReviewCampaignBtn").addEventListener("click",activateBarcelonaReviewCampaign);
     $("rawBarcelonaClearCampaignBtn").addEventListener("click",activateBarcelonaClearCampaign);
     $("rawCampaignGoZoneBtn").addEventListener("click",goToCampaignZone);
     $("rawCampaignExitBtn").addEventListener("click",exitCampaign);
@@ -1309,6 +1299,6 @@
   wire();
   clearSelectionFields();
   renderControls();
-  $("rawRuntimeBadge").textContent="RAW · v021 · CRUCES CLAROS";
+  $("rawRuntimeBadge").textContent="RAW · v022 · SELECTOR 1-2-3";
   if (location.hash==="#raw") $("rawValidator").hidden=false;
 })();
