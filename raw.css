@@ -310,3 +310,23 @@
   .raw-campaign-top .raw-campaign-targets{grid-template-columns:1fr}
   .raw-quick-nudge>small{width:100%}
 }
+
+
+/* v023 · aceptar la selección sin abandonar el mapa */
+.raw-quick-accept{
+  min-height:52px;
+  padding:12px 18px;
+  font-size:.86rem;
+  white-space:nowrap;
+  box-shadow:0 0 0 1px rgba(114,167,255,.12)
+}
+.raw-quick-accept:disabled{
+  opacity:.55;
+  cursor:default
+}
+@media(max-width:700px){
+  .raw-quick-accept{
+    width:100%;
+    white-space:normal
+  }
+}
