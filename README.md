@@ -3,6 +3,7 @@
 Panel web de ingeniería para preparar y auditar órdenes de desarrollo del proyecto Fugawi.
 
 ## Estado
+- **v030**: prepara el cuarto control independiente de Barcelona en Molins de Rei, con referencia IGN congelada antes de la captura, raster exacto y zona amplia sin cruceta automática. No modifica malla, RET89, cuadriláteros ni P3N_071.
 - **v029**: última prueba independiente de Barcelona con una única recaptura de Darnius-Boadella. Mantiene raster exacto, referencia oficial congelada, zona amplia sin cruceta automática y no modifica malla, RET89, cuadriláteros ni P3N_071.
 - **v028**: corrige la campaña Barcelona de dos referencias nuevas con el raster operativo exacto `Barcelona 5_2.jpg` (9208×6906, SHA-256 `bc01c91c…`), exige dimensiones y hash exactos, crea la campaña V002 para no reutilizar capturas V001 y bloquea registros anormalmente próximos entre TARGET distintos. La malla y los archivos cartográficos no se modifican.
 - **v027**: prepara dos controles nuevos para Barcelona después de fijar previamente sus referencias externas: presa de Talarn/Sant Antoni y presa de Darnius-Boadella. La Web sólo centra zonas amplias; no coloca cruceta automática. Sant Ponç y Sau se mantienen como controles válidos previos y Cervera como candidato pendiente.
