@@ -468,7 +468,7 @@
         await Promise.all(
           keys
             .filter(key=>key.startsWith("fugawi-control-") &&
-              key!=="fugawi-control-v018")
+              key!=="fugawi-control-v019")
             .map(key=>caches.delete(key))
         );
       } catch (_) {}
