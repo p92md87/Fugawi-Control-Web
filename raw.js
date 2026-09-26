@@ -152,17 +152,17 @@
         type:"PRESA",
         zone:"Noroeste · Talarn",
         criterion:"Localizada previamente en cartografía/ortofoto oficial. Ajusta la cruceta al centro geométrico del cuerpo de presa visible en el mapa histórico, no al rótulo ni al embalse.",
-        guideX:572.651,
-        guideY:569.758
+        guideX:569.821,
+        guideY:571.058
       },
       {
         id:"BC-OF-002",
-        name:"Presa de Oliana",
+        name:"Presa de La Baells",
         type:"PRESA",
-        zone:"Norte-centro · Oliana",
-        criterion:"Localizada previamente en cartografía/ortofoto oficial. Ajusta la cruceta al centro geométrico del cuerpo de presa, evitando carretera, central o rótulos próximos.",
-        guideX:779.962,
-        guideY:633.479
+        zone:"Centro-norte · Cercs",
+        criterion:"Localizada previamente en referencia oficial ACA/PNOA. Ajusta la cruceta al centro geométrico del cuerpo de presa visible en el mapa histórico, evitando carretera, central y rótulos.",
+        guideX:1093.783,
+        guideY:612.649
       },
       {
         id:"BC-OF-003",
