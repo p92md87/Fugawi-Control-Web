@@ -4,11 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b1220">
-<title>Fugawi IA Control v017</title>
+<title>Fugawi IA Control v018</title>
 <link rel="manifest" href="./manifest.webmanifest">
-<link rel="stylesheet" href="./styles.css?v=017">
-<link rel="stylesheet" href="./q47.css?v=017">
-<link rel="stylesheet" href="./raw.css?v=017">
+<link rel="stylesheet" href="./styles.css?v=018">
+<link rel="stylesheet" href="./q47.css?v=018">
+<link rel="stylesheet" href="./raw.css?v=018">
 </head>
 <body>
 <header class="topbar">
@@ -16,11 +16,11 @@
     <div class="brand-mark">F</div>
     <div>
       <div class="eyebrow">CENTRO DE MANDO · FUGAWI</div>
-      <h1>Fugawi IA Control <span>v017</span></h1>
+      <h1>Fugawi IA Control <span>v018</span></h1>
     </div>
   </div>
   <div class="top-actions">
-    <span class="live-dot"><i></i> WEB OPERATIVA · BUILD 017.0</span>
+    <span class="live-dot"><i></i> WEB OPERATIVA · BUILD 018.0</span>
     <button id="openRepoTopBtn" class="icon-button" title="Abrir repositorio Fugawi">GitHub ↗</button>
   </div>
 </header>
@@ -121,6 +121,12 @@
         <span class="action-symbol">6</span>
         <span class="action-text"><strong>Granada · 6 controles IGN/PNOA</strong><small>Campaña guiada y secuencial para capturar seis controles físicos independientes sobre GRANADA 3_6.PNG, conservando PIXEL_RASTER_ORIGINAL.</small></span>
         <span class="action-cta">Abrir campaña Granada →</span>
+      </button>
+
+      <button class="q47-launch-card raw-launch-card raw-granada-launch-card" id="rawBarcelonaEntryBtn" type="button">
+        <span class="action-symbol">5</span>
+        <span class="action-text"><strong>Barcelona · 5 presas</strong><small>Campaña guiada P3N_071: coloca una cruceta roja aproximada sobre cada presa y exige confirmación manual antes de registrar el píxel RAW.</small></span>
+        <span class="action-cta">Abrir campaña Barcelona →</span>
       </button>
     </div>
   </section>
@@ -258,6 +264,7 @@
       <span class="raw-gesture-hint">1 dedo = mover · 2 dedos = zoom · toque = seleccionar</span>
       <button id="rawNewSessionBtn" class="secondary q47-new-test" type="button">Nueva sesión RAW</button>
       <button id="rawGranadaCampaignBtn" class="secondary raw-campaign-start" type="button">Campaña Granada 6 puntos</button>
+      <button id="rawBarcelonaCampaignBtn" class="secondary raw-campaign-start" type="button">Barcelona · 5 presas</button>
       <span class="q47-raster-meta" id="rawRasterMeta">Raster no cargado · el archivo permanece en este iPad</span>
       <span class="q47-legend"><i></i> cruceta roja = píxel RAW seleccionado</span>
     </div>
@@ -308,8 +315,8 @@
         <div class="raw-campaign-card" id="rawGranadaCampaign" hidden>
           <div class="raw-campaign-head">
             <div>
-              <span>CAMPAÑA INDEPENDIENTE</span>
-              <strong>Granada · 6 controles IGN/PNOA</strong>
+              <span>CAMPAÑA GUIADA</span>
+              <strong id="rawCampaignTitle">Campaña RAW</strong>
             </div>
             <div class="raw-campaign-progress">
               <small>CAPTURADOS</small>
@@ -317,15 +324,15 @@
             </div>
           </div>
           <div class="raw-campaign-raster pending" id="rawCampaignRasterState">
-            Carga primero el raster exacto GRANADA 3_6.PNG.
+            Selecciona una campaña y carga su raster exacto.
           </div>
           <div class="raw-campaign-current" id="rawCampaignCurrent" hidden>
             <small id="rawCampaignCurrentId">—</small>
             <strong id="rawCampaignCurrentText">—</strong>
-            <button id="rawCampaignGoZoneBtn" class="secondary raw-go-zone-current" type="button">Ir a zona aproximada</button>
+            <button id="rawCampaignGoZoneBtn" class="secondary raw-go-zone-current" type="button">Ir al punto guía</button>
           </div>
           <div class="raw-campaign-targets" id="rawCampaignTargets"></div>
-          <p class="q47-note">«Ir a zona» sólo centra una región amplia del raster para facilitar la búsqueda. No coloca la cruceta ni propone el píxel exacto. Selecciona exclusivamente el centro geométrico del objeto físico indicado.</p>
+          <p class="q47-note" id="rawCampaignNote">La campaña indicará aquí cómo debe confirmarse cada control.</p>
           <button id="rawCampaignExitBtn" class="secondary full small" type="button">Salir de campaña y volver a RAW genérico</button>
         </div>
 
@@ -372,7 +379,7 @@
           <tbody id="rawControlRows"></tbody>
         </table>
       </div>
-      <p class="q47-privacy">El raster permanece local en el navegador. La v017 registra <strong>PIXEL_RASTER_ORIGINAL</strong>, dimensiones naturales y SHA-256. La campaña Granada v002 incorpora navegación aproximada por zonas sin sugerir el punto exacto y sustituye Moreda, que quedaba fuera de la malla útil, por la Presa de Iznájar.</p>
+      <p class="q47-privacy">El raster permanece local en el navegador. La v018 registra <strong>PIXEL_RASTER_ORIGINAL</strong>, dimensiones naturales y SHA-256. Granada conserva navegación aproximada por zonas. Barcelona añade cinco presas con cruceta guía aproximada y obliga a confirmar manualmente la posición antes de registrar el control.</p>
     </div>
   </section>
 
@@ -500,7 +507,7 @@
     <div class="card-simple">
       <div class="section-title compact">
         <div><span class="mini-icon">⚙</span><h2>Estado de automatización</h2></div>
-        <span class="phase-pill">v017</span>
+        <span class="phase-pill">v018</span>
       </div>
       <div class="automation-list">
         <div><span class="auto-dot ok"></span><p><strong>GitHub Pages</strong><small>Web publicada y actualizable.</small></p><b>ACTIVO</b></div>
@@ -516,11 +523,11 @@
 </main>
 
 <footer>
-  <div><strong>Fugawi IA Control v017</strong><span>Panel visual de desarrollo guiado y validación geométrica Q47.</span></div>
+  <div><strong>Fugawi IA Control v018</strong><span>Panel visual de desarrollo guiado y validación geométrica Q47.</span></div>
   <span>Sin claves ni código operativo de Fugawi en esta web pública.</span>
 </footer>
-<script src="./app.js?v=017"></script>
-<script src="./q47.js?v=017"></script>
-<script src="./raw.js?v=017"></script>
+<script src="./app.js?v=018"></script>
+<script src="./q47.js?v=018"></script>
+<script src="./raw.js?v=018"></script>
 </body>
 </html>
