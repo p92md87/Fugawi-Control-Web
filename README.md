@@ -3,6 +3,7 @@
 Panel web de ingeniería para preparar y auditar órdenes de desarrollo del proyecto Fugawi.
 
 ## Estado
+- **v026**: reemplaza la campaña Barcelona anterior por tres referencias externas fijadas antes de capturar: presa de Camarasa, presa de Sant Ponç y presa de Sau. La Web sólo centra una zona amplia y no coloca cruceta guía, para preservar independencia entre referencia oficial y selección histórica.
 - **v025**: sustituye la campaña Barcelona de cruces por tres puntos prelocalizados en referencia oficial IGN/PNOA: presa de Talarn/Sant Antoni, presa de La Baells y presa de Darnius-Boadella. Cervera se conserva como control candidato de la campaña anterior.
 - **v024**: añade dentro de la tarjeta de campaña un botón grande «EXPORTAR RESULTADO .TXT». Permanece desactivado hasta completar 3/3 controles y, al finalizar, se activa en verde con una indicación explícita para descargar y adjuntar la traza.
 - **v023**: añade un botón visible «Aceptar posición seleccionada» junto al mando rápido ±1 px. En campañas guiadas el botón cambia a «Aceptar BC-CL-001/002/003» y llama al mismo registro validado que el formulario inferior.
