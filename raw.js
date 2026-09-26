@@ -2,8 +2,8 @@
   "use strict";
 
   const $ = id => document.getElementById(id);
-  const VERSION = "v018";
-  const BUILD = "018.0";
+  const VERSION = "v019";
+  const BUILD = "019.0";
   const STORAGE_CONTROLS = "fugawiRawControlsV010";
   const DOMAIN = "PIXEL_RASTER_ORIGINAL";
   const GRANADA_CAMPAIGN = {
@@ -80,7 +80,9 @@
     objective:"5_CONTROLES_INDEPENDIENTES_BARCELONA",
     downloadStem:"Fugawi_Barcelona_5_presas_RAW_",
     requireManualConfirm:true,
-    guideMode:"CRUCETA_GUIA_APROXIMADA_P3N071",
+    allowProportionalRaster:true,
+    strictHash:false,
+    guideMode:"CRUCETA_GUIA_NORMALIZADA_P3N071",
     targets:[
       {
         id:"BC-CF-001",
@@ -204,14 +206,26 @@
     if (!state.sourceW || !state.sourceH) {
       return {ok:false,level:"pending",text:"Carga primero el raster exacto "+spec.rasterName+"."};
     }
-    if (state.sourceW!==spec.width || state.sourceH!==spec.height) {
-      return {
-        ok:false,
-        level:"error",
-        text:"Raster incompatible: se esperaban "+spec.width+" × "+spec.height+" px."
-      };
+
+    const sameSize=state.sourceW===spec.width && state.sourceH===spec.height;
+    const sourceRatio=state.sourceW/state.sourceH;
+    const refRatio=spec.width/spec.height;
+    const ratioError=Math.abs(sourceRatio/refRatio-1);
+
+    if (!sameSize) {
+      if (!spec.allowProportionalRaster || ratioError>0.003) {
+        return {
+          ok:false,
+          level:"error",
+          text:"Raster incompatible: "+state.sourceW+" × "+state.sourceH+
+            " px. La referencia es "+spec.width+" × "+spec.height+
+            " px y no conserva exactamente su proporción."
+        };
+      }
     }
-    if (state.sha256 && state.sha256!=="NO_DISPONIBLE" &&
+
+    if (spec.strictHash!==false &&
+        state.sha256 && state.sha256!=="NO_DISPONIBLE" &&
         state.sha256.toLowerCase()!==spec.sha256) {
       return {
         ok:false,
@@ -219,13 +233,25 @@
         text:"SHA-256 distinto del raster previsto para esta campaña. No registres controles."
       };
     }
-    if (state.sha256==="NO_DISPONIBLE") {
+
+    if (!sameSize && spec.allowProportionalRaster) {
       return {
         ok:true,
         level:"warn",
-        text:"Dimensiones correctas. SHA-256 no disponible: captura permitida, pero quedará pendiente verificar identidad del raster."
+        text:"Raster proporcional detectado: "+state.sourceW+" × "+state.sourceH+
+          " px. Las crucetas guía se escalarán automáticamente desde la referencia "+
+          spec.width+" × "+spec.height+"; confirma siempre el objeto visualmente."
       };
     }
+
+    if (state.sha256==="NO_DISPONIBLE" || spec.strictHash===false) {
+      return {
+        ok:true,
+        level:"warn",
+        text:"Dimensiones compatibles. La captura queda identificada por dimensiones y SHA-256 real exportado; confirma visualmente cada objeto."
+      };
+    }
+
     return {
       ok:true,
       level:"ok",
@@ -284,6 +310,12 @@
       return;
     }
 
+    const check=campaignRasterCheck();
+    if (!check.ok) {
+      setMessage(check.text,"error");
+      return;
+    }
+
     const viewport=$("rawViewport");
     const zoom=Math.max(4,state.zoom);
     setZoom(zoom);
@@ -294,12 +326,17 @@
         const stageWidth=stage.getBoundingClientRect().width;
         const stageHeight=stage.getBoundingClientRect().height;
         const hasGuide=Number.isFinite(target.guideX) && Number.isFinite(target.guideY);
+        const guideRawX=hasGuide ?
+          target.guideX/spec.width*state.sourceW : NaN;
+        const guideRawY=hasGuide ?
+          target.guideY/spec.height*state.sourceH : NaN;
         const centerX=hasGuide ?
-          target.guideX/state.sourceW*stageWidth :
+          guideRawX/state.sourceW*stageWidth :
           target.navX*stageWidth;
         const centerY=hasGuide ?
-          target.guideY/state.sourceH*stageHeight :
+          guideRawY/state.sourceH*stageHeight :
           target.navY*stageHeight;
+
         viewport.scrollLeft=Math.max(
           0,
           Math.min(
@@ -316,10 +353,12 @@
         );
 
         if (hasGuide) {
-          selectRaw(target.guideX,target.guideY,"guide");
+          selectRaw(guideRawX,guideRawY,"guide");
           setMessage(
             target.id+
-            ": cruceta guía colocada aproximadamente. Identifica visualmente la presa y toca o mueve la cruceta antes de registrar.",
+            ": cruceta guía reescalada al raster actual ("+
+            state.sourceW+" × "+state.sourceH+
+            "). Identifica visualmente la presa y toca o mueve la cruceta antes de registrar.",
             "working"
           );
         } else {
@@ -865,8 +904,10 @@
       control.captureCriterion=target.criterion;
       control.selectionOrigin=state.selectionOrigin || "manual";
       if (Number.isFinite(target.guideX) && Number.isFinite(target.guideY)) {
-        control.guideX=target.guideX;
-        control.guideY=target.guideY;
+        control.guideRefX=target.guideX;
+        control.guideRefY=target.guideY;
+        control.guideX=target.guideX/spec.width*state.sourceW;
+        control.guideY=target.guideY/spec.height*state.sourceH;
       }
     }
 
@@ -966,7 +1007,10 @@
           "|CRITERIO_CAPTURA="+escapeTrace(c.captureCriterion)+
           "|SELECCION_ORIGEN="+escapeTrace(c.selectionOrigin || "manual");
         if (Number.isFinite(c.guideX) && Number.isFinite(c.guideY)) {
-          line+="|GUIA_X="+c.guideX+"|GUIA_Y="+c.guideY;
+          line+="|GUIA_RAW_X="+c.guideX+"|GUIA_RAW_Y="+c.guideY;
+        }
+        if (Number.isFinite(c.guideRefX) && Number.isFinite(c.guideRefY)) {
+          line+="|GUIA_REF_X="+c.guideRefX+"|GUIA_REF_Y="+c.guideRefY;
         }
       }
       if (c.notes) line+="|NOTAS="+escapeTrace(c.notes);
@@ -1111,6 +1155,6 @@
   wire();
   clearSelectionFields();
   renderControls();
-  $("rawRuntimeBadge").textContent="RAW · v018 · GUIA + CONFIRMACION";
+  $("rawRuntimeBadge").textContent="RAW · v019 · GUIA NORMALIZADA";
   if (location.hash==="#raw") $("rawValidator").hidden=false;
 })();
