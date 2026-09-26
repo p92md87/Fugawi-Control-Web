@@ -2,8 +2,8 @@
   "use strict";
 
   const $ = id => document.getElementById(id);
-  const VERSION = "v019";
-  const BUILD = "019.0";
+  const VERSION = "v020";
+  const BUILD = "020.0";
   const STORAGE_CONTROLS = "fugawiRawControlsV010";
   const DOMAIN = "PIXEL_RASTER_ORIGINAL";
   const GRANADA_CAMPAIGN = {
@@ -132,7 +132,52 @@
     ]
   };
 
+  const BARCELONA_REVIEW_CAMPAIGN = {
+    id:"BARCELONA_REVISION_3_CONFLUENCIAS_V001",
+    rasterName:"Barcelona 5_2",
+    width:2047,
+    height:1536,
+    sha256:"c5e9fc3b76fd4ee83ebbc21f2be77b00407497e969706c952c4836091a62ac7e",
+    title:"Barcelona · revisión 3 confluencias",
+    objective:"3_CONTROLES_INDEPENDIENTES_BARCELONA_DISTRIBUIDOS",
+    downloadStem:"Fugawi_Barcelona_revision_3_confluencias_RAW_",
+    requireManualConfirm:true,
+    allowProportionalRaster:true,
+    strictHash:false,
+    guideMode:"CRUCETA_GUIA_NORMALIZADA_CONFLUENCIAS_V001",
+    targets:[
+      {
+        id:"BC-RV-001",
+        name:"Confluencia Noguera Pallaresa–Segre",
+        type:"CONFLUENCIA",
+        zone:"Oeste · Camarasa",
+        criterion:"Fija el vértice hidrográfico donde el eje de la Noguera Pallaresa entra en el Segre; ignora rótulos y carreteras próximas.",
+        guideX:556.152,
+        guideY:769.623
+      },
+      {
+        id:"BC-RV-002",
+        name:"Confluencia Anoia–Llobregat",
+        type:"CONFLUENCIA",
+        zone:"Sur-centro · Martorell",
+        criterion:"Fija el vértice hidrográfico de unión de ambos cauces; no uses el centro urbano ni los puentes próximos.",
+        guideX:1123.956,
+        guideY:1085.310
+      },
+      {
+        id:"BC-RV-003",
+        name:"Confluencia Freser–Ter",
+        type:"CONFLUENCIA",
+        zone:"Noreste · Ripoll",
+        criterion:"Fija el vértice hidrográfico donde el Freser desemboca en el Ter; no uses el rótulo RIPOLL ni cruces viarios próximos.",
+        guideX:1263.385,
+        guideY:560.978
+      }
+    ]
+  };
+
   function activeCampaign() {
+    if (state.campaignKey==="barcelona_review") return BARCELONA_REVIEW_CAMPAIGN;
     if (state.campaignKey==="barcelona") return BARCELONA_CAMPAIGN;
     if (state.campaignKey==="granada") return GRANADA_CAMPAIGN;
     return null;
@@ -440,7 +485,9 @@
   }
 
   function activateCampaign(key) {
-    const spec=key==="barcelona" ? BARCELONA_CAMPAIGN : GRANADA_CAMPAIGN;
+    let spec=GRANADA_CAMPAIGN;
+    if (key==="barcelona") spec=BARCELONA_CAMPAIGN;
+    if (key==="barcelona_review") spec=BARCELONA_REVIEW_CAMPAIGN;
     $("rawValidator").hidden=false;
     state.campaignActive=true;
     state.campaignKey=key;
@@ -466,6 +513,10 @@
 
   function activateBarcelonaCampaign() {
     activateCampaign("barcelona");
+  }
+
+  function activateBarcelonaReviewCampaign() {
+    activateCampaign("barcelona_review");
   }
 
   function exitCampaign() {
@@ -1117,6 +1168,12 @@
         activateBarcelonaCampaign();
       });
     }
+    if ($("rawBarcelonaReviewEntryBtn")) {
+      $("rawBarcelonaReviewEntryBtn").addEventListener("click",()=>{
+        openRaw();
+        activateBarcelonaReviewCampaign();
+      });
+    }
     $("rawCloseBtn").addEventListener("click",closeRaw);
     $("rawRasterInput").addEventListener("change",event=>{
       const file=event.target.files && event.target.files[0];
@@ -1144,6 +1201,7 @@
     $("rawNewSessionBtn").addEventListener("click",newSession);
     $("rawGranadaCampaignBtn").addEventListener("click",activateGranadaCampaign);
     $("rawBarcelonaCampaignBtn").addEventListener("click",activateBarcelonaCampaign);
+    $("rawBarcelonaReviewCampaignBtn").addEventListener("click",activateBarcelonaReviewCampaign);
     $("rawCampaignGoZoneBtn").addEventListener("click",goToCampaignZone);
     $("rawCampaignExitBtn").addEventListener("click",exitCampaign);
     window.addEventListener("resize",()=>{
@@ -1155,6 +1213,6 @@
   wire();
   clearSelectionFields();
   renderControls();
-  $("rawRuntimeBadge").textContent="RAW · v019 · GUIA NORMALIZADA";
+  $("rawRuntimeBadge").textContent="RAW · v020 · REVISION DISTRIBUIDA";
   if (location.hash==="#raw") $("rawValidator").hidden=false;
 })();
