@@ -2,8 +2,8 @@
   "use strict";
 
   const $ = id => document.getElementById(id);
-  const VERSION = "v024";
-  const BUILD = "024.0";
+  const VERSION = "v025";
+  const BUILD = "025.0";
   const STORAGE_CONTROLS = "fugawiRawControlsV010";
   const DOMAIN = "PIXEL_RASTER_ORIGINAL";
   const GRANADA_CAMPAIGN = {
@@ -133,45 +133,45 @@
   };
 
   const BARCELONA_CLEAR_CAMPAIGN = {
-    id:"BARCELONA_3_CRUCES_CLAROS_V001",
+    id:"BARCELONA_3_PUNTOS_OFICIALES_V001",
     rasterName:"Barcelona 5_2",
     width:2047,
     height:1536,
     sha256:"c5e9fc3b76fd4ee83ebbc21f2be77b00407497e969706c952c4836091a62ac7e",
-    title:"Barcelona · 3 cruces claros",
-    objective:"3_CONTROLES_INDEPENDIENTES_BARCELONA_CRUCES_CARRETERA_FERROCARRIL",
-    downloadStem:"Fugawi_Barcelona_3_cruces_claros_RAW_",
+    title:"Barcelona · 3 puntos oficiales IGN/PNOA",
+    objective:"3_CONTROLES_BARCELONA_PRELOCALIZADOS_EN_IGN_PNOA",
+    downloadStem:"Fugawi_Barcelona_3_puntos_oficiales_RAW_",
     requireManualConfirm:true,
     allowProportionalRaster:true,
     strictHash:false,
-    guideMode:"CRUCETA_GUIA_NORMALIZADA_CRUCE_CARRETERA_FERROCARRIL_V001",
+    guideMode:"GUIA_DESDE_REFERENCIA_OFICIAL_VERIFICADA_EN_IGN_PNOA_V001",
     targets:[
       {
-        id:"BC-CL-001",
-        name:"Cervera · cruce carretera-ferrocarril",
-        type:"CRUCE_CARRETERA_FERROCARRIL",
-        zone:"Oeste · entorno de Cervera",
-        criterion:"Busca la línea ferroviaria negra con traviesas y fija exactamente su intersección geométrica con la carretera roja. No uses el cruce viario adyacente.",
-        guideX:762.0,
-        guideY:943.0
+        id:"BC-OF-001",
+        name:"Presa de Talarn / Sant Antoni",
+        type:"PRESA",
+        zone:"Noroeste · Talarn",
+        criterion:"Localizada previamente en cartografía/ortofoto oficial. Ajusta la cruceta al centro geométrico del cuerpo de presa visible en el mapa histórico, no al rótulo ni al embalse.",
+        guideX:572.651,
+        guideY:569.758
       },
       {
-        id:"BC-CL-002",
-        name:"Vic · cruce carretera-ferrocarril",
-        type:"CRUCE_CARRETERA_FERROCARRIL",
-        zone:"Centro · entorno de Vic",
-        criterion:"Fija el centro geométrico donde la línea ferroviaria negra norte-sur corta la carretera roja transversal. Ignora el nudo de carreteras contiguo.",
-        guideX:1298.0,
-        guideY:755.0
+        id:"BC-OF-002",
+        name:"Presa de Oliana",
+        type:"PRESA",
+        zone:"Norte-centro · Oliana",
+        criterion:"Localizada previamente en cartografía/ortofoto oficial. Ajusta la cruceta al centro geométrico del cuerpo de presa, evitando carretera, central o rótulos próximos.",
+        guideX:779.962,
+        guideY:633.479
       },
       {
-        id:"BC-CL-003",
-        name:"Girona · cruce carretera-ferrocarril",
-        type:"CRUCE_CARRETERA_FERROCARRIL",
-        zone:"Este · entorno de Girona",
-        criterion:"Fija el centro geométrico donde la línea ferroviaria negra vertical corta la carretera roja al oeste inmediato del rótulo GERONA. No uses la autopista naranja.",
-        guideX:1598.0,
-        guideY:722.0
+        id:"BC-OF-003",
+        name:"Presa de Darnius-Boadella",
+        type:"PRESA",
+        zone:"Noreste · Darnius",
+        criterion:"Localizada previamente en cartografía/ortofoto oficial. Ajusta la cruceta al centro geométrico del cuerpo de presa; no uses el centro del embalse ni la carretera de acceso.",
+        guideX:1611.910,
+        guideY:452.405
       }
     ]
   };
@@ -1328,6 +1328,6 @@
   wire();
   clearSelectionFields();
   renderControls();
-  $("rawRuntimeBadge").textContent="RAW · v024 · EXPORTAR RESULTADO";
+  $("rawRuntimeBadge").textContent="RAW · v025 · PUNTOS OFICIALES IGN/PNOA";
   if (location.hash==="#raw") $("rawValidator").hidden=false;
 })();
