@@ -1,4 +1,4 @@
-const CACHE = "fugawi-control-v017";
+const CACHE = "fugawi-control-v018";
 const ASSETS = [
   "./",
   "./index.html",
