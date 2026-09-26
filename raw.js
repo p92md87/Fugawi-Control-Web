@@ -2,8 +2,8 @@
   "use strict";
 
   const $ = id => document.getElementById(id);
-  const VERSION = "v027";
-  const BUILD = "027.0";
+  const VERSION = "v028";
+  const BUILD = "028.0";
   const STORAGE_CONTROLS = "fugawiRawControlsV010";
   const DOMAIN = "PIXEL_RASTER_ORIGINAL";
   const GRANADA_CAMPAIGN = {
@@ -133,18 +133,19 @@
   };
 
   const BARCELONA_CLEAR_CAMPAIGN = {
-    id:"BARCELONA_2_REFERENCIAS_NUEVAS_V001",
-    rasterName:"Barcelona 5_2",
-    width:2047,
-    height:1536,
-    sha256:"c5e9fc3b76fd4ee83ebbc21f2be77b00407497e969706c952c4836091a62ac7e",
+    id:"BARCELONA_2_REFERENCIAS_NUEVAS_V002",
+    rasterName:"Barcelona 5_2.jpg",
+    width:9208,
+    height:6906,
+    sha256:"bc01c91c709c5ba789ed7ed1196bd431eea795a6f53d6dfe1dff4014793078fe",
     title:"Barcelona · 2 referencias nuevas",
     objective:"2_CONTROLES_NUEVOS_PRELOCALIZADOS_EN_REFERENCIA_OFICIAL_ANTES_DE_CAPTURA",
     downloadStem:"Fugawi_Barcelona_2_referencias_nuevas_RAW_",
     requireManualConfirm:true,
-    allowProportionalRaster:true,
-    strictHash:false,
-    guideMode:"ZONA_AMPLIA_SIN_CRUCETA_DESDE_REFERENCIA_EXTERNA_V003",
+    allowProportionalRaster:false,
+    strictHash:true,
+    minCaptureSeparationNorm:0.10,
+    guideMode:"ZONA_AMPLIA_SIN_CRUCETA_DESDE_REFERENCIA_EXTERNA_V004",
     targets:[
       {
         id:"BC-NV-001",
@@ -241,6 +242,7 @@
     campaignActive:false,
     campaignKey:"",
     campaignTargetId:"",
+    campaignZoneTargetId:"",
     selectionOrigin:"",
     sessionStartedAt:new Date().toISOString()
   };
@@ -371,6 +373,7 @@
     const target=spec.targets.find(t=>t.id===targetId);
     if (!target) return;
     state.campaignTargetId=target.id;
+    state.campaignZoneTargetId="";
     clearRawSelection();
     $("rawControlName").value=target.name;
     $("rawControlName").readOnly=true;
@@ -401,6 +404,7 @@
     }
 
     const viewport=$("rawViewport");
+    state.campaignZoneTargetId="";
     const zoom=Math.max(4,state.zoom);
     setZoom(zoom);
 
@@ -435,6 +439,8 @@
             centerY-viewport.clientHeight/2
           )
         );
+
+        state.campaignZoneTargetId=target.id;
 
         if (hasGuide) {
           selectRaw(guideRawX,guideRawY,"guide");
@@ -552,6 +558,7 @@
     state.campaignActive=true;
     state.campaignKey=key;
     state.campaignTargetId="";
+    state.campaignZoneTargetId="";
     state.selectionOrigin="";
     $("rawControlName").readOnly=true;
     $("rawControlType").disabled=true;
@@ -587,6 +594,7 @@
     state.campaignActive=false;
     state.campaignKey="";
     state.campaignTargetId="";
+    state.campaignZoneTargetId="";
     state.selectionOrigin="";
     $("rawGranadaCampaign").hidden=true;
     $("rawCampaignCurrent").hidden=true;
@@ -1018,6 +1026,29 @@
         setMessage("Selecciona un control de la campaña activa.","error");
         return;
       }
+      if (state.campaignZoneTargetId!==target.id) {
+        setMessage(
+          "La zona del control activo todavía no está confirmada. Pulsa «Ir a zona» antes de registrar.",
+          "error"
+        );
+        return;
+      }
+      const minSeparation=Number(spec && spec.minCaptureSeparationNorm || 0);
+      if (minSeparation>0) {
+        const tooClose=campaignControls().find(c=>{
+          const dx=(c.rawX-state.selected.x)/state.sourceW;
+          const dy=(c.rawY-state.selected.y)/state.sourceH;
+          return Math.hypot(dx,dy)<minSeparation;
+        });
+        if (tooClose) {
+          setMessage(
+            "Captura bloqueada: el píxel seleccionado está anormalmente próximo a "+
+            tooClose.id+". Verifica que la Web ha cambiado al nuevo TARGET y vuelve a «Ir a zona».",
+            "error"
+          );
+          return;
+        }
+      }
       if (spec && spec.requireManualConfirm && state.selectionOrigin==="guide") {
         setMessage("La cruceta sigue en la posición guía. Toca la presa o mueve la cruceta al menos un píxel antes de registrar.","error");
         return;
@@ -1141,6 +1172,7 @@
         "|H_ESPERADO="+spec.height+
         "|SHA256_ESPERADO="+spec.sha256+
         "|GUIDE_MODE="+escapeTrace(spec.guideMode || "ZONA_APROXIMADA")+
+        "|RASTER_POLICY="+(spec.strictHash===true ? "DIMENSIONES_Y_SHA256_ESTRICTOS" : "COMPATIBLE")+
         "|RASTER_VALIDO="+(check.ok ? "SI" : "NO")
       );
       lines.push(
@@ -1319,6 +1351,6 @@
   wire();
   clearSelectionFields();
   renderControls();
-  $("rawRuntimeBadge").textContent="RAW · v027 · 2 REFERENCIAS NUEVAS";
+  $("rawRuntimeBadge").textContent="RAW · v028 · 2 REFERENCIAS NUEVAS · RASTER ESTRICTO";
   if (location.hash==="#raw") $("rawValidator").hidden=false;
 })();
