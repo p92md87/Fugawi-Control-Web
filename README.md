@@ -3,6 +3,7 @@
 Panel web de ingeniería para preparar y auditar órdenes de desarrollo del proyecto Fugawi.
 
 ## Estado
+- **v024**: añade dentro de la tarjeta de campaña un botón grande «EXPORTAR RESULTADO .TXT». Permanece desactivado hasta completar 3/3 controles y, al finalizar, se activa en verde con una indicación explícita para descargar y adjuntar la traza.
 - **v023**: añade un botón visible «Aceptar posición seleccionada» junto al mando rápido ±1 px. En campañas guiadas el botón cambia a «Aceptar BC-CL-001/002/003» y llama al mismo registro validado que el formulario inferior.
 - **v022**: limpia la interfaz Barcelona retirando las campañas obsoletas de 5 presas y 3 confluencias. La campaña vigente «3 cruces claros» muestra arriba un selector explícito 1/2/3 y añade un mando de flechas ±1 px junto al mapa para evitar desplazamientos largos por la página.
 - **v021**: añade «Barcelona · 3 cruces claros», campaña recomendada tras descartar las confluencias difíciles. Selecciona tres cruces carretera-ferrocarril claramente dibujados y separados geográficamente: Cervera (oeste), Vic (centro) y Girona (este). El inspector incorpora una vista de contexto 120×90 px RAW además de la lupa 40×40 px.
