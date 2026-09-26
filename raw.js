@@ -3,7 +3,7 @@
 
   const $ = id => document.getElementById(id);
   const VERSION = "v028";
-  const BUILD = "028.0";
+  const BUILD = "028.1";
   const STORAGE_CONTROLS = "fugawiRawControlsV010";
   const DOMAIN = "PIXEL_RASTER_ORIGINAL";
   const GRANADA_CAMPAIGN = {
@@ -385,6 +385,7 @@
     $("rawRegisterBtn").textContent="Registrar "+target.id;
     if ($("rawQuickAcceptBtn")) {
       $("rawQuickAcceptBtn").textContent="Aceptar "+target.id;
+      $("rawQuickAcceptBtn").disabled=false;
     }
     renderCampaign();
   }
