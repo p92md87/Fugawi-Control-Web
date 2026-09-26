@@ -187,6 +187,14 @@
   margin:0;border:1px solid var(--line);border-radius:10px;
   background:#050b13;image-rendering:pixelated
 }
+.raw-nudge-dock #rawContext{
+  display:block;width:100%;aspect-ratio:4/3;
+  margin:0;border:1px solid var(--line);border-radius:10px;
+  background:#050b13;image-rendering:pixelated
+}
+.raw-dock-subhead{
+  margin-top:2px;padding-top:7px;border-top:1px solid rgba(91,156,255,.18)
+}
 .raw-nudge-map{
   grid-template-columns:repeat(3,48px);
   grid-template-rows:repeat(2,44px);gap:6px
