@@ -2,8 +2,8 @@
   "use strict";
 
   const $ = id => document.getElementById(id);
-  const VERSION = "v030";
-  const BUILD = "030.0";
+  const VERSION = "v031";
+  const BUILD = "031.0";
   const STORAGE_CONTROLS = "fugawiRawControlsV010";
   const DOMAIN = "PIXEL_RASTER_ORIGINAL";
   const GRANADA_CAMPAIGN = {
@@ -133,28 +133,28 @@
   };
 
   const BARCELONA_CLEAR_CAMPAIGN = {
-    id:"BARCELONA_CUARTO_CONTROL_MOLINS_V001",
+    id:"BARCELONA_CUARTO_CONTROL_LA_BAELLS_V001",
     rasterName:"Barcelona 5_2.jpg",
     width:9208,
     height:6906,
     sha256:"bc01c91c709c5ba789ed7ed1196bd431eea795a6f53d6dfe1dff4014793078fe",
-    title:"Barcelona · cuarto control Molins de Rei",
-    objective:"CUARTO_CONTROL_INDEPENDIENTE_BARCELONA_REFERENCIA_IGN_CONGELADA",
-    downloadStem:"Fugawi_Barcelona_Molins_cuarto_control_RAW_",
+    title:"Barcelona · cuarto control La Baells",
+    objective:"CUARTO_CONTROL_INDEPENDIENTE_BARCELONA_FACILMENTE_IDENTIFICABLE",
+    downloadStem:"Fugawi_Barcelona_La_Baells_cuarto_control_RAW_",
     requireManualConfirm:true,
     allowProportionalRaster:false,
     strictHash:true,
     minCaptureSeparationNorm:0,
-    guideMode:"ZONA_AMPLIA_SIN_CRUCETA_REFERENCIA_IGN_V001",
+    guideMode:"ZONA_AMPLIA_SIN_CRUCETA_REFERENCIA_OFICIAL_V001",
     targets:[
       {
-        id:"BC-CF-004-MOLINS",
-        name:"Molins de Rei · C-1413a bajo E-90/B-23",
-        type:"INTERSECCION_VIARIA",
-        zone:"Sur-centro · Molins de Rei",
-        criterion:"Referencia IGN fijada antes de la captura. Localiza el paso físico de la C-1413a bajo la E-90/B-23 y toca el centro geométrico del cruce. No uses rótulos, centro urbano ni enlaces próximos.",
-        navX:0.494,
-        navY:0.687
+        id:"BC-CF-005-LABAELLS",
+        name:"Presa de La Baells",
+        type:"PRESA",
+        zone:"Centro-norte · Llobregat · Cercs",
+        criterion:"Referencia oficial fijada antes de la captura. Identifica el gran cuerpo curvado de la presa de La Baells sobre el Llobregat y toca el centro físico de la coronación/cierre. No uses rótulos ni el centro del embalse.",
+        navX:0.5345,
+        navY:0.3999
       }
     ]
   };
@@ -1342,6 +1342,6 @@
   wire();
   clearSelectionFields();
   renderControls();
-  $("rawRuntimeBadge").textContent="RAW · v030 · CUARTO CONTROL MOLINS · RASTER ESTRICTO";
+  $("rawRuntimeBadge").textContent="RAW · v031 · CUARTO CONTROL LA BAELLS · RASTER ESTRICTO";
   if (location.hash==="#raw") $("rawValidator").hidden=false;
 })();
