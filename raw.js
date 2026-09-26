@@ -2,8 +2,8 @@
   "use strict";
 
   const $ = id => document.getElementById(id);
-  const VERSION = "v022";
-  const BUILD = "022.0";
+  const VERSION = "v023";
+  const BUILD = "023.0";
   const STORAGE_CONTROLS = "fugawiRawControlsV010";
   const DOMAIN = "PIXEL_RASTER_ORIGINAL";
   const GRANADA_CAMPAIGN = {
@@ -389,6 +389,9 @@
     $("rawCampaignCurrentId").textContent=target.id+" · "+target.zone;
     $("rawCampaignCurrentText").textContent=target.name+" — "+target.criterion;
     $("rawRegisterBtn").textContent="Registrar "+target.id;
+    if ($("rawQuickAcceptBtn")) {
+      $("rawQuickAcceptBtn").textContent="Aceptar "+target.id;
+    }
     renderCampaign();
   }
 
@@ -478,6 +481,10 @@
     $("rawControlName").readOnly=true;
     $("rawControlType").disabled=true;
     $("rawRegisterBtn").textContent="Campaña completa";
+    if ($("rawQuickAcceptBtn")) {
+      $("rawQuickAcceptBtn").textContent="Campaña completa";
+      $("rawQuickAcceptBtn").disabled=true;
+    }
     renderCampaign();
   }
 
@@ -581,6 +588,10 @@
     $("rawControlName").value="";
     $("rawControlNotes").value="";
     $("rawRegisterBtn").textContent="Registrar control RAW";
+    if ($("rawQuickAcceptBtn")) {
+      $("rawQuickAcceptBtn").textContent="Aceptar posición seleccionada";
+      $("rawQuickAcceptBtn").disabled=false;
+    }
     setMessage("Modo RAW genérico activo.","ok");
   }
 
@@ -1282,6 +1293,7 @@
     $("rawQuickRightBtn").addEventListener("click",()=>nudge(1,0));
     $("rawQuickUpBtn").addEventListener("click",()=>nudge(0,-1));
     $("rawQuickDownBtn").addEventListener("click",()=>nudge(0,1));
+    $("rawQuickAcceptBtn").addEventListener("click",registerControl);
     $("rawRegisterBtn").addEventListener("click",registerControl);
     $("rawExportBtn").addEventListener("click",downloadTrace);
     $("rawClearControlsBtn").addEventListener("click",clearCurrentControls);
@@ -1299,6 +1311,6 @@
   wire();
   clearSelectionFields();
   renderControls();
-  $("rawRuntimeBadge").textContent="RAW · v022 · SELECTOR 1-2-3";
+  $("rawRuntimeBadge").textContent="RAW · v023 · ACEPTAR JUNTO A FLECHAS";
   if (location.hash==="#raw") $("rawValidator").hidden=false;
 })();
