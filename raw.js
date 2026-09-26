@@ -2,8 +2,8 @@
   "use strict";
 
   const $ = id => document.getElementById(id);
-  const VERSION = "v026";
-  const BUILD = "026.0";
+  const VERSION = "v027";
+  const BUILD = "027.0";
   const STORAGE_CONTROLS = "fugawiRawControlsV010";
   const DOMAIN = "PIXEL_RASTER_ORIGINAL";
   const GRANADA_CAMPAIGN = {
@@ -133,45 +133,36 @@
   };
 
   const BARCELONA_CLEAR_CAMPAIGN = {
-    id:"BARCELONA_3_REFERENCIAS_OFICIALES_V002",
+    id:"BARCELONA_2_REFERENCIAS_NUEVAS_V001",
     rasterName:"Barcelona 5_2",
     width:2047,
     height:1536,
     sha256:"c5e9fc3b76fd4ee83ebbc21f2be77b00407497e969706c952c4836091a62ac7e",
-    title:"Barcelona · 3 referencias oficiales",
-    objective:"3_CONTROLES_BARCELONA_REFERENCIA_EXTERNA_CONGELADA_ANTES_DE_CAPTURA",
-    downloadStem:"Fugawi_Barcelona_3_referencias_oficiales_RAW_",
+    title:"Barcelona · 2 referencias nuevas",
+    objective:"2_CONTROLES_NUEVOS_PRELOCALIZADOS_EN_REFERENCIA_OFICIAL_ANTES_DE_CAPTURA",
+    downloadStem:"Fugawi_Barcelona_2_referencias_nuevas_RAW_",
     requireManualConfirm:true,
     allowProportionalRaster:true,
     strictHash:false,
-    guideMode:"ZONA_AMPLIA_SIN_CRUCETA_DESDE_REFERENCIA_EXTERNA_V002",
+    guideMode:"ZONA_AMPLIA_SIN_CRUCETA_DESDE_REFERENCIA_EXTERNA_V003",
     targets:[
       {
-        id:"BC-OF-001",
-        name:"Presa de Camarasa",
+        id:"BC-NV-001",
+        name:"Presa de Talarn / Sant Antoni",
         type:"PRESA",
-        zone:"Oeste · Noguera Pallaresa",
-        criterion:"Referencia externa congelada antes de la captura. La Web sólo centra una zona amplia: identifica tú el cierre de la presa y toca el punto físico; no uses rótulos ni el centro del embalse.",
-        navX:0.270856,
-        navY:0.500370
+        zone:"Noroeste · Noguera Pallaresa",
+        criterion:"Referencia externa fijada antes de la captura. La Web sólo centra una zona amplia; identifica manualmente el cuerpo de presa en el mapa histórico y toca el punto físico. No uses rótulos ni el centro del embalse.",
+        navX:0.2783688324,
+        navY:0.3717825521
       },
       {
-        id:"BC-OF-002",
-        name:"Presa de Sant Ponç",
+        id:"BC-NV-002",
+        name:"Presa de Darnius-Boadella",
         type:"PRESA",
-        zone:"Centro · Cardener",
-        criterion:"Referencia externa congelada antes de la captura. Identifica el cierre de la presa en el Cardener y selecciona manualmente el punto físico; la Web no coloca cruceta guía.",
-        navX:0.461763,
-        navY:0.476213
-      },
-      {
-        id:"BC-OF-003",
-        name:"Presa de Sau",
-        type:"PRESA",
-        zone:"Este · Ter",
-        criterion:"Referencia externa congelada antes de la captura. Identifica el cierre de la presa en el Ter y selecciona manualmente el punto físico; evita rótulos, carreteras y el centro del embalse.",
-        navX:0.675884,
-        navY:0.473596
+        zone:"Noreste · río Muga",
+        criterion:"Referencia externa fijada antes de la captura. Identifica manualmente el cuerpo de presa en el mapa histórico y selecciona el punto físico. No uses el centro del embalse ni la carretera de acceso.",
+        navX:0.7874499267,
+        navY:0.2945345052
       }
     ]
   };
@@ -1328,6 +1319,6 @@
   wire();
   clearSelectionFields();
   renderControls();
-  $("rawRuntimeBadge").textContent="RAW · v026 · REFERENCIAS EXTERNAS";
+  $("rawRuntimeBadge").textContent="RAW · v027 · 2 REFERENCIAS NUEVAS";
   if (location.hash==="#raw") $("rawValidator").hidden=false;
 })();
