@@ -2,8 +2,8 @@
   "use strict";
 
   const $ = id => document.getElementById(id);
-  const VERSION = "v038";
-  const BUILD = "038.0";
+  const VERSION = "v039";
+  const BUILD = "039.0";
   const STORAGE_CONTROLS = "fugawiRawControlsV010";
   const DOMAIN = "PIXEL_RASTER_ORIGINAL";
   const GRANADA_CAMPAIGN = {
@@ -128,6 +128,33 @@
         criterion:"Identifica visualmente el cierre de la presa y confirma manualmente la cruceta antes de registrar.",
         guideX:933.875,
         guideY:630.194
+      }
+    ]
+  };
+
+  const BARCELONA_GIRONELLA_CAMPAIGN = {
+    id:"BARCELONA_GIRONELLA_PONT_CARRILET_RAW9208_V001",
+    rasterName:"Barcelona 5_2.jpg",
+    width:9208,
+    height:6906,
+    sha256:"bc01c91c709c5ba789ed7ed1196bd431eea795a6f53d6dfe1dff4014793078fe",
+    title:"Barcelona · Gironella · Pont del Carrilet · control único",
+    objective:"CUARTO_CONTROL_INDEPENDIENTE_BARCELONA_RAW9208",
+    downloadStem:"Fugawi_Barcelona_Gironella_Pont_Carrilet_RAW_",
+    requireManualConfirm:true,
+    allowProportionalRaster:false,
+    strictHash:true,
+    minCaptureSeparationNorm:0,
+    guideMode:"ZONA_AMPLIA_SIN_CRUCETA_REFERENCIA_OFICIAL_CONGELADA_V001",
+    targets:[
+      {
+        id:"BC-PF-002",
+        name:"Pont del Carrilet de Gironella",
+        type:"PUENTE",
+        zone:"Gironella · extremo sur · riera de Clarà",
+        criterion:"Referencia localizada primero en IGN/PNOA y congelada antes de la captura. Identifica visualmente el puente del antiguo carrilet sobre la riera de Clarà, junto a Viladomiu Nou. Selecciona el centro geométrico del cruce entre el eje del antiguo ferrocarril y el eje de la riera. No uses Gironella, Viladomiu Nou, la C-16, el túnel próximo, rótulos ni otros puentes.",
+        navX:0.493,
+        navY:0.462
       }
     ]
   };
@@ -279,6 +306,7 @@
   };
 
   function activeCampaign() {
+    if (state.campaignKey==="barcelona_gironella") return BARCELONA_GIRONELLA_CAMPAIGN;
     if (state.campaignKey==="barcelona_balsareny") return BARCELONA_BALSARENY_CAMPAIGN;
     if (state.campaignKey==="barcelona_sant_quirze") return BARCELONA_SANT_QUIRZE_CAMPAIGN;
     if (state.campaignKey==="barcelona_camarasa") return BARCELONA_CAMARASA_CAMPAIGN;
@@ -627,6 +655,7 @@
   function activateCampaign(key) {
     let spec=GRANADA_CAMPAIGN;
     if (key==="barcelona") spec=BARCELONA_CAMPAIGN;
+    if (key==="barcelona_gironella") spec=BARCELONA_GIRONELLA_CAMPAIGN;
     if (key==="barcelona_balsareny") spec=BARCELONA_BALSARENY_CAMPAIGN;
     if (key==="barcelona_sant_quirze") spec=BARCELONA_SANT_QUIRZE_CAMPAIGN;
     if (key==="barcelona_camarasa") spec=BARCELONA_CAMARASA_CAMPAIGN;
@@ -678,6 +707,10 @@
 
   function activateBarcelonaBalsarenyCampaign() {
     activateCampaign("barcelona_balsareny");
+  }
+
+  function activateBarcelonaGironellaCampaign() {
+    activateCampaign("barcelona_gironella");
   }
 
   function exitCampaign() {
@@ -1444,6 +1477,12 @@
         activateBarcelonaBalsarenyCampaign();
       });
     }
+    if ($("rawBarcelonaGironellaEntryBtn")) {
+      $("rawBarcelonaGironellaEntryBtn").addEventListener("click",()=>{
+        openRaw();
+        activateBarcelonaGironellaCampaign();
+      });
+    }
     $("rawCloseBtn").addEventListener("click",closeRaw);
     $("rawRasterInput").addEventListener("change",event=>{
       const file=event.target.files && event.target.files[0];
@@ -1495,6 +1534,9 @@
     if ($("rawBarcelonaBalsarenyCampaignBtn")) {
       $("rawBarcelonaBalsarenyCampaignBtn").addEventListener("click",activateBarcelonaBalsarenyCampaign);
     }
+    if ($("rawBarcelonaGironellaCampaignBtn")) {
+      $("rawBarcelonaGironellaCampaignBtn").addEventListener("click",activateBarcelonaGironellaCampaign);
+    }
     $("rawCampaignGoZoneBtn").addEventListener("click",goToCampaignZone);
     $("rawCampaignExitBtn").addEventListener("click",exitCampaign);
     window.addEventListener("resize",()=>{
@@ -1506,6 +1548,6 @@
   wire();
   clearSelectionFields();
   renderControls();
-  $("rawRuntimeBadge").textContent="RAW · v038 · BALSARENY 1/1 · RAW9208";
+  $("rawRuntimeBadge").textContent="RAW · v039 · GIRONELLA 1/1 · RAW9208";
   if (location.hash==="#raw") $("rawValidator").hidden=false;
 })();
