@@ -2,8 +2,8 @@
   "use strict";
 
   const $ = id => document.getElementById(id);
-  const VERSION = "v032";
-  const BUILD = "032.0";
+  const VERSION = "v033";
+  const BUILD = "033.0";
   const STORAGE_CONTROLS = "fugawiRawControlsV010";
   const DOMAIN = "PIXEL_RASTER_ORIGINAL";
   const GRANADA_CAMPAIGN = {
@@ -133,29 +133,24 @@
   };
 
   const BARCELONA_CLEAR_CAMPAIGN = {
-    id:"BARCELONA_CUARTO_CONTROL_PONT_MOLINA_V001",
+    id:"BARCELONA_4_PUEBLOS_EXPLORATORIO_V001",
     rasterName:"Barcelona 5_2.jpg",
     width:9208,
     height:6906,
     sha256:"bc01c91c709c5ba789ed7ed1196bd431eea795a6f53d6dfe1dff4014793078fe",
-    title:"Barcelona · cuarto control Pont de la Molina",
-    objective:"CUARTO_CONTROL_INDEPENDIENTE_BARCELONA_RURAL_PRE1980",
-    downloadStem:"Fugawi_Barcelona_Pont_Molina_cuarto_control_RAW_",
+    title:"Barcelona · prueba de 4 pueblos",
+    objective:"PRUEBA_EXPLORATORIA_4_PUEBLOS_NO_CERTIFICACION",
+    downloadStem:"Fugawi_Barcelona_4_pueblos_RAW_",
     requireManualConfirm:true,
     allowProportionalRaster:false,
     strictHash:true,
-    minCaptureSeparationNorm:0,
-    guideMode:"ZONA_AMPLIA_SIN_CRUCETA_REFERENCIA_OFICIAL_V001",
+    minCaptureSeparationNorm:0.03,
+    guideMode:"ZONA_AMPLIA_SIN_CRUCETA_REFERENCIA_IGN_PNOA_V001",
     targets:[
-      {
-        id:"BC-CF-006-PONTMOLINA",
-        name:"Pont de la Molina · riera de Merlès",
-        type:"PUENTE",
-        zone:"Interior rural · Santa Maria de Merlès",
-        criterion:"Referencia oficial fijada antes de la captura. Identifica el puente de piedra sobre la riera de Merlès y toca el centro geométrico del tablero. No uses rótulos, casas próximas ni el centro del núcleo.",
-        navX:0.514,
-        navY:0.448
-      }
+      {id:"BC-PUE-001",name:"Bagà",type:"POBLACION",zone:"Noroeste · montaña",criterion:"Referencia IGN/PNOA fijada antes de la captura. Identifica visualmente el núcleo compacto de Bagà y toca aproximadamente su centro urbano histórico. No uses el rótulo.",navX:0.5297,navY:0.3351},
+      {id:"BC-PUE-002",name:"Prats de Lluçanès",type:"POBLACION",zone:"Interior rural · Lluçanès",criterion:"Referencia IGN/PNOA fijada antes de la captura. Identifica el núcleo compacto y toca aproximadamente su centro. No uses el rótulo ni carreteras próximas.",navX:0.5739,navY:0.4518},
+      {id:"BC-PUE-003",name:"Cardona",type:"POBLACION",zone:"Interior oeste · Cardener",criterion:"Referencia IGN/PNOA fijada antes de la captura. Identifica el núcleo urbano compacto de Cardona y toca aproximadamente su centro. No uses el castillo como punto ni el rótulo.",navX:0.4817,navY:0.4962},
+      {id:"BC-PUE-004",name:"Gualba",type:"POBLACION",zone:"Este rural · Montseny",criterion:"Referencia IGN/PNOA fijada antes de la captura. Identifica el núcleo compacto de Gualba y toca aproximadamente su centro. No uses el rótulo ni edificaciones aisladas.",navX:0.6980,navY:0.5825}
     ]
   };
   const BARCELONA_REVIEW_CAMPAIGN = {
@@ -1342,6 +1337,6 @@
   wire();
   clearSelectionFields();
   renderControls();
-  $("rawRuntimeBadge").textContent="RAW · v032 · CUARTO CONTROL PONT MOLINA · RASTER ESTRICTO";
+  $("rawRuntimeBadge").textContent="RAW · v033 · PRUEBA 4 PUEBLOS · NO CERTIFICACION";
   if (location.hash==="#raw") $("rawValidator").hidden=false;
 })();
