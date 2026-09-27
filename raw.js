@@ -2,8 +2,8 @@
   "use strict";
 
   const $ = id => document.getElementById(id);
-  const VERSION = "v041";
-  const BUILD = "041.0";
+  const VERSION = "v042";
+  const BUILD = "042.0";
   const STORAGE_CONTROLS = "fugawiRawControlsV010";
   const DOMAIN = "PIXEL_RASTER_ORIGINAL";
   const GRANADA_CAMPAIGN = {
@@ -128,6 +128,33 @@
         criterion:"Identifica visualmente el cierre de la presa y confirma manualmente la cruceta antes de registrar.",
         guideX:933.875,
         guideY:630.194
+      }
+    ]
+  };
+
+  const BARCELONA_TERRADETS_CAMPAIGN = {
+    id:"BARCELONA_TERRADETS_RAW9208_V001",
+    rasterName:"Barcelona 5_2.jpg",
+    width:9208,
+    height:6906,
+    sha256:"bc01c91c709c5ba789ed7ed1196bd431eea795a6f53d6dfe1dff4014793078fe",
+    title:"Barcelona · Presa de Terradets · control único",
+    objective:"CUARTO_CONTROL_INDEPENDIENTE_BARCELONA_RAW9208",
+    downloadStem:"Fugawi_Barcelona_Presa_Terradets_RAW_",
+    requireManualConfirm:true,
+    allowProportionalRaster:false,
+    strictHash:true,
+    minCaptureSeparationNorm:0,
+    guideMode:"ZONA_AMPLIA_SIN_CRUCETA_REFERENCIA_OFICIAL_CONGELADA_V001",
+    targets:[
+      {
+        id:"BC-TER-001",
+        name:"Presa de Terradets",
+        type:"PRESA",
+        zone:"Embalse de Terradets · cierre sur · Noguera Pallaresa",
+        criterion:"Referencia localizada primero en IGN/PNOA y congelada antes de la captura. Identifica visualmente el cierre sur del Embalse de Terradets en el congosto y selecciona el centro geométrico del eje de la presa. No uses rótulos, carretera, puentes próximos, núcleos ni otros puntos del congosto.",
+        navX:0.355,
+        navY:0.445
       }
     ]
   };
@@ -360,6 +387,7 @@
   };
 
   function activeCampaign() {
+    if (state.campaignKey==="barcelona_terradets") return BARCELONA_TERRADETS_CAMPAIGN;
     if (state.campaignKey==="barcelona_oliana") return BARCELONA_OLIANA_CAMPAIGN;
     if (state.campaignKey==="barcelona_vilomara") return BARCELONA_VILOMARA_CAMPAIGN;
     if (state.campaignKey==="barcelona_gironella") return BARCELONA_GIRONELLA_CAMPAIGN;
@@ -711,6 +739,7 @@
   function activateCampaign(key) {
     let spec=GRANADA_CAMPAIGN;
     if (key==="barcelona") spec=BARCELONA_CAMPAIGN;
+    if (key==="barcelona_terradets") spec=BARCELONA_TERRADETS_CAMPAIGN;
     if (key==="barcelona_oliana") spec=BARCELONA_OLIANA_CAMPAIGN;
     if (key==="barcelona_vilomara") spec=BARCELONA_VILOMARA_CAMPAIGN;
     if (key==="barcelona_gironella") spec=BARCELONA_GIRONELLA_CAMPAIGN;
@@ -777,6 +806,10 @@
 
   function activateBarcelonaOlianaCampaign() {
     activateCampaign("barcelona_oliana");
+  }
+
+  function activateBarcelonaTerradetsCampaign() {
+    activateCampaign("barcelona_terradets");
   }
 
   function exitCampaign() {
@@ -1561,6 +1594,12 @@
         activateBarcelonaOlianaCampaign();
       });
     }
+    if ($("rawBarcelonaTerradetsEntryBtn")) {
+      $("rawBarcelonaTerradetsEntryBtn").addEventListener("click",()=>{
+        openRaw();
+        activateBarcelonaTerradetsCampaign();
+      });
+    }
     $("rawCloseBtn").addEventListener("click",closeRaw);
     $("rawRasterInput").addEventListener("change",event=>{
       const file=event.target.files && event.target.files[0];
@@ -1621,6 +1660,9 @@
     if ($("rawBarcelonaOlianaCampaignBtn")) {
       $("rawBarcelonaOlianaCampaignBtn").addEventListener("click",activateBarcelonaOlianaCampaign);
     }
+    if ($("rawBarcelonaTerradetsCampaignBtn")) {
+      $("rawBarcelonaTerradetsCampaignBtn").addEventListener("click",activateBarcelonaTerradetsCampaign);
+    }
     $("rawCampaignGoZoneBtn").addEventListener("click",goToCampaignZone);
     $("rawCampaignExitBtn").addEventListener("click",exitCampaign);
     window.addEventListener("resize",()=>{
@@ -1632,6 +1674,6 @@
   wire();
   clearSelectionFields();
   renderControls();
-  $("rawRuntimeBadge").textContent="RAW · v041 · OLIANA 1/1 · RAW9208";
+  $("rawRuntimeBadge").textContent="RAW · v042 · TERRADETS 1/1 · RAW9208";
   if (location.hash==="#raw") $("rawValidator").hidden=false;
 })();
