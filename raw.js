@@ -2,8 +2,8 @@
   "use strict";
 
   const $ = id => document.getElementById(id);
-  const VERSION = "v036";
-  const BUILD = "036.0";
+  const VERSION = "v037";
+  const BUILD = "037.0";
   const STORAGE_CONTROLS = "fugawiRawControlsV010";
   const DOMAIN = "PIXEL_RASTER_ORIGINAL";
   const GRANADA_CAMPAIGN = {
@@ -132,6 +132,33 @@
     ]
   };
 
+  const BARCELONA_SANT_QUIRZE_CAMPAIGN = {
+    id:"BARCELONA_SANT_QUIRZE_BESORA_RAW9208_V001",
+    rasterName:"Barcelona 5_2.jpg",
+    width:9208,
+    height:6906,
+    sha256:"bc01c91c709c5ba789ed7ed1196bd431eea795a6f53d6dfe1dff4014793078fe",
+    title:"Barcelona · Sant Quirze de Besora · control único",
+    objective:"CUARTO_CONTROL_INDEPENDIENTE_BARCELONA_RAW9208",
+    downloadStem:"Fugawi_Barcelona_Sant_Quirze_Besora_RAW_",
+    requireManualConfirm:true,
+    allowProportionalRaster:false,
+    strictHash:true,
+    minCaptureSeparationNorm:0,
+    guideMode:"ZONA_AMPLIA_SIN_CRUCETA_REFERENCIA_OFICIAL_CONGELADA_V001",
+    targets:[
+      {
+        id:"BC-PF-001",
+        name:"Pont del Ferrocarril de Sant Quirze de Besora",
+        type:"PUENTE",
+        zone:"Sant Quirze de Besora · río Ter",
+        criterion:"Referencia oficial congelada antes de la captura. Identifica visualmente el puente ferroviario sobre el río Ter, al suroeste del núcleo. Selecciona el centro geométrico del cruce entre el eje ferroviario y el eje del río. No uses la estación, carreteras, puentes viarios, rótulos ni el centro urbano.",
+        navX:0.627,
+        navY:0.418
+      }
+    ]
+  };
+
   const BARCELONA_CAMARASA_CAMPAIGN = {
     id:"BARCELONA_CAMARASA_R2_RAW9208_V001",
     rasterName:"Barcelona 5_2.jpg",
@@ -225,6 +252,7 @@
   };
 
   function activeCampaign() {
+    if (state.campaignKey==="barcelona_sant_quirze") return BARCELONA_SANT_QUIRZE_CAMPAIGN;
     if (state.campaignKey==="barcelona_camarasa") return BARCELONA_CAMARASA_CAMPAIGN;
     if (state.campaignKey==="barcelona_clear") return BARCELONA_CLEAR_CAMPAIGN;
     if (state.campaignKey==="barcelona_review") return BARCELONA_REVIEW_CAMPAIGN;
@@ -571,6 +599,7 @@
   function activateCampaign(key) {
     let spec=GRANADA_CAMPAIGN;
     if (key==="barcelona") spec=BARCELONA_CAMPAIGN;
+    if (key==="barcelona_sant_quirze") spec=BARCELONA_SANT_QUIRZE_CAMPAIGN;
     if (key==="barcelona_camarasa") spec=BARCELONA_CAMARASA_CAMPAIGN;
     if (key==="barcelona_review") spec=BARCELONA_REVIEW_CAMPAIGN;
     if (key==="barcelona_clear") spec=BARCELONA_CLEAR_CAMPAIGN;
@@ -612,6 +641,10 @@
 
   function activateBarcelonaCamarasaCampaign() {
     activateCampaign("barcelona_camarasa");
+  }
+
+  function activateBarcelonaSantQuirzeCampaign() {
+    activateCampaign("barcelona_sant_quirze");
   }
 
   function exitCampaign() {
@@ -1366,6 +1399,12 @@
         activateBarcelonaCamarasaCampaign();
       });
     }
+    if ($("rawBarcelonaSantQuirzeEntryBtn")) {
+      $("rawBarcelonaSantQuirzeEntryBtn").addEventListener("click",()=>{
+        openRaw();
+        activateBarcelonaSantQuirzeCampaign();
+      });
+    }
     $("rawCloseBtn").addEventListener("click",closeRaw);
     $("rawRasterInput").addEventListener("change",event=>{
       const file=event.target.files && event.target.files[0];
@@ -1411,6 +1450,9 @@
     if ($("rawBarcelonaCamarasaCampaignBtn")) {
       $("rawBarcelonaCamarasaCampaignBtn").addEventListener("click",activateBarcelonaCamarasaCampaign);
     }
+    if ($("rawBarcelonaSantQuirzeCampaignBtn")) {
+      $("rawBarcelonaSantQuirzeCampaignBtn").addEventListener("click",activateBarcelonaSantQuirzeCampaign);
+    }
     $("rawCampaignGoZoneBtn").addEventListener("click",goToCampaignZone);
     $("rawCampaignExitBtn").addEventListener("click",exitCampaign);
     window.addEventListener("resize",()=>{
@@ -1422,6 +1464,6 @@
   wire();
   clearSelectionFields();
   renderControls();
-  $("rawRuntimeBadge").textContent="RAW · v036 · CAMARASA R2 1/1 · RAW9208";
+  $("rawRuntimeBadge").textContent="RAW · v037 · SANT QUIRZE 1/1 · RAW9208";
   if (location.hash==="#raw") $("rawValidator").hidden=false;
 })();
