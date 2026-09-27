@@ -2,8 +2,8 @@
   "use strict";
 
   const $ = id => document.getElementById(id);
-  const VERSION = "v034";
-  const BUILD = "034.0";
+  const VERSION = "v035";
+  const BUILD = "035.0";
   const STORAGE_CONTROLS = "fugawiRawControlsV010";
   const DOMAIN = "PIXEL_RASTER_ORIGINAL";
   const GRANADA_CAMPAIGN = {
@@ -133,7 +133,7 @@
   };
 
   const BARCELONA_CLEAR_CAMPAIGN = {
-    id:"BARCELONA_4_PUEBLOS_EXPLORATORIO_V001",
+    id:"BARCELONA_4_PUEBLOS_EXPLORATORIO_V002",
     rasterName:"Barcelona 5_2.jpg",
     width:9208,
     height:6906,
@@ -244,7 +244,12 @@
   }
 
   function saveLocal() {
-    localStorage.setItem(STORAGE_CONTROLS,JSON.stringify(state.controls));
+    try {
+      localStorage.setItem(STORAGE_CONTROLS,JSON.stringify(state.controls));
+      return true;
+    } catch (err) {
+      return false;
+    }
   }
 
   function n(v,d=3) {
@@ -1013,7 +1018,7 @@
         return;
       }
       const exploratoryVillages=
-        spec && spec.id==="BARCELONA_4_PUEBLOS_EXPLORATORIO_V001";
+        spec && spec.id==="BARCELONA_4_PUEBLOS_EXPLORATORIO_V002";
       if (!exploratoryVillages && state.campaignZoneTargetId!==target.id) {
         setMessage(
           "La zona del control activo todavía no está confirmada. Pulsa «Ir a zona» antes de registrar.",
@@ -1089,22 +1094,49 @@
     }
 
     state.controls.push(control);
-    saveLocal();
-    renderControls();
+    const persisted=saveLocal();
     $("rawControlNotes").value="";
 
     if (state.campaignActive) {
       state.selected=null;
+      state.selectionOrigin="";
       $("rawCrosshair").hidden=true;
       $("rawX").textContent="—";
       $("rawY").textContent="—";
       drawLoupe();
-      selectNextCampaignTarget();
+
       const spec=activeCampaign();
-      if (campaignControls().length===spec.targets.length) {
-        setMessage("Campaña "+spec.title+" completa: "+spec.targets.length+"/"+spec.targets.length+" controles capturados. Exporta ahora la traza .txt.","ok");
+      const complete=campaignControls().length===spec.targets.length;
+      if (complete) {
+        state.campaignTargetId="";
+        state.campaignZoneTargetId="";
+        $("rawCampaignCurrent").hidden=true;
+        $("rawControlName").value="";
+        $("rawRegisterBtn").textContent="Campaña completa";
+        if ($("rawQuickAcceptBtn")) {
+          $("rawQuickAcceptBtn").textContent="Campaña completa";
+          $("rawQuickAcceptBtn").disabled=true;
+        }
+        renderControls();
+        renderCampaign();
+        setMessage(
+          "Campaña "+spec.title+" completa: "+spec.targets.length+"/"+spec.targets.length+
+          " controles capturados. Exporta ahora la traza .txt."+
+          (persisted ? "" : " Aviso: el navegador no permitió guardar en memoria local; exporta la traza antes de cerrar."),
+          persisted ? "ok" : "working"
+        );
       } else {
-        setMessage(control.id+" capturado. Se ha activado el siguiente control; selecciona un nuevo píxel RAW.","ok");
+        const next=spec.targets.find(t=>!campaignCaptured(t.id));
+        if (next) {
+          setCampaignTarget(next.id);
+          if (state.sourceW && state.sourceH) goToCampaignZone();
+        }
+        renderControls();
+        setMessage(
+          control.id+" capturado. Se ha activado el siguiente control; selecciona un nuevo píxel RAW."+
+          (persisted ? "" : " Aviso: exporta la traza al finalizar antes de cerrar la página."),
+          persisted ? "ok" : "working"
+        );
       }
     } else {
       $("rawControlName").value="";
@@ -1320,8 +1352,17 @@
     $("rawQuickRightBtn").addEventListener("click",()=>nudge(1,0));
     $("rawQuickUpBtn").addEventListener("click",()=>nudge(0,-1));
     $("rawQuickDownBtn").addEventListener("click",()=>nudge(0,1));
-    $("rawQuickAcceptBtn").addEventListener("click",registerControl);
-    $("rawRegisterBtn").addEventListener("click",registerControl);
+    const safeRegister=()=>{
+      try {
+        registerControl();
+      } catch (err) {
+        const detail=err && err.message ? err.message : String(err || "desconocido");
+        setMessage("Error al aceptar el punto: "+detail,"error");
+        if ($("rawQuickAcceptBtn")) $("rawQuickAcceptBtn").disabled=false;
+      }
+    };
+    $("rawQuickAcceptBtn").addEventListener("click",safeRegister);
+    $("rawRegisterBtn").addEventListener("click",safeRegister);
     $("rawExportBtn").addEventListener("click",downloadTrace);
     $("rawCampaignExportBtn").addEventListener("click",downloadTrace);
     $("rawClearControlsBtn").addEventListener("click",clearCurrentControls);
@@ -1339,6 +1380,6 @@
   wire();
   clearSelectionFields();
   renderControls();
-  $("rawRuntimeBadge").textContent="RAW · v034 · PRUEBA 4 PUEBLOS · ACEPTACION CORREGIDA";
+  $("rawRuntimeBadge").textContent="RAW · v035 · PRUEBA 4 PUEBLOS · FLUJO VERIFICADO";
   if (location.hash==="#raw") $("rawValidator").hidden=false;
 })();
