@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Fugawi IA Control v043 · Sant Llorenç de Montgai</title>
+<style>
+body{font-family:system-ui;margin:18px}#viewer{max-height:72vh;overflow:auto;border:1px solid #999}#map{display:block}button,input{margin:6px;padding:8px}
+</style>
+</head>
+<body>
+<h2>Fugawi IA Control v043 · Sant Llorenç de Montgai</h2>
+<p>Campaña 1/1. Carga Barcelona 5_2.jpg y marca manualmente el centro geométrico del eje de la presa en el cierre sur del embalse.</p>
+<input id="file" type="file" accept="image/jpeg">
+<label>Zoom <input id="zoom" type="range" min="0.1" max="1" step="0.05" value="0.3"></label>
+<button id="export" disabled>Exportar traza .txt</button>
+<strong id="status"></strong>
+<div id="viewer"><img id="map" alt=""></div>
+<script src="sant-llorenc-v043.js"></script>
+</body>
+</html>
