@@ -2,8 +2,8 @@
   "use strict";
 
   const $ = id => document.getElementById(id);
-  const VERSION = "v035";
-  const BUILD = "035.0";
+  const VERSION = "v036";
+  const BUILD = "036.0";
   const STORAGE_CONTROLS = "fugawiRawControlsV010";
   const DOMAIN = "PIXEL_RASTER_ORIGINAL";
   const GRANADA_CAMPAIGN = {
@@ -132,6 +132,33 @@
     ]
   };
 
+  const BARCELONA_CAMARASA_CAMPAIGN = {
+    id:"BARCELONA_CAMARASA_R2_RAW9208_V001",
+    rasterName:"Barcelona 5_2.jpg",
+    width:9208,
+    height:6906,
+    sha256:"bc01c91c709c5ba789ed7ed1196bd431eea795a6f53d6dfe1dff4014793078fe",
+    title:"Barcelona · Camarasa R2 · control único",
+    objective:"CUARTO_CONTROL_INDEPENDIENTE_BARCELONA_RAW9208",
+    downloadStem:"Fugawi_Barcelona_Camarasa_R2_RAW_",
+    requireManualConfirm:true,
+    allowProportionalRaster:false,
+    strictHash:true,
+    minCaptureSeparationNorm:0,
+    guideMode:"ZONA_AMPLIA_SIN_CRUCETA_REFERENCIA_OFICIAL_CONGELADA_V001",
+    targets:[
+      {
+        id:"BC-OF-001-R2",
+        name:"Presa de Camarasa",
+        type:"PRESA",
+        zone:"Oeste · Noguera Pallaresa · Embalse de Camarasa",
+        criterion:"Referencia oficial congelada antes de la captura. Localiza visualmente el cuerpo de presa que cierra el Embalse de Camarasa sobre el Noguera Pallaresa y toca el centro geométrico de la presa. No uses estación, ferrocarril, carretera, rótulo del embalse ni núcleo de Camarasa.",
+        navX:0.30,
+        navY:0.50
+      }
+    ]
+  };
+
   const BARCELONA_CLEAR_CAMPAIGN = {
     id:"BARCELONA_4_PUEBLOS_EXPLORATORIO_V002",
     rasterName:"Barcelona 5_2.jpg",
@@ -198,6 +225,7 @@
   };
 
   function activeCampaign() {
+    if (state.campaignKey==="barcelona_camarasa") return BARCELONA_CAMARASA_CAMPAIGN;
     if (state.campaignKey==="barcelona_clear") return BARCELONA_CLEAR_CAMPAIGN;
     if (state.campaignKey==="barcelona_review") return BARCELONA_REVIEW_CAMPAIGN;
     if (state.campaignKey==="barcelona") return BARCELONA_CAMPAIGN;
@@ -543,6 +571,7 @@
   function activateCampaign(key) {
     let spec=GRANADA_CAMPAIGN;
     if (key==="barcelona") spec=BARCELONA_CAMPAIGN;
+    if (key==="barcelona_camarasa") spec=BARCELONA_CAMARASA_CAMPAIGN;
     if (key==="barcelona_review") spec=BARCELONA_REVIEW_CAMPAIGN;
     if (key==="barcelona_clear") spec=BARCELONA_CLEAR_CAMPAIGN;
     $("rawValidator").hidden=false;
@@ -579,6 +608,10 @@
 
   function activateBarcelonaClearCampaign() {
     activateCampaign("barcelona_clear");
+  }
+
+  function activateBarcelonaCamarasaCampaign() {
+    activateCampaign("barcelona_camarasa");
   }
 
   function exitCampaign() {
@@ -1327,6 +1360,12 @@
         activateBarcelonaClearCampaign();
       });
     }
+    if ($("rawBarcelonaCamarasaEntryBtn")) {
+      $("rawBarcelonaCamarasaEntryBtn").addEventListener("click",()=>{
+        openRaw();
+        activateBarcelonaCamarasaCampaign();
+      });
+    }
     $("rawCloseBtn").addEventListener("click",closeRaw);
     $("rawRasterInput").addEventListener("change",event=>{
       const file=event.target.files && event.target.files[0];
@@ -1369,6 +1408,9 @@
     $("rawNewSessionBtn").addEventListener("click",newSession);
     $("rawGranadaCampaignBtn").addEventListener("click",activateGranadaCampaign);
     $("rawBarcelonaClearCampaignBtn").addEventListener("click",activateBarcelonaClearCampaign);
+    if ($("rawBarcelonaCamarasaCampaignBtn")) {
+      $("rawBarcelonaCamarasaCampaignBtn").addEventListener("click",activateBarcelonaCamarasaCampaign);
+    }
     $("rawCampaignGoZoneBtn").addEventListener("click",goToCampaignZone);
     $("rawCampaignExitBtn").addEventListener("click",exitCampaign);
     window.addEventListener("resize",()=>{
@@ -1380,6 +1422,6 @@
   wire();
   clearSelectionFields();
   renderControls();
-  $("rawRuntimeBadge").textContent="RAW · v035 · PRUEBA 4 PUEBLOS · FLUJO VERIFICADO";
+  $("rawRuntimeBadge").textContent="RAW · v036 · CAMARASA R2 1/1 · RAW9208";
   if (location.hash==="#raw") $("rawValidator").hidden=false;
 })();
