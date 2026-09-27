@@ -2,8 +2,8 @@
   "use strict";
 
   const $ = id => document.getElementById(id);
-  const VERSION = "v042";
-  const BUILD = "042.0";
+  const VERSION = "v043";
+  const BUILD = "043.0";
   const STORAGE_CONTROLS = "fugawiRawControlsV010";
   const DOMAIN = "PIXEL_RASTER_ORIGINAL";
   const GRANADA_CAMPAIGN = {
@@ -128,6 +128,33 @@
         criterion:"Identifica visualmente el cierre de la presa y confirma manualmente la cruceta antes de registrar.",
         guideX:933.875,
         guideY:630.194
+      }
+    ]
+  };
+
+  const BARCELONA_SANT_LLORENC_CAMPAIGN = {
+    id:"BARCELONA_SANT_LLORENC_MONTGAI_RAW9208_V001",
+    rasterName:"Barcelona 5_2.jpg",
+    width:9208,
+    height:6906,
+    sha256:"bc01c91c709c5ba789ed7ed1196bd431eea795a6f53d6dfe1dff4014793078fe",
+    title:"Barcelona - Presa de Sant Llorenc de Montgai - control unico",
+    objective:"CUARTO_CONTROL_INDEPENDIENTE_BARCELONA_RAW9208",
+    downloadStem:"Fugawi_Barcelona_Presa_Sant_Llorenc_Montgai_RAW_",
+    requireManualConfirm:true,
+    allowProportionalRaster:false,
+    strictHash:true,
+    minCaptureSeparationNorm:0,
+    guideMode:"ZONA_AMPLIA_SIN_CRUCETA_REFERENCIA_OFICIAL_CONGELADA_V001",
+    targets:[
+      {
+        id:"BC-SLM-001",
+        name:"Presa de Sant Llorenc de Montgai",
+        type:"PRESA",
+        zone:"Embalse de Sant Llorenc de Montgai - cierre sur - rio Segre",
+        criterion:"Referencia oficial congelada antes de la captura. Identifica visualmente el cierre sur del embalse y selecciona el centro geometrico del eje de la presa.",
+        navX:0.252,
+        navY:0.538
       }
     ]
   };
@@ -387,6 +414,7 @@
   };
 
   function activeCampaign() {
+    if (state.campaignKey==="barcelona_sant_llorenc") return BARCELONA_SANT_LLORENC_CAMPAIGN;
     if (state.campaignKey==="barcelona_terradets") return BARCELONA_TERRADETS_CAMPAIGN;
     if (state.campaignKey==="barcelona_oliana") return BARCELONA_OLIANA_CAMPAIGN;
     if (state.campaignKey==="barcelona_vilomara") return BARCELONA_VILOMARA_CAMPAIGN;
@@ -739,6 +767,7 @@
   function activateCampaign(key) {
     let spec=GRANADA_CAMPAIGN;
     if (key==="barcelona") spec=BARCELONA_CAMPAIGN;
+    if (key==="barcelona_sant_llorenc") spec=BARCELONA_SANT_LLORENC_CAMPAIGN;
     if (key==="barcelona_terradets") spec=BARCELONA_TERRADETS_CAMPAIGN;
     if (key==="barcelona_oliana") spec=BARCELONA_OLIANA_CAMPAIGN;
     if (key==="barcelona_vilomara") spec=BARCELONA_VILOMARA_CAMPAIGN;
@@ -810,6 +839,10 @@
 
   function activateBarcelonaTerradetsCampaign() {
     activateCampaign("barcelona_terradets");
+  }
+
+  function activateBarcelonaSantLlorencCampaign() {
+    activateCampaign("barcelona_sant_llorenc");
   }
 
   function exitCampaign() {
@@ -1600,6 +1633,12 @@
         activateBarcelonaTerradetsCampaign();
       });
     }
+    if ($("rawBarcelonaSantLlorencEntryBtn")) {
+      $("rawBarcelonaSantLlorencEntryBtn").addEventListener("click",()=>{
+        openRaw();
+        activateBarcelonaSantLlorencCampaign();
+      });
+    }
     $("rawCloseBtn").addEventListener("click",closeRaw);
     $("rawRasterInput").addEventListener("change",event=>{
       const file=event.target.files && event.target.files[0];
@@ -1663,6 +1702,9 @@
     if ($("rawBarcelonaTerradetsCampaignBtn")) {
       $("rawBarcelonaTerradetsCampaignBtn").addEventListener("click",activateBarcelonaTerradetsCampaign);
     }
+    if ($("rawBarcelonaSantLlorencCampaignBtn")) {
+      $("rawBarcelonaSantLlorencCampaignBtn").addEventListener("click",activateBarcelonaSantLlorencCampaign);
+    }
     $("rawCampaignGoZoneBtn").addEventListener("click",goToCampaignZone);
     $("rawCampaignExitBtn").addEventListener("click",exitCampaign);
     window.addEventListener("resize",()=>{
@@ -1674,6 +1716,6 @@
   wire();
   clearSelectionFields();
   renderControls();
-  $("rawRuntimeBadge").textContent="RAW · v042 · TERRADETS 1/1 · RAW9208";
+  $("rawRuntimeBadge").textContent="RAW · v043 · SANT LLORENC 1/1 · RAW9208";
   if (location.hash==="#raw") $("rawValidator").hidden=false;
 })();
