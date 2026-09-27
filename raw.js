@@ -2,8 +2,8 @@
   "use strict";
 
   const $ = id => document.getElementById(id);
-  const VERSION = "v043";
-  const BUILD = "043.0";
+  const VERSION = "v044";
+  const BUILD = "044.0";
   const STORAGE_CONTROLS = "fugawiRawControlsV010";
   const DOMAIN = "PIXEL_RASTER_ORIGINAL";
   const GRANADA_CAMPAIGN = {
@@ -130,6 +130,34 @@
         guideY:630.194
       }
     ]
+  };
+
+  const BARCELONA_VANSA_SEGRE_CAMPAIGN = {
+    id:"BARCELONA_VANSA_SEGRE_RAW9208_V001",
+    rasterName:"Barcelona 5_2.jpg",
+    width:9208,
+    height:6906,
+    sha256:"bc01c91c709c5ba789ed7ed1196bd431eea795a6f53d6dfe1dff4014793078fe",
+    title:"Barcelona · Confluencia Vansa–Segre · control único",
+    objective:"CUARTO_CONTROL_INDEPENDIENTE_BARCELONA_RAW9208",
+    downloadStem:"Fugawi_Barcelona_Vansa_Segre_RAW_",
+    requireManualConfirm:true,
+    allowProportionalRaster:false,
+    strictHash:true,
+    minCaptureSeparationNorm:0,
+    guideMode:"ZONA_AMPLIA_SIN_CRUCETA_REFERENCIA_CARTOGRAFICA_CONGELADA_V001",
+    referenceFile:"referencias/Referencia_Barcelona_Vansa_Segre_v001.txt",
+    referenceSha256:"6f1efd3bd7dd346e877d8206df674be9a3fabc0f845906736a70e8f7f76505da",
+    note:"Localiza la unión del río de la Vansa con el Segre, al norte de Organyà. Ir a zona sólo centra un área amplia: toca tú el encuentro de ambos cauces y ajusta con las flechas. La referencia cartográfica IGN está congelada; el control queda pendiente de residual.",
+    targets:[{
+      id:"BC-VAN-001",
+      name:"Confluencia del río de la Vansa con el Segre",
+      type:"CONFLUENCIA",
+      zone:"Congosto de Tresponts · norte de Organyà",
+      criterion:"Encuentro del eje del río de la Vansa, que llega desde el este, con el eje del Segre. No seleccionar carretera, puente, rótulo, cantera ni edificio. Selección manual sobre el raster original.",
+      navX:0.40,
+      navY:0.36
+    }]
   };
 
   const BARCELONA_SANT_LLORENC_CAMPAIGN = {
@@ -414,6 +442,7 @@
   };
 
   function activeCampaign() {
+    if (state.campaignKey==="barcelona_vansa_segre") return BARCELONA_VANSA_SEGRE_CAMPAIGN;
     if (state.campaignKey==="barcelona_sant_llorenc") return BARCELONA_SANT_LLORENC_CAMPAIGN;
     if (state.campaignKey==="barcelona_terradets") return BARCELONA_TERRADETS_CAMPAIGN;
     if (state.campaignKey==="barcelona_oliana") return BARCELONA_OLIANA_CAMPAIGN;
@@ -502,6 +531,10 @@
     }
     if (!state.sourceW || !state.sourceH) {
       return {ok:false,level:"pending",text:"Carga primero el raster exacto "+spec.rasterName+"."};
+    }
+
+    if (spec.referenceFile && (!state.sha256 || state.sha256==="NO_DISPONIBLE")) {
+      return {ok:false,level:"error",text:"Es necesario verificar SHA-256 del raster original antes de capturar este control."};
     }
 
     const sameSize=state.sourceW===spec.width && state.sourceH===spec.height;
@@ -709,9 +742,9 @@
     if (!spec) return;
 
     $("rawCampaignTitle").textContent=spec.title;
-    $("rawCampaignNote").textContent=spec.requireManualConfirm ?
+    $("rawCampaignNote").textContent=spec.note || (spec.requireManualConfirm ?
       "La cruceta roja inicial es sólo una guía aproximada. Para conservar la independencia del control, debes identificar visualmente el objeto y tocar o mover la cruceta al menos una vez antes de registrar." :
-      "«Ir a zona» sólo centra una región amplia del raster. Selecciona exclusivamente el centro geométrico del objeto físico indicado.";
+      "«Ir a zona» sólo centra una región amplia del raster. Selecciona exclusivamente el centro geométrico del objeto físico indicado.");
 
     const check=campaignRasterCheck();
     const stateNode=$("rawCampaignRasterState");
@@ -767,6 +800,7 @@
   function activateCampaign(key) {
     let spec=GRANADA_CAMPAIGN;
     if (key==="barcelona") spec=BARCELONA_CAMPAIGN;
+    if (key==="barcelona_vansa_segre") spec=BARCELONA_VANSA_SEGRE_CAMPAIGN;
     if (key==="barcelona_sant_llorenc") spec=BARCELONA_SANT_LLORENC_CAMPAIGN;
     if (key==="barcelona_terradets") spec=BARCELONA_TERRADETS_CAMPAIGN;
     if (key==="barcelona_oliana") spec=BARCELONA_OLIANA_CAMPAIGN;
@@ -1344,6 +1378,7 @@
 
     if (state.campaignActive) {
       const spec=activeCampaign();
+      if (spec.referenceFile) control.status="CAPTURA_RAW_REFERENCIA_CONGELADA_PENDIENTE_RESIDUAL";
       control.campaign=spec.id;
       control.campaignTarget=target.id;
       control.zone=target.zone;
@@ -1445,12 +1480,18 @@
     lines.push("RAW_DOMAIN|DOMINIO="+DOMAIN+"|ORIGEN=SUPERIOR_IZQUIERDO|X=DERECHA|Y=ABAJO|TRANSFORMACIONES_PIXEL=0");
 
     if (spec) {
+      if (spec.referenceFile) lines.push(
+        "RAW_REFERENCE|ARCHIVO="+spec.referenceFile+
+        "|SHA256="+spec.referenceSha256+
+        "|TIPO=LECTURA_CARTOGRAFICA_IGN"+
+        "|MALLA_NO_USADA_PARA_ELEGIR_PIXEL=SI"
+      );
       const campaign=controls.filter(c=>c.campaign===spec.id);
       const check=campaignRasterCheck();
       lines.push(
         "RAW_CAMPAIGN|ID="+spec.id+
         "|OBJETIVO="+spec.objective+
-        "|REFERENCIA_POSTERIOR=OFICIAL_INDEPENDIENTE"+
+        (spec.referenceFile ? "|REFERENCIA_CONGELADA_ANTES_DE_CAPTURA=SI" : "|REFERENCIA_POSTERIOR=OFICIAL_INDEPENDIENTE")+
         "|RASTER_ESPERADO="+escapeTrace(spec.rasterName)+
         "|W_ESPERADO="+spec.width+
         "|H_ESPERADO="+spec.height+
@@ -1502,6 +1543,12 @@
   function downloadTrace() {
     if (!state.rasterKey) {
       setMessage("Carga primero el raster exacto.","error");
+      return;
+    }
+    const currentSpec=state.campaignActive ? activeCampaign() : null;
+    if (currentSpec && currentSpec.referenceFile &&
+        (!campaignRasterCheck().ok || campaignControls().length!==currentSpec.targets.length)) {
+      setMessage("Completa y acepta el control sobre el raster original antes de exportar.","error");
       return;
     }
     const blob=new Blob([traceText()],{type:"text/plain;charset=utf-8"});
@@ -1633,6 +1680,13 @@
         activateBarcelonaTerradetsCampaign();
       });
     }
+    $("rawBarcelonaVansaSegreEntryBtn").addEventListener("click",()=>{
+      openRaw();
+      activateCampaign("barcelona_vansa_segre");
+    });
+    $("rawBarcelonaVansaSegreCampaignBtn").addEventListener("click",()=>{
+      activateCampaign("barcelona_vansa_segre");
+    });
     if ($("rawBarcelonaSantLlorencEntryBtn")) {
       $("rawBarcelonaSantLlorencEntryBtn").addEventListener("click",()=>{
         openRaw();
@@ -1716,6 +1770,7 @@
   wire();
   clearSelectionFields();
   renderControls();
-  $("rawRuntimeBadge").textContent="RAW · v043 · SANT LLORENC 1/1 · RAW9208";
+  $("rawRuntimeBadge").textContent="RAW · v044 · VANSA–SEGRE 1/1 · RAW9208";
   if (location.hash==="#raw") $("rawValidator").hidden=false;
 })();
+

@@ -4,11 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b1220">
-<title>Fugawi IA Control v043</title>
+<title>Fugawi IA Control v044</title>
 <link rel="manifest" href="./manifest.webmanifest">
-<link rel="stylesheet" href="./styles.css?v=043">
-<link rel="stylesheet" href="./q47.css?v=043">
-<link rel="stylesheet" href="./raw.css?v=043">
+<link rel="stylesheet" href="./styles.css?v=044">
+<link rel="stylesheet" href="./q47.css?v=044">
+<link rel="stylesheet" href="./raw.css?v=044">
 </head>
 <body>
 <header class="topbar">
@@ -16,11 +16,11 @@
     <div class="brand-mark">F</div>
     <div>
       <div class="eyebrow">CENTRO DE MANDO · FUGAWI</div>
-      <h1>Fugawi IA Control <span>v043</span></h1>
+      <h1>Fugawi IA Control <span>v044</span></h1>
     </div>
   </div>
   <div class="top-actions">
-    <span class="live-dot"><i></i> WEB OPERATIVA · BUILD 043.0</span>
+    <span class="live-dot"><i></i> WEB OPERATIVA · BUILD 044.0</span>
     <button id="openRepoTopBtn" class="icon-button" title="Abrir repositorio Fugawi">GitHub ↗</button>
   </div>
 </header>
@@ -117,6 +117,12 @@
         <span class="action-cta">Abrir capturador RAW →</span>
       </button>
 
+      <button class="q47-launch-card raw-launch-card raw-granada-launch-card" id="rawBarcelonaVansaSegreEntryBtn" type="button">
+        <span class="action-symbol">1</span>
+        <span class="action-text"><strong>Barcelona · Vansa–Segre · NUEVO CONTROL</strong><small>Unión de ambos ríos al norte de Organyà. Referencia IGN congelada; selección manual y exportación 1/1.</small></span>
+        <span class="action-cta">Abrir Vansa–Segre →</span>
+      </button>
+
       <button class="q47-launch-card raw-launch-card raw-granada-launch-card" id="rawGranadaEntryBtn" type="button">
         <span class="action-symbol">6</span>
         <span class="action-text"><strong>Granada · 6 controles IGN/PNOA</strong><small>Campaña guiada y secuencial para capturar seis controles físicos independientes sobre GRANADA 3_6.PNG, conservando PIXEL_RASTER_ORIGINAL.</small></span>
@@ -171,10 +177,10 @@
         <span class="action-cta">Abrir Terradets →</span>
       </button>
 
-      <button class="q47-launch-card raw-launch-card raw-granada-launch-card" id="rawBarcelonaSantLlorencEntryBtn" type="button">
+      <button class="q47-launch-card raw-launch-card raw-granada-launch-card" id="rawBarcelonaSantLlorencEntryBtn" type="button" disabled>
         <span class="action-symbol">1</span>
-        <span class="action-text"><strong>Barcelona · Presa de Sant Llorenç de Montgai · 1 control</strong><small>Presa histórica claramente distinguible en el raster. Referencia oficial congelada antes de la captura.</small></span>
-        <span class="action-cta">Abrir Sant Llorenç →</span>
+        <span class="action-text"><strong>Barcelona · Presa de Sant Llorenç de Montgai · 1 control</strong><small>Campaña descartada para nuevas capturas. Utiliza Vansa–Segre; los registros anteriores se conservan.</small></span>
+        <span class="action-cta">Descartada</span>
       </button>
     </div>
   </section>
@@ -311,6 +317,7 @@
       <button id="rawZoom4Btn" class="secondary raw-zoom-btn" type="button">Precisión 4×</button>
       <span class="raw-gesture-hint">1 dedo = mover · 2 dedos = zoom · toque = seleccionar</span>
       <button id="rawNewSessionBtn" class="secondary q47-new-test" type="button">Nueva sesión RAW</button>
+      <button id="rawBarcelonaVansaSegreCampaignBtn" class="secondary raw-campaign-start" type="button">Barcelona · Vansa–Segre · 1 punto</button>
       <button id="rawGranadaCampaignBtn" class="secondary raw-campaign-start" type="button">Campaña Granada 6 puntos</button>
       <button id="rawBarcelonaClearCampaignBtn" class="secondary raw-campaign-start" type="button">Barcelona · prueba de 4 pueblos</button>
       <button id="rawBarcelonaCamarasaCampaignBtn" class="secondary raw-campaign-start" type="button">Barcelona · Camarasa R2 · 1 punto</button>
@@ -320,7 +327,7 @@
       <button id="rawBarcelonaVilomaraCampaignBtn" class="secondary raw-campaign-start" type="button">Barcelona · Pont Vell · 1 punto</button>
       <button id="rawBarcelonaOlianaCampaignBtn" class="secondary raw-campaign-start" type="button">Barcelona · Oliana · 1 punto</button>
       <button id="rawBarcelonaTerradetsCampaignBtn" class="secondary raw-campaign-start" type="button">Barcelona · Terradets · 1 punto</button>
-      <button id="rawBarcelonaSantLlorencCampaignBtn" class="secondary raw-campaign-start" type="button">Barcelona · Sant Llorenç · 1 punto</button>
+      <button id="rawBarcelonaSantLlorencCampaignBtn" class="secondary raw-campaign-start" type="button" disabled>Barcelona · Sant Llorenç · 1 punto</button>
       <span class="q47-raster-meta" id="rawRasterMeta">Raster no cargado · el archivo permanece en este iPad</span>
       <span class="q47-legend"><i></i> cruceta roja = píxel RAW seleccionado</span>
     </div>
@@ -458,7 +465,7 @@
           <tbody id="rawControlRows"></tbody>
         </table>
       </div>
-      <p class="q47-privacy">El raster permanece local en el navegador. La v043 rehace el flujo de aceptación de los cuatro pueblos, reinicia la campaña como V002 y muestra cualquier error de registro en pantalla.</p>
+      <p class="q47-privacy">El raster permanece local en el navegador. La v044 incorpora Vansa–Segre: captura manual sobre el original, ajuste fino y exportación tras aceptar el control.</p>
     </div>
   </section>
 
@@ -586,7 +593,7 @@
     <div class="card-simple">
       <div class="section-title compact">
         <div><span class="mini-icon">⚙</span><h2>Estado de automatización</h2></div>
-        <span class="phase-pill">v043</span>
+        <span class="phase-pill">v044</span>
       </div>
       <div class="automation-list">
         <div><span class="auto-dot ok"></span><p><strong>GitHub Pages</strong><small>Web publicada y actualizable.</small></p><b>ACTIVO</b></div>
@@ -602,11 +609,11 @@
 </main>
 
 <footer>
-  <div><strong>Fugawi IA Control v043</strong><span>Panel visual de desarrollo guiado y validación geométrica Q47.</span></div>
+  <div><strong>Fugawi IA Control v044</strong><span>Panel visual de desarrollo guiado y validación geométrica Q47.</span></div>
   <span>Sin claves ni código operativo de Fugawi en esta web pública.</span>
 </footer>
-<script src="./app.js?v=043"></script>
-<script src="./q47.js?v=043"></script>
-<script src="./raw.js?v=043"></script>
+<script src="./app.js?v=044"></script>
+<script src="./q47.js?v=044"></script>
+<script src="./raw.js?v=044"></script>
 </body>
 </html>

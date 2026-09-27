@@ -1,13 +1,13 @@
-const CACHE = "fugawi-control-v043";
+const CACHE = "fugawi-control-v044";
 const ASSETS = [
   "./",
   "./index.html",
-  "./styles.css?v=043",
-  "./q47.css?v=043",
-  "./raw.css?v=043",
-  "./app.js?v=043",
-  "./q47.js?v=043",
-  "./raw.js?v=043",
+  "./styles.css?v=044",
+  "./q47.css?v=044",
+  "./raw.css?v=044",
+  "./app.js?v=044",
+  "./q47.js?v=044",
+  "./raw.js?v=044",
   "./manifest.webmanifest"
 ];
 
@@ -59,3 +59,4 @@ self.addEventListener("fetch", event => {
       .catch(() => caches.match(event.request))
   );
 });
+
