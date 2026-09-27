@@ -2,8 +2,8 @@
   "use strict";
 
   const $ = id => document.getElementById(id);
-  const VERSION = "v039";
-  const BUILD = "039.0";
+  const VERSION = "v040";
+  const BUILD = "040.0";
   const STORAGE_CONTROLS = "fugawiRawControlsV010";
   const DOMAIN = "PIXEL_RASTER_ORIGINAL";
   const GRANADA_CAMPAIGN = {
@@ -128,6 +128,33 @@
         criterion:"Identifica visualmente el cierre de la presa y confirma manualmente la cruceta antes de registrar.",
         guideX:933.875,
         guideY:630.194
+      }
+    ]
+  };
+
+  const BARCELONA_VILOMARA_CAMPAIGN = {
+    id:"BARCELONA_PONT_VELL_VILOMARA_RAW9208_V001",
+    rasterName:"Barcelona 5_2.jpg",
+    width:9208,
+    height:6906,
+    sha256:"bc01c91c709c5ba789ed7ed1196bd431eea795a6f53d6dfe1dff4014793078fe",
+    title:"Barcelona · Pont Vell de Vilomara · control único",
+    objective:"CUARTO_CONTROL_INDEPENDIENTE_BARCELONA_RAW9208",
+    downloadStem:"Fugawi_Barcelona_Pont_Vell_Vilomara_RAW_",
+    requireManualConfirm:true,
+    allowProportionalRaster:false,
+    strictHash:true,
+    minCaptureSeparationNorm:0,
+    guideMode:"ZONA_AMPLIA_SIN_CRUCETA_REFERENCIA_OFICIAL_CONGELADA_V001",
+    targets:[
+      {
+        id:"BC-PV-001",
+        name:"Pont Vell de El Pont de Vilomara",
+        type:"PUENTE",
+        zone:"El Pont de Vilomara · río Llobregat",
+        criterion:"Referencia localizada primero en IGN/PNOA y congelada antes de la captura. Identifica visualmente el Pont Vell histórico sobre el Llobregat, en el extremo oeste del núcleo. Selecciona el centro geométrico del tablero sobre el eje del río. No uses el rótulo del pueblo, el centro urbano, carreteras secundarias ni otros puntos del río.",
+        navX:0.548,
+        navY:0.595
       }
     ]
   };
@@ -306,6 +333,7 @@
   };
 
   function activeCampaign() {
+    if (state.campaignKey==="barcelona_vilomara") return BARCELONA_VILOMARA_CAMPAIGN;
     if (state.campaignKey==="barcelona_gironella") return BARCELONA_GIRONELLA_CAMPAIGN;
     if (state.campaignKey==="barcelona_balsareny") return BARCELONA_BALSARENY_CAMPAIGN;
     if (state.campaignKey==="barcelona_sant_quirze") return BARCELONA_SANT_QUIRZE_CAMPAIGN;
@@ -655,6 +683,7 @@
   function activateCampaign(key) {
     let spec=GRANADA_CAMPAIGN;
     if (key==="barcelona") spec=BARCELONA_CAMPAIGN;
+    if (key==="barcelona_vilomara") spec=BARCELONA_VILOMARA_CAMPAIGN;
     if (key==="barcelona_gironella") spec=BARCELONA_GIRONELLA_CAMPAIGN;
     if (key==="barcelona_balsareny") spec=BARCELONA_BALSARENY_CAMPAIGN;
     if (key==="barcelona_sant_quirze") spec=BARCELONA_SANT_QUIRZE_CAMPAIGN;
@@ -711,6 +740,10 @@
 
   function activateBarcelonaGironellaCampaign() {
     activateCampaign("barcelona_gironella");
+  }
+
+  function activateBarcelonaVilomaraCampaign() {
+    activateCampaign("barcelona_vilomara");
   }
 
   function exitCampaign() {
@@ -1483,6 +1516,12 @@
         activateBarcelonaGironellaCampaign();
       });
     }
+    if ($("rawBarcelonaVilomaraEntryBtn")) {
+      $("rawBarcelonaVilomaraEntryBtn").addEventListener("click",()=>{
+        openRaw();
+        activateBarcelonaVilomaraCampaign();
+      });
+    }
     $("rawCloseBtn").addEventListener("click",closeRaw);
     $("rawRasterInput").addEventListener("change",event=>{
       const file=event.target.files && event.target.files[0];
@@ -1537,6 +1576,9 @@
     if ($("rawBarcelonaGironellaCampaignBtn")) {
       $("rawBarcelonaGironellaCampaignBtn").addEventListener("click",activateBarcelonaGironellaCampaign);
     }
+    if ($("rawBarcelonaVilomaraCampaignBtn")) {
+      $("rawBarcelonaVilomaraCampaignBtn").addEventListener("click",activateBarcelonaVilomaraCampaign);
+    }
     $("rawCampaignGoZoneBtn").addEventListener("click",goToCampaignZone);
     $("rawCampaignExitBtn").addEventListener("click",exitCampaign);
     window.addEventListener("resize",()=>{
@@ -1548,6 +1590,6 @@
   wire();
   clearSelectionFields();
   renderControls();
-  $("rawRuntimeBadge").textContent="RAW · v039 · GIRONELLA 1/1 · RAW9208";
+  $("rawRuntimeBadge").textContent="RAW · v040 · PONT VELL VILOMARA 1/1 · RAW9208";
   if (location.hash==="#raw") $("rawValidator").hidden=false;
 })();
