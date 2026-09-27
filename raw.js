@@ -2,8 +2,8 @@
   "use strict";
 
   const $ = id => document.getElementById(id);
-  const VERSION = "v037";
-  const BUILD = "037.0";
+  const VERSION = "v038";
+  const BUILD = "038.0";
   const STORAGE_CONTROLS = "fugawiRawControlsV010";
   const DOMAIN = "PIXEL_RASTER_ORIGINAL";
   const GRANADA_CAMPAIGN = {
@@ -132,6 +132,33 @@
     ]
   };
 
+  const BARCELONA_BALSARENY_CAMPAIGN = {
+    id:"BARCELONA_BALSARENY_RAW9208_V001",
+    rasterName:"Barcelona 5_2.jpg",
+    width:9208,
+    height:6906,
+    sha256:"bc01c91c709c5ba789ed7ed1196bd431eea795a6f53d6dfe1dff4014793078fe",
+    title:"Barcelona · Balsareny · Pont del Riu · control único",
+    objective:"CUARTO_CONTROL_INDEPENDIENTE_BARCELONA_RAW9208",
+    downloadStem:"Fugawi_Barcelona_Balsareny_Pont_del_Riu_RAW_",
+    requireManualConfirm:true,
+    allowProportionalRaster:false,
+    strictHash:true,
+    minCaptureSeparationNorm:0,
+    guideMode:"ZONA_AMPLIA_SIN_CRUCETA_REFERENCIA_OFICIAL_CONGELADA_V001",
+    targets:[
+      {
+        id:"BC-PT-001",
+        name:"Pont del Riu de Balsareny",
+        type:"PUENTE",
+        zone:"Balsareny · salida este · río Llobregat",
+        criterion:"Referencia localizada primero en IGN/PNOA y congelada antes de la captura. Identifica visualmente el puente histórico de piedra de cinco ojos sobre el Llobregat, en la salida este de Balsareny. Selecciona el centro geométrico del tablero sobre el eje del río. No uses el rótulo Balsareny, el centro urbano, la acequia, carreteras próximas ni otros puentes.",
+        navX:0.491,
+        navY:0.508
+      }
+    ]
+  };
+
   const BARCELONA_SANT_QUIRZE_CAMPAIGN = {
     id:"BARCELONA_SANT_QUIRZE_BESORA_RAW9208_V001",
     rasterName:"Barcelona 5_2.jpg",
@@ -252,6 +279,7 @@
   };
 
   function activeCampaign() {
+    if (state.campaignKey==="barcelona_balsareny") return BARCELONA_BALSARENY_CAMPAIGN;
     if (state.campaignKey==="barcelona_sant_quirze") return BARCELONA_SANT_QUIRZE_CAMPAIGN;
     if (state.campaignKey==="barcelona_camarasa") return BARCELONA_CAMARASA_CAMPAIGN;
     if (state.campaignKey==="barcelona_clear") return BARCELONA_CLEAR_CAMPAIGN;
@@ -599,6 +627,7 @@
   function activateCampaign(key) {
     let spec=GRANADA_CAMPAIGN;
     if (key==="barcelona") spec=BARCELONA_CAMPAIGN;
+    if (key==="barcelona_balsareny") spec=BARCELONA_BALSARENY_CAMPAIGN;
     if (key==="barcelona_sant_quirze") spec=BARCELONA_SANT_QUIRZE_CAMPAIGN;
     if (key==="barcelona_camarasa") spec=BARCELONA_CAMARASA_CAMPAIGN;
     if (key==="barcelona_review") spec=BARCELONA_REVIEW_CAMPAIGN;
@@ -645,6 +674,10 @@
 
   function activateBarcelonaSantQuirzeCampaign() {
     activateCampaign("barcelona_sant_quirze");
+  }
+
+  function activateBarcelonaBalsarenyCampaign() {
+    activateCampaign("barcelona_balsareny");
   }
 
   function exitCampaign() {
@@ -1405,6 +1438,12 @@
         activateBarcelonaSantQuirzeCampaign();
       });
     }
+    if ($("rawBarcelonaBalsarenyEntryBtn")) {
+      $("rawBarcelonaBalsarenyEntryBtn").addEventListener("click",()=>{
+        openRaw();
+        activateBarcelonaBalsarenyCampaign();
+      });
+    }
     $("rawCloseBtn").addEventListener("click",closeRaw);
     $("rawRasterInput").addEventListener("change",event=>{
       const file=event.target.files && event.target.files[0];
@@ -1453,6 +1492,9 @@
     if ($("rawBarcelonaSantQuirzeCampaignBtn")) {
       $("rawBarcelonaSantQuirzeCampaignBtn").addEventListener("click",activateBarcelonaSantQuirzeCampaign);
     }
+    if ($("rawBarcelonaBalsarenyCampaignBtn")) {
+      $("rawBarcelonaBalsarenyCampaignBtn").addEventListener("click",activateBarcelonaBalsarenyCampaign);
+    }
     $("rawCampaignGoZoneBtn").addEventListener("click",goToCampaignZone);
     $("rawCampaignExitBtn").addEventListener("click",exitCampaign);
     window.addEventListener("resize",()=>{
@@ -1464,6 +1506,6 @@
   wire();
   clearSelectionFields();
   renderControls();
-  $("rawRuntimeBadge").textContent="RAW · v037 · SANT QUIRZE 1/1 · RAW9208";
+  $("rawRuntimeBadge").textContent="RAW · v038 · BALSARENY 1/1 · RAW9208";
   if (location.hash==="#raw") $("rawValidator").hidden=false;
 })();
