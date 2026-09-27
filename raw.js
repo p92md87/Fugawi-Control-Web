@@ -2,8 +2,8 @@
   "use strict";
 
   const $ = id => document.getElementById(id);
-  const VERSION = "v033";
-  const BUILD = "033.0";
+  const VERSION = "v034";
+  const BUILD = "034.0";
   const STORAGE_CONTROLS = "fugawiRawControlsV010";
   const DOMAIN = "PIXEL_RASTER_ORIGINAL";
   const GRANADA_CAMPAIGN = {
@@ -144,7 +144,7 @@
     requireManualConfirm:true,
     allowProportionalRaster:false,
     strictHash:true,
-    minCaptureSeparationNorm:0.03,
+    minCaptureSeparationNorm:0,
     guideMode:"ZONA_AMPLIA_SIN_CRUCETA_REFERENCIA_IGN_PNOA_V001",
     targets:[
       {id:"BC-PUE-001",name:"Bagà",type:"POBLACION",zone:"Noroeste · montaña",criterion:"Referencia IGN/PNOA fijada antes de la captura. Identifica visualmente el núcleo compacto de Bagà y toca aproximadamente su centro urbano histórico. No uses el rótulo.",navX:0.5297,navY:0.3351},
@@ -1012,7 +1012,9 @@
         setMessage("Selecciona un control de la campaña activa.","error");
         return;
       }
-      if (state.campaignZoneTargetId!==target.id) {
+      const exploratoryVillages=
+        spec && spec.id==="BARCELONA_4_PUEBLOS_EXPLORATORIO_V001";
+      if (!exploratoryVillages && state.campaignZoneTargetId!==target.id) {
         setMessage(
           "La zona del control activo todavía no está confirmada. Pulsa «Ir a zona» antes de registrar.",
           "error"
@@ -1337,6 +1339,6 @@
   wire();
   clearSelectionFields();
   renderControls();
-  $("rawRuntimeBadge").textContent="RAW · v033 · PRUEBA 4 PUEBLOS · NO CERTIFICACION";
+  $("rawRuntimeBadge").textContent="RAW · v034 · PRUEBA 4 PUEBLOS · ACEPTACION CORREGIDA";
   if (location.hash==="#raw") $("rawValidator").hidden=false;
 })();
