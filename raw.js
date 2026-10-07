@@ -2,8 +2,8 @@
   "use strict";
 
   const $ = id => document.getElementById(id);
-  const VERSION = "v046";
-  const BUILD = "046.0";
+  const VERSION = "v047";
+  const BUILD = "047.0";
   const STORAGE_CONTROLS = "fugawiRawControlsV010";
   const DOMAIN = "PIXEL_RASTER_ORIGINAL";
   const SALAMANCA_CANTALAPIEDRA_CAMPAIGN = {
@@ -1216,7 +1216,7 @@
   wire();
   clearSelectionFields();
   renderControls();
-  $("rawRuntimeBadge").textContent="RAW · v046 · SALAMANCA · CANTALAPIEDRA 1/1";
+  $("rawRuntimeBadge").textContent="RAW · v047 · SALAMANCA · CANTALAPIEDRA 1/1";
   if (location.hash==="#raw") $("rawValidator").hidden=false;
 })();
 
