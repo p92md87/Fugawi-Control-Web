@@ -367,3 +367,37 @@
   line-height:1.4;
   text-align:center
 }
+
+
+/* v047 · ajuste ±1 px siempre visible y cómodo en iPad */
+.raw-quick-nudge-v047{
+  position:sticky;
+  top:82px;
+  z-index:30;
+  display:flex!important;
+  visibility:visible!important;
+}
+.raw-quick-nudge-v047 .raw-quick-nudge-pad button{
+  min-width:54px;
+  min-height:48px;
+  font-size:1.30rem;
+}
+.raw-nudge-dock:not([hidden]){
+  display:grid!important;
+  visibility:visible!important;
+}
+.raw-nudge-dock .raw-nudge-map button{
+  min-width:54px;
+  min-height:48px;
+  font-size:1.30rem;
+}
+@media(max-width:1100px){
+  .raw-quick-nudge-v047{
+    position:sticky;
+    top:74px;
+    flex-wrap:wrap;
+  }
+  .raw-quick-nudge-v047>small{
+    width:100%;
+  }
+}
