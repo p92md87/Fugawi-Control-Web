@@ -2,10 +2,39 @@
   "use strict";
 
   const $ = id => document.getElementById(id);
-  const VERSION = "v044";
-  const BUILD = "044.0";
+  const VERSION = "v045";
+  const BUILD = "045.0";
   const STORAGE_CONTROLS = "fugawiRawControlsV010";
   const DOMAIN = "PIXEL_RASTER_ORIGINAL";
+  const SALAMANCA_CANTALAPIEDRA_CAMPAIGN = {
+    id:"SALAMANCA_ESTACION_CANTALAPIEDRA_RAW18315_V001",
+    rasterName:"SALAMANCA 4_5.jpg",
+    width:18315,
+    height:13827,
+    sha256:"6edb2280141118fe04292a0b88c7e9ea49e886e5a9de7647020014f6a6bd0eab",
+    title:"Salamanca · Estación de Cantalapiedra · control único",
+    objective:"CONTROL_FISICO_DIAGNOSTICO_INDEPENDIENTE_SALAMANCA",
+    downloadStem:"Fugawi_Salamanca_Estacion_Cantalapiedra_RAW_",
+    requireManualConfirm:true,
+    allowProportionalRaster:false,
+    strictHash:true,
+    minCaptureSeparationNorm:0,
+    guideMode:"ZONA_AMPLIA_SIN_CRUCETA_REFERENCIA_OFICIAL_CONGELADA_V001",
+    referenceFile:"referencias/Referencia_Salamanca_Estacion_Cantalapiedra_v001.txt",
+    referenceSha256:"f4b26da9be0ebb2a4f8cd56741cde9d90a725e3eda36a550300cf365c75b3ed0",
+    referenceType:"RENFE_OPEN_DATA_ETRS89_CRUZADA_CHD",
+    note:"Localiza Cantalapiedra y sigue la línea Medina del Campo–Salamanca hasta el símbolo de estación. La Web sólo centra una zona amplia: no muestra E/N oficial ni coloca cruceta automática. Toca manualmente el centro del símbolo de estación y ajusta ±1 px si procede.",
+    targets:[{
+      id:"SAL-CF-CAN-EST-001",
+      name:"Estación de ferrocarril de Cantalapiedra",
+      type:"ESTACION_FERROVIARIA_HISTORICA",
+      zone:"Cantalapiedra · línea Medina del Campo–Salamanca",
+      criterion:"Centro geométrico del símbolo cartográfico de estación asociado a la línea ferroviaria. No usar el rótulo Cantalapiedra, el centro urbano, el paso a nivel, el silo ni una posición sugerida por la malla.",
+      navX:0.6048,
+      navY:0.3244
+    }]
+  };
+
   const GRANADA_CAMPAIGN = {
     id:"GRANADA_6_IGN_PNOA_V002",
     rasterName:"GRANADA 3_6.PNG",
@@ -442,6 +471,7 @@
   };
 
   function activeCampaign() {
+    if (state.campaignKey==="salamanca_cantalapiedra") return SALAMANCA_CANTALAPIEDRA_CAMPAIGN;
     if (state.campaignKey==="barcelona_vansa_segre") return BARCELONA_VANSA_SEGRE_CAMPAIGN;
     if (state.campaignKey==="barcelona_sant_llorenc") return BARCELONA_SANT_LLORENC_CAMPAIGN;
     if (state.campaignKey==="barcelona_terradets") return BARCELONA_TERRADETS_CAMPAIGN;
@@ -799,6 +829,7 @@
 
   function activateCampaign(key) {
     let spec=GRANADA_CAMPAIGN;
+    if (key==="salamanca_cantalapiedra") spec=SALAMANCA_CANTALAPIEDRA_CAMPAIGN;
     if (key==="barcelona") spec=BARCELONA_CAMPAIGN;
     if (key==="barcelona_vansa_segre") spec=BARCELONA_VANSA_SEGRE_CAMPAIGN;
     if (key==="barcelona_sant_llorenc") spec=BARCELONA_SANT_LLORENC_CAMPAIGN;
@@ -1483,7 +1514,7 @@
       if (spec.referenceFile) lines.push(
         "RAW_REFERENCE|ARCHIVO="+spec.referenceFile+
         "|SHA256="+spec.referenceSha256+
-        "|TIPO=LECTURA_CARTOGRAFICA_IGN"+
+        "|TIPO="+escapeTrace(spec.referenceType || "REFERENCIA_OFICIAL_CONGELADA")+
         "|MALLA_NO_USADA_PARA_ELEGIR_PIXEL=SI"
       );
       const campaign=controls.filter(c=>c.campaign===spec.id);
@@ -1625,6 +1656,17 @@
   }
 
   function wire() {
+    if ($("rawSalamancaCantalapiedraEntryBtn")) {
+      $("rawSalamancaCantalapiedraEntryBtn").addEventListener("click",()=>{
+        openRaw();
+        activateCampaign("salamanca_cantalapiedra");
+      });
+    }
+    if ($("rawSalamancaCantalapiedraCampaignBtn")) {
+      $("rawSalamancaCantalapiedraCampaignBtn").addEventListener("click",()=>{
+        activateCampaign("salamanca_cantalapiedra");
+      });
+    }
     $("rawEntryBtn").addEventListener("click",openRaw);
     if ($("rawGranadaEntryBtn")) {
       $("rawGranadaEntryBtn").addEventListener("click",()=>{
@@ -1770,7 +1812,7 @@
   wire();
   clearSelectionFields();
   renderControls();
-  $("rawRuntimeBadge").textContent="RAW · v044 · VANSA–SEGRE 1/1 · RAW9208";
+  $("rawRuntimeBadge").textContent="RAW · v045 · SALAMANCA · CANTALAPIEDRA 1/1";
   if (location.hash==="#raw") $("rawValidator").hidden=false;
 })();
 
