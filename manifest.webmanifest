@@ -1,10 +1,10 @@
 {
-  "name": "Fugawi IA Control v009",
+  "name": "Fugawi IA Control v045",
   "short_name": "Fugawi IA",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "background_color": "#07111f",
   "theme_color": "#0b1220",
-  "description": "Centro de mando visual para desarrollo guiado y validación geométrica Q47 de Fugawi."
+  "description": "Centro de mando Fugawi con Q47, captura RAW y campaña activa Salamanca Cantalapiedra."
 }
