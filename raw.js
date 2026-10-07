@@ -2,8 +2,8 @@
   "use strict";
 
   const $ = id => document.getElementById(id);
-  const VERSION = "v045";
-  const BUILD = "045.0";
+  const VERSION = "v046";
+  const BUILD = "046.0";
   const STORAGE_CONTROLS = "fugawiRawControlsV010";
   const DOMAIN = "PIXEL_RASTER_ORIGINAL";
   const SALAMANCA_CANTALAPIEDRA_CAMPAIGN = {
@@ -1722,13 +1722,6 @@
         activateBarcelonaTerradetsCampaign();
       });
     }
-    $("rawBarcelonaVansaSegreEntryBtn").addEventListener("click",()=>{
-      openRaw();
-      activateCampaign("barcelona_vansa_segre");
-    });
-    $("rawBarcelonaVansaSegreCampaignBtn").addEventListener("click",()=>{
-      activateCampaign("barcelona_vansa_segre");
-    });
     if ($("rawBarcelonaSantLlorencEntryBtn")) {
       $("rawBarcelonaSantLlorencEntryBtn").addEventListener("click",()=>{
         openRaw();
@@ -1775,8 +1768,8 @@
     $("rawCampaignExportBtn").addEventListener("click",downloadTrace);
     $("rawClearControlsBtn").addEventListener("click",clearCurrentControls);
     $("rawNewSessionBtn").addEventListener("click",newSession);
-    $("rawGranadaCampaignBtn").addEventListener("click",activateGranadaCampaign);
-    $("rawBarcelonaClearCampaignBtn").addEventListener("click",activateBarcelonaClearCampaign);
+    if ($("rawGranadaCampaignBtn")) $("rawGranadaCampaignBtn").addEventListener("click",activateGranadaCampaign);
+    if ($("rawBarcelonaClearCampaignBtn")) $("rawBarcelonaClearCampaignBtn").addEventListener("click",activateBarcelonaClearCampaign);
     if ($("rawBarcelonaCamarasaCampaignBtn")) {
       $("rawBarcelonaCamarasaCampaignBtn").addEventListener("click",activateBarcelonaCamarasaCampaign);
     }
@@ -1812,7 +1805,7 @@
   wire();
   clearSelectionFields();
   renderControls();
-  $("rawRuntimeBadge").textContent="RAW · v045 · SALAMANCA · CANTALAPIEDRA 1/1";
+  $("rawRuntimeBadge").textContent="RAW · v046 · SALAMANCA · CANTALAPIEDRA 1/1";
   if (location.hash==="#raw") $("rawValidator").hidden=false;
 })();
 
