@@ -2,8 +2,8 @@
   "use strict";
 
   const $ = id => document.getElementById(id);
-  const VERSION = "v047";
-  const BUILD = "047.0";
+  const VERSION = "v048";
+  const BUILD = "048.0";
   const STORAGE_CONTROLS = "fugawiRawControlsV010";
   const DOMAIN = "PIXEL_RASTER_ORIGINAL";
   const SALAMANCA_CANTALAPIEDRA_CAMPAIGN = {
@@ -35,9 +35,41 @@
     }]
   };
 
+  const SALAMANCA_TRABANCOS_CAMPAIGN = {
+    id:"SALAMANCA_TRABANCOS_PK26150_RAW18315_V001",
+    rasterName:"SALAMANCA 4_5.jpg",
+    width:18315,
+    height:13827,
+    sha256:"6edb2280141118fe04292a0b88c7e9ea49e886e5a9de7647020014f6a6bd0eab",
+    title:"Salamanca · Puente del río Trabancos · PK 26+150",
+    objective:"SEGUNDO_CONTROL_FISICO_INDEPENDIENTE_SALAMANCA",
+    downloadStem:"Fugawi_Salamanca_Trabancos_PK26150_RAW_",
+    requireManualConfirm:true,
+    allowProportionalRaster:false,
+    strictHash:true,
+    minCaptureSeparationNorm:0,
+    guideMode:"ZONA_AMPLIA_SIN_CRUCETA_REFERENCIA_OFICIAL_CONGELADA_V001",
+    referenceFile:"referencias/Referencia_Salamanca_Trabancos_PK26150_v001.txt",
+    referenceSha256:"6ab036481fe6fabff098b51813f0118807e030050243dbf4bbd4cba35cfdb2b5",
+    referenceType:"CHD_ETRS89_UTM30_CRUCE_FFCC_MAS_BOE_PK",
+    note:"Localiza el río Trabancos y su cruce con la línea Medina del Campo–Salamanca. La Web sólo centra una zona amplia: no muestra E/N oficial ni coloca cruceta automática. Toca manualmente el centro geométrico del cruce entre el eje ferroviario y el eje del río.",
+    targets:[{
+      id:"SAL-CF-TRA-PK26150-001",
+      name:"Puente del río Trabancos · PK 26+150",
+      type:"CRUCE_HIDROGRAFICO",
+      zone:"Río Trabancos · línea Medina del Campo–Salamanca",
+      criterion:"Centro geométrico del cruce entre el eje ferroviario y el eje del río Trabancos. No usar rótulos, carreteras próximas, otros puentes, estaciones ni una posición sugerida por la malla.",
+      navX:0.6200,
+      navY:0.3050
+    }]
+  };
+
   function activeCampaign() {
     if (state.campaignKey==="salamanca_cantalapiedra") {
       return SALAMANCA_CANTALAPIEDRA_CAMPAIGN;
+    }
+    if (state.campaignKey==="salamanca_trabancos") {
+      return SALAMANCA_TRABANCOS_CAMPAIGN;
     }
     return null;
   }
@@ -382,14 +414,15 @@
   }
 
   function activateCampaign(key) {
-    if (key!=="salamanca_cantalapiedra") {
-      setMessage("Campaña no disponible en v046.","error");
+    if (key!=="salamanca_cantalapiedra" &&
+        key!=="salamanca_trabancos") {
+      setMessage("Campaña no disponible en v048.","error");
       return;
     }
-    const spec=SALAMANCA_CANTALAPIEDRA_CAMPAIGN;
     $("rawValidator").hidden=false;
     state.campaignActive=true;
     state.campaignKey=key;
+    const spec=activeCampaign();
     state.campaignTargetId="";
     state.campaignZoneTargetId="";
     state.selectionOrigin="";
@@ -1164,6 +1197,17 @@
         activateCampaign("salamanca_cantalapiedra");
       });
     }
+    if ($("rawSalamancaTrabancosEntryBtn")) {
+      $("rawSalamancaTrabancosEntryBtn").addEventListener("click",()=>{
+        openRaw();
+        activateCampaign("salamanca_trabancos");
+      });
+    }
+    if ($("rawSalamancaTrabancosCampaignBtn")) {
+      $("rawSalamancaTrabancosCampaignBtn").addEventListener("click",()=>{
+        activateCampaign("salamanca_trabancos");
+      });
+    }
     $("rawEntryBtn").addEventListener("click",openRaw);
     $("rawCloseBtn").addEventListener("click",closeRaw);
     $("rawRasterInput").addEventListener("change",event=>{
@@ -1216,7 +1260,7 @@
   wire();
   clearSelectionFields();
   renderControls();
-  $("rawRuntimeBadge").textContent="RAW · v047 · SALAMANCA · CANTALAPIEDRA 1/1";
+  $("rawRuntimeBadge").textContent="RAW · v048 · SALAMANCA · 2 CONTROLES INDEPENDIENTES";
   if (location.hash==="#raw") $("rawValidator").hidden=false;
 })();
 

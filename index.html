@@ -4,11 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b1220">
-<title>Fugawi IA Control v047</title>
+<title>Fugawi IA Control v048</title>
 <link rel="manifest" href="./manifest.webmanifest">
-<link rel="stylesheet" href="./styles.css?v=047">
-<link rel="stylesheet" href="./q47.css?v=047">
-<link rel="stylesheet" href="./raw.css?v=047">
+<link rel="stylesheet" href="./styles.css?v=048">
+<link rel="stylesheet" href="./q47.css?v=048">
+<link rel="stylesheet" href="./raw.css?v=048">
 </head>
 <body>
 <header class="topbar">
@@ -16,11 +16,11 @@
     <div class="brand-mark">F</div>
     <div>
       <div class="eyebrow">CENTRO DE MANDO · FUGAWI</div>
-      <h1>Fugawi IA Control <span>v047</span></h1>
+      <h1>Fugawi IA Control <span>v048</span></h1>
     </div>
   </div>
   <div class="top-actions">
-    <span class="live-dot"><i></i> WEB OPERATIVA · BUILD 047.0</span>
+    <span class="live-dot"><i></i> WEB OPERATIVA · BUILD 048.0</span>
     <button id="openRepoTopBtn" class="icon-button" title="Abrir repositorio Fugawi">GitHub ↗</button>
   </div>
 </header>
@@ -121,6 +121,12 @@
         <span class="action-symbol">1</span>
         <span class="action-text"><strong>Salamanca · Estación de Cantalapiedra · 1 control</strong><small>Control físico diagnóstico independiente. La Web centra sólo una zona amplia; identifica tú el símbolo de estación y marca manualmente su centro.</small></span>
         <span class="action-cta">Abrir Cantalapiedra →</span>
+      </button>
+
+      <button class="q47-launch-card raw-launch-card raw-granada-launch-card" id="rawSalamancaTrabancosEntryBtn" type="button">
+        <span class="action-symbol">2</span>
+        <span class="action-text"><strong>Salamanca · Río Trabancos · PK 26+150</strong><small>Segundo control físico independiente. Coordenada oficial CHD congelada antes de la captura; marca manualmente el cruce ferrocarril–río.</small></span>
+        <span class="action-cta">Abrir Trabancos →</span>
       </button>
     </div>
   </section>
@@ -258,11 +264,12 @@
       <span class="raw-gesture-hint">1 dedo = mover · 2 dedos = zoom · toque = seleccionar</span>
       <button id="rawNewSessionBtn" class="secondary q47-new-test" type="button">Nueva sesión RAW</button>
       <button id="rawSalamancaCantalapiedraCampaignBtn" class="secondary raw-campaign-start" type="button">Salamanca · Cantalapiedra · 1 punto</button>
+      <button id="rawSalamancaTrabancosCampaignBtn" class="secondary raw-campaign-start" type="button">Salamanca · Trabancos PK 26+150 · 1 punto</button>
       <span class="q47-raster-meta" id="rawRasterMeta">Raster no cargado · el archivo permanece en este iPad</span>
       <span class="q47-legend"><i></i> cruceta roja = píxel RAW seleccionado</span>
     </div>
 
-    <div class="raw-quick-nudge raw-quick-nudge-v047" id="rawQuickNudge" aria-label="Ajuste rápido de cruceta">
+    <div class="raw-quick-nudge raw-quick-nudge-v048" id="rawQuickNudge" aria-label="Ajuste rápido de cruceta">
       <strong>AJUSTE DE POSICIÓN ±1 px</strong>
       <div class="raw-quick-nudge-pad">
         <button id="rawQuickUpBtn" class="secondary up" type="button" title="1 píxel arriba">↑</button>
@@ -396,7 +403,7 @@
           <tbody id="rawControlRows"></tbody>
         </table>
       </div>
-      <p class="q47-privacy">El raster permanece local en el navegador. La v047 incorpora Vansa–Segre: captura manual sobre el original, ajuste fino y exportación tras aceptar el control.</p>
+      <p class="q47-privacy">El raster permanece local en el navegador. La v048 incorpora el segundo control independiente de Salamanca en el puente del río Trabancos, sin modificar malla, RET89 ni cuadriláteros.</p>
     </div>
   </section>
 
@@ -524,7 +531,7 @@
     <div class="card-simple">
       <div class="section-title compact">
         <div><span class="mini-icon">⚙</span><h2>Estado de automatización</h2></div>
-        <span class="phase-pill">v047</span>
+        <span class="phase-pill">v048</span>
       </div>
       <div class="automation-list">
         <div><span class="auto-dot ok"></span><p><strong>GitHub Pages</strong><small>Web publicada y actualizable.</small></p><b>ACTIVO</b></div>
@@ -540,11 +547,11 @@
 </main>
 
 <footer>
-  <div><strong>Fugawi IA Control v047</strong><span>Panel visual de desarrollo guiado y validación geométrica Q47.</span></div>
+  <div><strong>Fugawi IA Control v048</strong><span>Panel visual de desarrollo guiado y validación geométrica Q47.</span></div>
   <span>Sin claves ni código operativo de Fugawi en esta web pública.</span>
 </footer>
-<script src="./app.js?v=047"></script>
-<script src="./q47.js?v=047"></script>
-<script src="./raw.js?v=047"></script>
+<script src="./app.js?v=048"></script>
+<script src="./q47.js?v=048"></script>
+<script src="./raw.js?v=048"></script>
 </body>
 </html>
